@@ -1,5 +1,5 @@
+import Layout from "@/components/Layout";
 import React, { useState } from "react";
-import Layout from "../../components/Layout";
 
 export default function Member() {
   const [members, setMembers] = useState([
@@ -29,7 +29,7 @@ export default function Member() {
 
   return (
     <Layout>
-      <div className="min-h-screen bg-white text-gray-900 py-10 px-4">
+          <div className="min-h-screen bg-white text-gray-900 py-10 px-4">
         <div className="mx-auto max-w-5xl">
           {/* Title */}
           <h1 className="text-3xl font-extrabold mb-3 text-gray-900 tracking-tight">Member<span className="text-teal-500">  management</span></h1>

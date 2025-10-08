@@ -21,50 +21,51 @@ const Sidebar = ({ demo = false }) => {
   const [managementOpen, setManagementOpen] = useState(false);
   const [workoutOpen, setWorkoutOpen] = useState(false);
   const [serviceOpen, setServiceOpen] = useState(false);
-  const [authenticationOpen, setAuthenticationOpen] = useState(false);
   const [productOpen, setProductOpen] = useState(false);
 
   return (
     <div>
       <aside
-        className={`transition-all duration-300 bg-gradient-to-b from-white to-gray-100 border-r border-gray-200 ${
+        className={`transition-all duration-300 bg-gradient-to-b from-teal to-teal-100 border-r border-teal-200 ${
           sidebarOpen ? 'w-64' : 'w-20'
         } shadow-lg h-screen sticky top-0 flex flex-col`}
       >
-        <div className="h-18 flex items-center px-4 justify-between border-b border-gray-300">
+        <div className="h-18 flex items-center px-4 justify-between border-b border-teal-300">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setSidebarOpen((s) => !s)}
-              className="p-2 rounded-md hover:bg-gray-200 transition-colors duration-200"
+              className="p-2 rounded-md hover:bg-teal-200 transition-colors duration-200"
               aria-label="Toggle sidebar"
             >
-              <Menu size={20} className="text-gray-700" />
+              <Menu size={20} className="text-teal-900" />
             </button>
             {sidebarOpen && (
-              <span className="font-extrabold text-xl text-gray-800 select-none">Admin Panel</span>
+              <h1 className="font-extrabold text-xl text-teal-600 select-none">Admin <span className='text-teal-900'>Panel</span></h1>
             )}
           </div>
-          {sidebarOpen && <div className="text-xs text-gray-500 select-none">v1.0</div>}
+          {sidebarOpen && <div className="text-xs text-teal-500 select-none">v1.0</div>}
         </div>
 
         <nav className="p-3 mt-4 flex-1 overflow-y-auto">
-          <Link
-            className="flex items-center gap-3 p-3 rounded-lg hover:bg-blue-100 cursor-pointer text-sm text-gray-700 transition-colors duration-200"
-            to="/dashboard"
+          <Link to="/dashboard">
+             <a
+            className="flex items-center gap-3 p-3 rounded-lg hover:teal-100 cursor-pointer text-sm text-teal-900 transition-colors duration-200"
+            href="#"
           >
-            <LayoutDashboardIcon size={20} className="text-blue-600" />
+            <LayoutDashboardIcon size={20} className="text-teal-900"  />
             {sidebarOpen && <span className="font-semibold">Dashboard</span>}
+          </a>
           </Link>
 
           {/* Management Dropdown */}
           <div>
             <button
               type="button"
-              className="flex items-center gap-3 p-3 rounded-lg hover:bg-blue-100 cursor-pointer text-sm text-gray-700 w-full transition-colors duration-200"
+              className="flex items-center gap-3 p-3 rounded-lg hover:teal-100 cursor-pointer text-sm text-teal-900 w-full transition-colors duration-200"
               onClick={() => setManagementOpen((open) => !open)}
               aria-expanded={managementOpen}
             >
-              <Laptop2 size={20} className="text-blue-600" />
+              <Laptop2 size={20} className="teteal-600" />
               {sidebarOpen && <span className="font-semibold">Management</span>}
               {sidebarOpen && (
                 <svg
@@ -87,45 +88,45 @@ const Sidebar = ({ demo = false }) => {
               {managementOpen && sidebarOpen && (
               <div className="ml-8 flex flex-col gap-2 mt-1">
                 {demo ? (
-                  <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-2 rounded-lg hover:bg-blue-50 cursor-pointer text-sm text-gray-700 transition-colors duration-200">
+                  <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
                     <MdGroup size={18} />
-                    <span>Members</span>
+                    <span>Members Management</span>
                   </div>
                 ) : (
-                  <Link to="/members" className="flex items-center gap-3 p-2 rounded-lg hover:bg-blue-50 cursor-pointer text-sm text-gray-700 transition-colors duration-200">
+                  <Link to="/members" className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
                     <MdGroup size={18} />
-                    <span>Members</span>
+                    <span>Members Management</span>
                   </Link>
                 )}
                 {demo ? (
-                  <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-2 rounded-lg hover:bg-blue-50 cursor-pointer text-sm text-gray-700 transition-colors duration-200">
+                  <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
                     <FaUserTie size={18} />
-                    <span>Trainers</span>
+                    <span>Trainer</span>
                   </div>
                 ) : (
-                  <Link to="/trainers" className="flex items-center gap-3 p-2 rounded-lg hover:bg-blue-50 cursor-pointer text-sm text-gray-700 transition-colors duration-200">
+                  <Link to="/trainers" className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
                     <FaUserTie size={18} />
                     <span>Trainers</span>
                   </Link>
                 )}
                 {demo ? (
-                  <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-2 rounded-lg hover:bg-blue-50 cursor-pointer text-sm text-gray-700 transition-colors duration-200">
+                  <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
                     <TfiWallet size={18} />
                     <span>Finance</span>
                   </div>
                 ) : (
-                  <Link to="/finance" className="flex items-center gap-3 p-2 rounded-lg hover:bg-blue-50 cursor-pointer text-sm text-gray-700 transition-colors duration-200">
+                  <Link to="/finance" className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
                     <TfiWallet size={18} />
                     <span>Finance</span>
                   </Link>
                 )}
                 {demo ? (
-                  <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-2 rounded-lg hover:bg-blue-50 cursor-pointer text-sm text-gray-700 transition-colors duration-200">
+                  <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
                     <BsFillBox2HeartFill size={18} />
                     <span>Facilities</span>
                   </div>
                 ) : (
-                  <Link to="/facilities" className="flex items-center gap-3 p-2 rounded-lg hover:bg-blue-50 cursor-pointer text-sm text-gray-700 transition-colors duration-200">
+                  <Link to="/facilities" className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
                     <BsFillBox2HeartFill size={18} />
                     <span>Facilities</span>
                   </Link>
@@ -138,12 +139,12 @@ const Sidebar = ({ demo = false }) => {
           <div>
             <button
               type="button"
-              className="flex items-center gap-3 p-3 rounded-lg hover:bg-blue-100 cursor-pointer text-sm text-gray-700 w-full transition-colors duration-200"
+              className="flex items-center gap-3 p-3 rounded-lg hover:teal-100 cursor-pointer text-sm text-teal-900 w-full transition-colors duration-200"
               onClick={() => setWorkoutOpen((open) => !open)}
               aria-expanded={workoutOpen}
             >
-              <BiDumbbell size={20} className="text-blue-600" />
-              {sidebarOpen && <span className="font-semibold">Workout & Diet Plans</span>}
+              <BiDumbbell size={20} className="teteal-600" />
+              {sidebarOpen && <span className="font-semibold">Workout & Diet</span>}
               {sidebarOpen && (
                 <svg
                   className={`ml-auto transition-transform ${workoutOpen ? 'rotate-90' : ''}`}
@@ -165,45 +166,45 @@ const Sidebar = ({ demo = false }) => {
             {workoutOpen && sidebarOpen && (
               <div className="ml-8 flex flex-col gap-2 mt-1">
                 {demo ? (
-                  <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-2 rounded-lg hover:bg-blue-50 cursor-pointer text-sm text-gray-700 transition-colors duration-200">
+                  <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
                     <BsClockHistory size={18} />
                     <span>Workout Routines</span>
                   </div>
                 ) : (
-                  <Link to="/workoutRoutinue" className="flex items-center gap-3 p-2 rounded-lg hover:bg-blue-50 cursor-pointer text-sm text-gray-700 transition-colors duration-200">
+                  <Link to="/workoutRoutinue" className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
                     <BsClockHistory size={18} />
                     <span>Workout Routines</span>
                   </Link>
                 )}
                 {demo ? (
-                  <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-2 rounded-lg hover:bg-blue-50 cursor-pointer text-sm text-gray-700 transition-colors duration-200">
+                  <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
                     <TbReportAnalytics size={18} />
-                    <span>Custom Diet Plans</span>
+                    <span>Custom Diet</span>
                   </div>
                 ) : (
-                  <Link to="/dietPlan" className="flex items-center gap-3 p-2 rounded-lg hover:bg-blue-50 cursor-pointer text-sm text-gray-700 transition-colors duration-200">
+                  <Link to="/dietPlan" className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
                     <TbReportAnalytics size={18} />
-                    <span>Custom Diet Plans</span>
+                    <span>Custom Diet </span>
                   </Link>
                 )}
                 {demo ? (
-                  <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-2 rounded-lg hover:bg-blue-50 cursor-pointer text-sm text-gray-700 transition-colors duration-200">
+                  <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
                     <GiProgression size={18} />
                     <span>Progress Tracking</span>
                   </div>
                 ) : (
-                  <Link to="/progressTracking" className="flex items-center gap-3 p-2 rounded-lg hover:bg-blue-50 cursor-pointer text-sm text-gray-700 transition-colors duration-200">
+                  <Link to="/progressTracking" className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
                     <GiProgression size={18} />
                     <span>Progress Tracking</span>
                   </Link>
                 )}
                 {demo ? (
-                  <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-2 rounded-lg hover:bg-blue-50 cursor-pointer text-sm text-gray-700 transition-colors duration-200">
+                  <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
                     <TbReportSearch size={18} />
                     <span>Reports / Analytics</span>
                   </div>
                 ) : (
-                  <Link to="/reportsAnalytics" className="flex items-center gap-3 p-2 rounded-lg hover:bg-blue-50 cursor-pointer text-sm text-gray-700 transition-colors duration-200">
+                  <Link to="/reportsAnalytics" className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
                     <TbReportSearch size={18} />
                     <span>Reports / Analytics</span>
                   </Link>
@@ -216,12 +217,12 @@ const Sidebar = ({ demo = false }) => {
           <div>
             <button
               type="button"
-              className="flex items-center gap-3 p-3 rounded-lg hover:bg-blue-100 cursor-pointer text-sm text-gray-700 w-full transition-colors duration-200"
+              className="flex items-center gap-3 p-3 rounded-lg hover:teal-100 cursor-pointer text-sm text-teal-900 w-full transition-colors duration-200"
               onClick={() => setServiceOpen((open) => !open)}
               aria-expanded={serviceOpen}
             >
-              <LuFolderCog size={20} className="text-blue-600" />
-              {sidebarOpen && <span className="font-semibold">Our Services</span>}
+              <LuFolderCog size={20} className="text-teal-900" />
+              {sidebarOpen && <span className="font-semibold">Services</span>}
               {sidebarOpen && (
                 <svg
                   className={`ml-auto transition-transform ${serviceOpen ? 'rotate-90' : ''}`}
@@ -243,40 +244,40 @@ const Sidebar = ({ demo = false }) => {
             {serviceOpen && sidebarOpen && (
               <div className="ml-8 flex flex-col gap-2 mt-1">
                 {demo ? (
-                  <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-2 rounded-lg hover:bg-blue-50 cursor-pointer text-sm text-gray-700 transition-colors duration-200">
+                  <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
                     <SiGoogleclassroom size={18} />
                     <span>Classes & Schedules</span>
                   </div>
                 ) : (
-                  <Link to="/classesSchedule" className="flex items-center gap-3 p-2 rounded-lg hover:bg-blue-50 cursor-pointer text-sm text-gray-700 transition-colors duration-200">
+                  <Link to="/classesSchedule" className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
                     <SiGoogleclassroom size={18} />
                     <span>Classes & Schedules</span>
                   </Link>
                 )}
                 {demo ? (
-                  <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-2 rounded-lg hover:bg-blue-50 cursor-pointer text-sm text-gray-700 transition-colors duration-200">
+                  <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
                     <AiOutlineAudit size={18} />
                     <span>Courses</span>
                   </div>
                 ) : (
-                  <Link to="/courses" className="flex items-center gap-3 p-2 rounded-lg hover:bg-blue-50 cursor-pointer text-sm text-gray-700 transition-colors duration-200">
+                  <Link to="/courses" className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
                     <AiOutlineAudit size={18} />
                     <span>Courses</span>
                   </Link>
                 )}
                 {demo ? (
-                  <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-2 rounded-lg hover:bg-blue-50 cursor-pointer text-sm text-gray-700 transition-colors duration-200">
+                  <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
                     <GiGymBag size={18} />
-                    <span>Franchise & Memberships</span>
+                    <span>Franchise & Members Managementhips</span>
                   </div>
                 ) : (
-                  <Link to="/franchiseAndMembership" className="flex items-center gap-3 p-2 rounded-lg hover:bg-blue-50 cursor-pointer text-sm text-gray-700 transition-colors duration-200">
+                  <Link to="/FranchiseAndMembership" className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
                     <GiGymBag size={18} />
-                    <span>Franchise & Memberships</span>
+                    <span>Franchise & Members Managementhips</span>
                   </Link>
                 )}
                 <a
-                  className="flex items-center gap-3 p-2 rounded-lg hover:bg-blue-50 cursor-pointer text-sm text-gray-700 transition-colors duration-200"
+                  className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 cursor-pointer text-sm text-teal-900 transition-colors duration-200"
                   href="#"
                 >
                   <MdOutlineSecurity size={18} />
@@ -290,11 +291,11 @@ const Sidebar = ({ demo = false }) => {
           <div>
             <button
               type="button"
-              className="flex items-center gap-3 p-3 rounded-lg hover:bg-blue-100 cursor-pointer text-sm text-gray-700 w-full transition-colors duration-200"
+              className="flex items-center gap-3 p-3 rounded-lg hover:teal-100 cursor-pointer text-sm text-teal-900 w-full transition-colors duration-200"
               onClick={() => setAuthenticationOpen((open) => !open)}
               aria-expanded={authenticationOpen}
             >
-              <SiAuthentik size={20} className="text-blue-600" />
+              <SiAuthentik size={20} className="teteal-600" />
               {sidebarOpen && <span className="font-semibold">Authentication</span>}
               {sidebarOpen && (
                 <svg
@@ -317,21 +318,21 @@ const Sidebar = ({ demo = false }) => {
             {authenticationOpen && sidebarOpen && (
               <div className="ml-8 flex flex-col gap-2 mt-1">
                 <a
-                  className="flex items-center gap-3 p-2 rounded-lg hover:bg-blue-50 cursor-pointer text-sm text-gray-700 transition-colors duration-200"
+                  className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 cursor-pointer text-sm text-teal-900 transition-colors duration-200"
                   href="#"
                 >
                   <FaSignInAlt size={18} />
                   <span>Sign Up</span>
                 </a>
                 <a
-                  className="flex items-center gap-3 p-2 rounded-lg hover:bg-blue-50 cursor-pointer text-sm text-gray-700 transition-colors duration-200"
+                  className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 cursor-pointer text-sm text-teal-900 transition-colors duration-200"
                   href="#"
                 >
                   <GoPasskeyFill size={18} />
                   <span>Sign In</span>
                 </a>
                 <a
-                  className="flex items-center gap-3 p-2 rounded-lg hover:bg-blue-50 cursor-pointer text-sm text-gray-700 transition-colors duration-200"
+                  className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 cursor-pointer text-sm text-teal-900 transition-colors duration-200"
                   href="#"
                 >
                   <TbClockExclamation size={18} />
@@ -345,11 +346,11 @@ const Sidebar = ({ demo = false }) => {
           <div>
             <button
               type="button"
-              className="flex items-center gap-3 p-3 rounded-lg hover:bg-blue-100 cursor-pointer text-sm text-gray-700 w-full transition-colors duration-200"
+              className="flex items-center gap-3 p-3 rounded-lg hover:teal-100 cursor-pointer text-sm text-teal-900 w-full transition-colors duration-200"
               onClick={() => setProductOpen((open) => !open)}
               aria-expanded={productOpen}
             >
-              <FaCartPlus size={20} className="text-blue-600" />
+              <FaCartPlus size={20} className="teteal-600" />
               {sidebarOpen && <span className="font-semibold">Products</span>}
               {sidebarOpen && (
                 <svg
@@ -372,45 +373,45 @@ const Sidebar = ({ demo = false }) => {
             {productOpen && sidebarOpen && (
               <div className="ml-8 flex flex-col gap-2 mt-1">
                 {demo ? (
-                  <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-2 rounded-lg hover:bg-blue-50 cursor-pointer text-sm text-gray-700 transition-colors duration-200">
+                  <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
                     <GiFruitBowl size={18} />
                     <span>Protein</span>
                   </div>
                 ) : (
-                  <Link to="/Protein" className="flex items-center gap-3 p-2 rounded-lg hover:bg-blue-50 cursor-pointer text-sm text-gray-700 transition-colors duration-200">
+                  <Link to="/Protein" className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
                     <GiFruitBowl size={18} />
                     <span>Protein</span>
                   </Link>
                 )}
                 {demo ? (
-                  <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-2 rounded-lg hover:bg-blue-50 cursor-pointer text-sm text-gray-700 transition-colors duration-200">
+                  <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
                     <Dumbbell size={20} />
                     <span>Pre, Intra & Post-Workout Suppliments</span>
                   </div>
                 ) : (
-                  <Link to="/Suppliments" className="flex items-center gap-3 p-2 rounded-lg hover:bg-blue-50 cursor-pointer text-sm text-gray-700 transition-colors duration-200">
+                  <Link to="/Suppliments" className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
                     <Dumbbell size={20} />
                     <span>Pre, Intra & Post-Workout Suppliments</span>
                   </Link>
                 )}
                 {demo ? (
-                  <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-2 rounded-lg hover:bg-blue-50 cursor-pointer text-sm text-gray-700 transition-colors duration-200">
+                  <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
                     <AiTwotoneRest size={18} />
                     <span>Amino Acids Suppliments</span>
                   </div>
                 ) : (
-                  <Link to="/AminoAcidSuppliments" className="flex items-center gap-3 p-2 rounded-lg hover:bg-blue-50 cursor-pointer text-sm text-gray-700 transition-colors duration-200">
+                  <Link to="/AminoAcidSuppliments" className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
                     <AiTwotoneRest size={18} />
                     <span>Amino Acids Suppliments</span>
                   </Link>
                 )}
                 {demo ? (
-                  <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-2 rounded-lg hover:bg-blue-50 cursor-pointer text-sm text-gray-700 transition-colors duration-200">
+                  <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
                     <FaCapsules size={18} />
                     <span>Multivitamins & Minerals</span>
                   </div>
                 ) : (
-                  <Link to="/MultivitaminAndMinerals" className="flex items-center gap-3 p-2 rounded-lg hover:bg-blue-50 cursor-pointer text-sm text-gray-700 transition-colors duration-200">
+                  <Link to="/MultivitaminAndMinerals" className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
                     <FaCapsules size={18} />
                     <span>Multivitamins & Minerals</span>
                   </Link>
@@ -420,49 +421,49 @@ const Sidebar = ({ demo = false }) => {
           </div>
           <Link to="/NotificationCommunication">
             <a
-            className="flex items-center gap-3 p-3 rounded-lg hover:bg-blue-100 cursor-pointer text-sm text-gray-700 transition-colors duration-200"
+            className="flex items-center gap-3 p-3 rounded-lg hover:teal-100 cursor-pointer text-sm text-teal-900 transition-colors duration-200"
             href="#"
           >
             <MdNotificationAdd size={18} />
-            {sidebarOpen && <span className="font-semibold">Notification & Communication</span>}
+            {sidebarOpen && <span className="font-semibold">Notifications</span>}
           </a>
           </Link>
           {demo ? (
-            <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-3 rounded-lg hover:bg-blue-100 cursor-pointer text-sm text-gray-700 transition-colors duration-200">
+            <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-3 rounded-lg hover:teal-100 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
               <FaBlog size={18} />
-              {sidebarOpen && <span className="font-semibold">GYM Blog</span>}
+              {sidebarOpen && <span className="font-semibold"> Blog</span>}
             </div>
           ) : (
-            <Link to="/GymBlog" className="flex items-center gap-3 p-3 rounded-lg hover:bg-blue-100 cursor-pointer text-sm text-gray-700 transition-colors duration-200">
+            <Link to="/GymBlog" className="flex items-center gap-3 p-3 rounded-lg hover:teal-100 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
               <FaBlog size={18} />
-              {sidebarOpen && <span className="font-semibold">GYM Blog</span>}
+              {sidebarOpen && <span className="font-semibold"> Blog</span>}
             </Link>
           )}
           {demo ? (
-            <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-3 rounded-lg hover:bg-blue-100 cursor-pointer text-sm text-gray-700 transition-colors duration-200">
+            <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-3 rounded-lg hover:teal-100 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
               <MdSupportAgent size={18} />
               {sidebarOpen && <span className="font-semibold">Support Tickets</span>}
             </div>
           ) : (
-            <Link to="/supportTickets" className="flex items-center gap-3 p-3 rounded-lg hover:bg-blue-100 cursor-pointer text-sm text-gray-700 transition-colors duration-200">
+            <Link to="/supportTickets" className="flex items-center gap-3 p-3 rounded-lg hover:teal-100 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
               <MdSupportAgent size={18} />
               {sidebarOpen && <span className="font-semibold">Support Tickets</span>}
             </Link>
           )}
           {demo ? (
-            <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-3 rounded-lg hover:bg-blue-100 cursor-pointer text-sm text-gray-700 transition-colors duration-200">
+            <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-3 rounded-lg hover:teal-100 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
               <SlSettings size={18} />
               {sidebarOpen && <span className="font-semibold">Settings</span>}
             </div>
           ) : (
-            <Link to="/Settings" className="flex items-center gap-3 p-3 rounded-lg hover:bg-blue-100 cursor-pointer text-sm text-gray-700 transition-colors duration-200">
+            <Link to="/Settings" className="flex items-center gap-3 p-3 rounded-lg hover:teal-100 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
               <SlSettings size={18} />
               {sidebarOpen && <span className="font-semibold">Settings</span>}
             </Link>
           )}
         </nav>
 
-        <div className="mt-auto p-4 border-t border-gray-300">
+        <div className="mt-auto p-4 border-t border-teal-300">
           <div className="flex items-center gap-3">
             <img
               src="https://i.pravatar.cc/40"
@@ -471,8 +472,8 @@ const Sidebar = ({ demo = false }) => {
             />
             {sidebarOpen && (
               <div>
-                <p className="text-sm font-semibold text-gray-800">Priyanshu Gautam</p>
-                <p className="text-xs text-gray-500">Admin</p>
+                <p className="text-sm font-semibold text-teal-800">Priyanshu Gautam</p>
+                <p className="text-xs text-teal-500">Admin</p>
               </div>
             )}
             <button
@@ -480,10 +481,10 @@ const Sidebar = ({ demo = false }) => {
                 logout();
                 navigate('/login');
               }}
-              className="ml-auto p-2 rounded-md hover:bg-gray-200 transition-colors duration-200"
+              className="ml-auto p-2 rounded-md hover:bg-teal-200 transition-colors duration-200"
               aria-label="Logout"
             >
-              <LogOut size={20} className="text-gray-700" />
+              <LogOut size={20} className="text-teal-900" />
             </button>
           </div>
         </div>

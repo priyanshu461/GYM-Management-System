@@ -1,18 +1,21 @@
 import React, { useMemo, useState } from "react";
 import Layout from "../components/Layout";
 
-// Teal-themed Support Tickets page
+// Support Tickets page for a gym management website
+// Bold, dark UI inspired by the provided dashboard screenshot
+// Tailwind only. No TypeScript.
+
 function TicketDrawer({ ticket, onClose, onUpdate }) {
   const [reply, setReply] = useState("");
   const [nextStatus, setNextStatus] = useState(ticket.status);
   const [nextAssignee, setNextAssignee] = useState(ticket.assignee);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-teal-900/80 p-4">
-      <div className="w-full max-w-lg rounded-2xl border border-teal-200 bg-white p-6 relative">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
+      <div className="w-full max-w-lg rounded-2xl border border-teal-300 bg-teal p-6 relative">
         <button
           onClick={onClose}
-          className="absolute right-4 top-4 rounded bg-teal-50 px-3 py-1 text-xs text-teal-800"
+          className="absolute right-4 top-4 rounded bg-teal-300 px-3 py-1 text-xs text-teal-900"
         >
           Close
         </button>
@@ -37,7 +40,7 @@ function TicketDrawer({ ticket, onClose, onUpdate }) {
           <select
             value={nextStatus}
             onChange={e => setNextStatus(e.target.value)}
-            className="rounded bg-teal-50 px-2 py-1 text-sm ring-1 ring-teal-200"
+            className="rounded bg-teal px-2 py-1 text-sm ring-1 ring-teal-300"
           >
             <option>Open</option>
             <option>Pending</option>
@@ -47,11 +50,11 @@ function TicketDrawer({ ticket, onClose, onUpdate }) {
             value={nextAssignee}
             onChange={e => setNextAssignee(e.target.value)}
             placeholder="Assignee"
-            className="rounded bg-teal-50 px-2 py-1 text-sm ring-1 ring-teal-200"
+            className="rounded bg-teal px-2 py-1 text-sm ring-1 ring-teal-300"
           />
           <button
             onClick={() => onUpdate({ status: nextStatus, assignee: nextAssignee })}
-            className="rounded bg-gradient-to-r from-teal-400 to-teal-600 px-3 py-1 text-white font-semibold shadow-lg shadow-teal-400/30 hover:from-teal-500 hover:to-teal-700 transition-all"
+            className="rounded bg-gradient-to-r from-emerald-400 to-emerald-600 px-3 py-1 text-teal font-semibold shadow-lg shadow-emerald-500/30 hover:from-emerald-500 hover:to-emerald-700 transition-all"
           >
             Update
           </button>
@@ -61,7 +64,7 @@ function TicketDrawer({ ticket, onClose, onUpdate }) {
             value={reply}
             onChange={e => setReply(e.target.value)}
             placeholder="Write a reply..."
-            className="w-full rounded bg-teal-50 px-2 py-1 text-sm ring-1 ring-teal-200"
+            className="w-full rounded bg-teal px-2 py-1 text-sm ring-1 ring-teal-300"
             rows={3}
           />
         </div>
@@ -70,7 +73,7 @@ function TicketDrawer({ ticket, onClose, onUpdate }) {
             setReply("");
             onUpdate({ replies: ticket.replies + 1 });
           }}
-          className="rounded bg-gradient-to-r from-teal-500 to-teal-800 px-4 py-2 text-white font-semibold shadow-lg shadow-teal-400/30 hover:from-teal-600 hover:to-teal-900 transition-all"
+          className="rounded bg-gradient-to-r from-indigo-400 to-indigo-600 px-4 py-2 text-teal font-semibold shadow-lg shadow-indigo-500/30 hover:from-indigo-500 hover:to-indigo-700 transition-all"
         >
           Send Reply
         </button>
@@ -81,7 +84,7 @@ function TicketDrawer({ ticket, onClose, onUpdate }) {
 
 function Info({ label, value }) {
   return (
-    <div className="rounded-xl border border-teal-100 bg-teal-50/60 p-3">
+    <div className="rounded-xl border border-teal-300 bg-teal/60 p-3">
       <div className="text-xs text-teal-700">{label}</div>
       <div className="text-sm font-semibold text-teal-900">{value}</div>
     </div>
@@ -102,23 +105,23 @@ function ComposeModal({ onClose, onCreate }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-teal-900/80 p-4">
-      <div className="w-full max-w-2xl rounded-2xl border border-teal-200 bg-white p-5">
+    <div className="fixed inset-0 z-50 grid place-items-center bg-black/70 p-4">
+      <div className="w-full max-w-2xl rounded-2xl border border-teal-300 bg-teal p-5">
         <div className="mb-3 flex items-center justify-between">
           <h3 className="text-lg font-semibold text-teal-900">Create ticket</h3>
-          <button onClick={onClose} className="rounded-lg bg-teal-100 px-3 py-1 text-xs text-teal-800">Close</button>
+          <button onClick={onClose} className="rounded-lg bg-teal-300 px-3 py-1 text-xs text-teal-900">Close</button>
         </div>
         <div className="grid grid-cols-2 gap-3">
-          <input value={subject} onChange={e=>setSubject(e.target.value)} placeholder="Subject" className="col-span-2 rounded-xl bg-teal-50 px-3 py-2 text-sm ring-1 ring-teal-100" />
-          <input value={member} onChange={e=>setMember(e.target.value)} placeholder="Member name" className="rounded-xl bg-teal-50 px-3 py-2 text-sm ring-1 ring-teal-100" />
-          <input value={club} onChange={e=>setClub(e.target.value)} placeholder="Club or location" className="rounded-xl bg-teal-50 px-3 py-2 text-sm ring-1 ring-teal-100" />
-          <select value={priority} onChange={e=>setPriority(e.target.value)} className="rounded-xl bg-teal-50 px-3 py-2 text-sm ring-1 ring-teal-100"><option>Urgent</option><option>High</option><option>Medium</option><option>Low</option></select>
-          <select value={category} onChange={e=>setCategory(e.target.value)} className="rounded-xl bg-teal-50 px-3 py-2 text-sm ring-1 ring-teal-100"><option>Billing</option><option>App</option><option>Facilities</option><option>Training</option></select>
-          <input value={assignee} onChange={e=>setAssignee(e.target.value)} placeholder="Assign to" className="rounded-xl bg-teal-50 px-3 py-2 text-sm ring-1 ring-teal-100" />
+          <input value={subject} onChange={e=>setSubject(e.target.value)} placeholder="Subject" className="col-span-2 rounded-xl bg-teal px-3 py-2 text-sm ring-1 ring-teal-300" />
+          <input value={member} onChange={e=>setMember(e.target.value)} placeholder="Member name" className="rounded-xl bg-teal px-3 py-2 text-sm ring-1 ring-teal-300" />
+          <input value={club} onChange={e=>setClub(e.target.value)} placeholder="Club or location" className="rounded-xl bg-teal px-3 py-2 text-sm ring-1 ring-teal-300" />
+          <select value={priority} onChange={e=>setPriority(e.target.value)} className="rounded-xl bg-teal px-3 py-2 text-sm ring-1 ring-teal-300"><option>Urgent</option><option>High</option><option>Medium</option><option>Low</option></select>
+          <select value={category} onChange={e=>setCategory(e.target.value)} className="rounded-xl bg-teal px-3 py-2 text-sm ring-1 ring-teal-300"><option>Billing</option><option>App</option><option>Facilities</option><option>Training</option></select>
+          <input value={assignee} onChange={e=>setAssignee(e.target.value)} placeholder="Assign to" className="rounded-xl bg-teal px-3 py-2 text-sm ring-1 ring-teal-300" />
         </div>
         <div className="mt-4 flex items-center justify-end gap-2">
-          <button onClick={onClose} className="rounded-xl bg-teal-100 px-4 py-2 text-sm text-teal-800">Cancel</button>
-          <button onClick={submit} className="rounded-xl bg-gradient-to-r from-teal-400 to-teal-600 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-teal-400/30 hover:from-teal-500 hover:to-teal-700 transition-all">Create</button>
+          <button onClick={onClose} className="rounded-xl bg-teal-300 px-4 py-2 text-sm text-teal-900">Cancel</button>
+          <button onClick={submit} className="rounded-xl bg-gradient-to-r from-emerald-400 to-emerald-600 px-4 py-2 text-sm font-semibold text-teal shadow-lg shadow-emerald-500/30 hover:from-emerald-500 hover:to-emerald-700 transition-all">Create</button>
         </div>
       </div>
     </div>
@@ -197,86 +200,83 @@ export default function SupportTickets() {
     setDrawer(id);
   }
 
-  const base = highContrast
-    ? "bg-gradient-to-b from-teal-50 via-teal-100 to-teal-50"
-    : "bg-gradient-to-b from-white via-teal-50 to-white";
+const base = "bg-teal";
 
   return (
     <Layout>
-      <div className={`min-h-screen w-full ${base} text-teal-900`}>
-        <div className="mx-auto max-w-7xl px-4 py-6">
-
-          {/* Header */}
-          <div className="mb-6 flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-extrabold tracking-tight text-teal-900">Support Tickets</h1>
-              <p className="mt-1 text-sm text-teal-700">Fast triage, clean visuals, real time updates.</p>
-            </div>
-            <div className="flex items-center gap-3">
-              <label className="flex items-center gap-2 text-xs">
-                <span>High contrast</span>
-                <input type="checkbox" checked={highContrast} onChange={e=>setHighContrast(e.target.checked)} />
-              </label>
-              <select value={range} onChange={e=>setRange(e.target.value)} className="rounded-xl bg-teal-50 px-3 py-2 text-xs ring-1 ring-teal-200 focus:outline-none">
-                <option value="7">Last 7 days</option>
-                <option value="30">Last 30 days</option>
-                <option value="90">Last 90 days</option>
-              </select>
-              <button onClick={()=>setComposeOpen(true)} className="rounded-xl bg-gradient-to-r from-teal-400 to-teal-600 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-teal-400/30 hover:from-teal-500 hover:to-teal-700 transition-all">New ticket</button>
-            </div>
+       <div className={`min-h-screen w-full ${base} text-teal-900`}>
+      <div className="mx-auto max-w-7xl px-4 py-6">
+        {/* Header */}
+        <div className="mb-6 flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-extrabold tracking-tight">Support Tickets</h1>
+            <p className="mt-1 text-sm text-teal-700">Fast triage, clean visuals, real time updates.</p>
           </div>
+          <div className="flex items-center gap-3">
+            <label className="flex items-center gap-2 text-xs">
+              <span>High contrast</span>
+              <input type="checkbox" checked={highContrast} onChange={e=>setHighContrast(e.target.checked)} />
+            </label>
+            <select value={range} onChange={e=>setRange(e.target.value)} className="rounded-xl bg-teal/70 px-3 py-2 text-xs ring-1 ring-teal-300 focus:outline-none">
+              <option value="7">Last 7 days</option>
+              <option value="30">Last 30 days</option>
+              <option value="90">Last 90 days</option>
+            </select>
+            <button onClick={()=>setComposeOpen(true)} className="rounded-xl bg-gradient-to-r from-emerald-400 to-emerald-600 px-4 py-2 text-sm font-semibold text-teal shadow-lg shadow-emerald-500/30 hover:from-emerald-500 hover:to-emerald-700 transition-all">New ticket</button>
+          </div>
+        </div>
 
-          {/* KPI cards */}
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {stats.map(s => (
-              <div key={s.label} className="rounded-2xl border border-teal-200 bg-teal-50 p-4 backdrop-blur">
-                <div className="flex items-center justify-between">
-                  <p className="text-xs uppercase tracking-wide text-teal-600">{s.label}</p>
-                  <svg className="h-5 w-5 text-teal-400 opacity-70" viewBox="0 0 24 24" fill="currentColor"><path d="M3 12h3l3 7 4-14 3 7h5"/></svg>
-                </div>
-                <div className="mt-2 text-2xl font-bold">{s.value}</div>
-                <div className="text-xs text-teal-500">Updated {new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</div>
+        {/* KPI cards */}
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {stats.map(s => (
+            <div key={s.label} className="rounded-2xl border border-teal-300 bg-teal p-4 backdrop-blur">
+              <div className="flex items-center justify-between">
+                <p className="text-xs uppercase tracking-wide text-teal-600">{s.label}</p>
+                <svg className="h-5 w-5 opacity-70" viewBox="0 0 24 24" fill="currentColor"><path d="M3 12h3l3 7 4-14 3 7h5"/></svg>
               </div>
-            ))}
-          </div>
-
-          {/* Filters */}
-          <div className="mt-6 rounded-2xl border border-teal-200 bg-teal-50 p-4">
-            <div className="grid gap-3 md:grid-cols-6">
-              <input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search tickets, members, assignees" className="md:col-span-2 rounded-xl bg-white px-3 py-2 text-sm ring-1 ring-teal-100 focus:outline-none" />
-              <select value={status} onChange={e=>setStatus(e.target.value)} className="rounded-xl bg-white px-3 py-2 text-sm ring-1 ring-teal-100"><option value="all">All status</option><option>Open</option><option>Pending</option><option>Resolved</option></select>
-              <select value={priority} onChange={e=>setPriority(e.target.value)} className="rounded-xl bg-white px-3 py-2 text-sm ring-1 ring-teal-100"><option value="all">All priority</option><option>Urgent</option><option>High</option><option>Medium</option><option>Low</option></select>
-              <select value={category} onChange={e=>setCategory(e.target.value)} className="rounded-xl bg-white px-3 py-2 text-sm ring-1 ring-teal-100"><option value="all">All categories</option><option>Billing</option><option>App</option><option>Facilities</option><option>Training</option></select>
-              <select value={sort} onChange={e=>setSort(e.target.value)} className="rounded-xl bg-white px-3 py-2 text-sm ring-1 ring-teal-100"><option value="updated-desc">Newest updated</option><option value="updated-asc">Oldest updated</option><option value="priority">Priority</option></select>
+              <div className="mt-2 text-2xl font-bold">{s.value}</div>
+              <div className="text-xs text-teal-600">Updated {new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</div>
             </div>
-            {selected.length>0 && (
-              <div className="mt-3 flex items-center justify-between rounded-xl bg-white px-3 py-2 text-sm">
-                <div>{selected.length} selected</div>
-                <div className="flex items-center gap-2">
-                  <button onClick={()=>bulkUpdate('status','Resolved')} className="rounded-lg bg-teal-500 px-3 py-1 text-white">Mark resolved</button>
-                  <button onClick={()=>bulkUpdate('assignee','—')} className="rounded-lg bg-teal-100 px-3 py-1 text-teal-800">Unassign</button>
-                  <button onClick={()=>setSelected([])} className="rounded-lg bg-teal-100 px-3 py-1 text-teal-800">Clear</button>
-                </div>
+          ))}
+        </div>
+
+        {/* Filters */}
+        <div className="mt-6 rounded-2xl border border-teal-300 bg-teal p-4">
+          <div className="grid gap-3 md:grid-cols-6">
+            <input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search tickets, members, assignees" className="md:col-span-2 rounded-xl bg-teal px-3 py-2 text-sm ring-1 ring-teal-300 focus:outline-none" />
+            <select value={status} onChange={e=>setStatus(e.target.value)} className="rounded-xl bg-teal px-3 py-2 text-sm ring-1 ring-teal-300"><option value="all">All status</option><option>Open</option><option>Pending</option><option>Resolved</option></select>
+            <select value={priority} onChange={e=>setPriority(e.target.value)} className="rounded-xl bg-teal px-3 py-2 text-sm ring-1 ring-teal-300"><option value="all">All priority</option><option>Urgent</option><option>High</option><option>Medium</option><option>Low</option></select>
+            <select value={category} onChange={e=>setCategory(e.target.value)} className="rounded-xl bg-teal px-3 py-2 text-sm ring-1 ring-teal-300"><option value="all">All categories</option><option>Billing</option><option>App</option><option>Facilities</option><option>Training</option></select>
+            <select value={sort} onChange={e=>setSort(e.target.value)} className="rounded-xl bg-teal px-3 py-2 text-sm ring-1 ring-teal-300"><option value="updated-desc">Newest updated</option><option value="updated-asc">Oldest updated</option><option value="priority">Priority</option></select>
+          </div>
+          {selected.length>0 && (
+            <div className="mt-3 flex items-center justify-between rounded-xl bg-teal px-3 py-2 text-sm">
+              <div>{selected.length} selected</div>
+              <div className="flex items-center gap-2">
+                <button onClick={()=>bulkUpdate('status','Resolved')} className="rounded-lg bg-emerald-500 px-3 py-1 text-teal">Mark resolved</button>
+                <button onClick={()=>bulkUpdate('assignee','—')} className="rounded-lg bg-teal-300 px-3 py-1 text-teal-900">Unassign</button>
+                <button onClick={()=>setSelected([])} className="rounded-lg bg-teal-300 px-3 py-1 text-teal-900">Clear</button>
               </div>
-            )}
-          </div>
-
-          {/* Table */}
-          <div className="mt-6 overflow-hidden rounded-2xl border border-teal-200 bg-white">
-            <div className="grid grid-cols-12 gap-3 border-b border-teal-200 p-3 text-xs text-teal-700">
-              <div className="col-span-1">Select</div>
-              <div className="col-span-2">Ticket</div>
-              <div className="col-span-3">Subject</div>
-              <div className="col-span-2">Member</div>
-              <div className="col-span-1">Priority</div>
-              <div className="col-span-1">Status</div>
-              <div className="col-span-2">Updated</div>
             </div>
-            <ul className="divide-y divide-teal-100">
-              {filtered.map(t => (
-                <li key={t.id} className="grid grid-cols-12 items-center gap-3 px-3 py-3 hover:bg-teal-50 transition-colors" onClick={()=>setDrawer(t.id)}>
+          )}
+        </div>
+
+        {/* Table */}
+        <div className="mt-6 overflow-hidden rounded-2xl border border-teal-300 bg-teal">
+          <div className="grid grid-cols-12 gap-3 border-b border-teal-300 p-3 text-xs text-teal-600">
+            <div className="col-span-1">Select</div>
+            <div className="col-span-2">Ticket</div>
+            <div className="col-span-3">Subject</div>
+            <div className="col-span-2">Member</div>
+            <div className="col-span-1">Priority</div>
+            <div className="col-span-1">Status</div>
+            <div className="col-span-2">Updated</div>
+          </div>
+          <ul className="divide-y divide-teal-300">
+            {filtered.map(t => (
+              <li key={t.id} className="grid grid-cols-12 items-center gap-3 px-3 py-3 hover:bg-teal-100" onClick={()=>setDrawer(t.id)}>
                   <div className="col-span-1">
-                    <input type="checkbox" checked={selected.includes(t.id)} onChange={e=>{e.stopPropagation();toggleSelect(t.id);}} onClick={e=>e.stopPropagation()} />
+                    <input type="checkbox" checked={selected.includes(t.id)} onChange={()=>toggleSelect(t.id)} />
                   </div>
                   <div className="col-span-2">{t.id}</div>
                   <div className="col-span-3">{t.subject}</div>
@@ -288,12 +288,12 @@ export default function SupportTickets() {
               ))}
             </ul>
           </div>
-
-          {drawer && <TicketDrawer ticket={tickets.find(t=>t.id===drawer)} onClose={()=>setDrawer(null)} onUpdate={(updates)=>setTickets(ts=>ts.map(t=>t.id===drawer?{...t,...updates,updated:new Date().toISOString().slice(0,16).replace('T',' ')}:t))} />}
-
-          {composeOpen && <ComposeModal onClose={()=>setComposeOpen(false)} onCreate={createTicket} />}
-
         </div>
+
+        {drawer && <TicketDrawer ticket={tickets.find(t=>t.id===drawer)} onClose={()=>setDrawer(null)} onUpdate={(updates)=>setTickets(ts=>ts.map(t=>t.id===drawer?{...t,...updates,updated:new Date().toISOString().slice(0,16).replace('T',' ')}:t))} />}
+
+        {composeOpen && <ComposeModal onClose={()=>setComposeOpen(false)} onCreate={createTicket} />}
+
       </div>
     </Layout>
   );

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Eye, X } from 'lucide-react';
+import { Eye, Home, X } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import Sidebar from '../components/layout/Sidebar';
 
@@ -18,7 +18,7 @@ const Login = () => {
       // Use the login function from AuthContext
       const success = login(email, password);
       if (success) {
-        navigate('/');
+        navigate('/dashboard');
       } else {
         alert('Invalid credentials');
       }
@@ -33,13 +33,22 @@ const Login = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-teal-200 via-teal-200 to-teal-100 flex flex-col relative">
       {/* Header */}
-      <header className="absolute top-0 left-0 right-0 z-10 flex justify-between items-center p-4">
+      <header className="absolute top-0 left-0 right-0 z-10 flex  items-center p-4">
         <div className="text-3xl font-extrabold text-white drop-shadow-lg">GMS</div>
         <button
           onClick={() => setShowDemo(true)}
-          className="bg-teal-500 text-white px-4 py-2 rounded-lg hover:bg-teal-200  hover:text-teal-800 transition-colors flex items-center gap-2 shadow-lg"
+          className="bg-teal-500 justify-end text-white px-4 py-2 rounded-lg hover:bg-teal-200  hover:text-teal-800 transition-colors flex items-center gap-2 shadow-lg justify-self-end ml-auto mr-4"
         >
           <Eye size={20} /> View Demo
+        </button>
+
+        <button 
+        
+          onClick={() => navigate('/')}
+          className="bg-teal-500 text-white px-4 py-2 rounded-lg hover:bg-teal-200  hover:text-teal-800 transition-colors flex items-center gap-2 shadow-lg"
+        >
+          <Home size={20} /> Home
+
         </button>
       </header>
 
