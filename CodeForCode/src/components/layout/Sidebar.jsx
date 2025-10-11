@@ -47,15 +47,17 @@ const Sidebar = ({ demo = false }) => {
         </div>
 
         <nav className="p-3 mt-4 flex-1 overflow-y-auto">
-          <Link to="/dashboard">
-             <a
-            className="flex items-center gap-3 p-3 rounded-lg hover:teal-100 cursor-pointer text-sm text-teal-900 transition-colors duration-200"
-            href="#"
-          >
-            <LayoutDashboardIcon size={20} className="text-teal-900"  />
-            {sidebarOpen && <span className="font-semibold">Dashboard</span>}
-          </a>
-          </Link>
+          {demo ? (
+            <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-3 rounded-lg hover:teal-100 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
+              <LayoutDashboardIcon size={20} className="text-teal-900" />
+              {sidebarOpen && <span className="font-semibold">Dashboard</span>}
+            </div>
+          ) : (
+            <Link to="/dashboard" className="flex items-center gap-3 p-3 rounded-lg hover:teal-100 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
+              <LayoutDashboardIcon size={20} className="text-teal-900" />
+              {sidebarOpen && <span className="font-semibold">Dashboard</span>}
+            </Link>
+          )}
 
           {/* Management Dropdown */}
           <div>
@@ -276,13 +278,7 @@ const Sidebar = ({ demo = false }) => {
                     <span>Franchise & Members Managementhips</span>
                   </Link>
                 )}
-                <a
-                  className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 cursor-pointer text-sm text-teal-900 transition-colors duration-200"
-                  href="#"
-                >
-                  <MdOutlineSecurity size={18} />
-                  <span>Security</span>
-                </a>
+
               </div>
             )}
           </div>

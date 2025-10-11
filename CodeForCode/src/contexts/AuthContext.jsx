@@ -11,7 +11,17 @@ export const AuthProvider = ({ children }) => {
   // Login function
   const login = (email, password) => {
     if (email && password) {
-      setUser({ name: "Priyanshu Gautam" });
+      setUser({ name: "Priyanshu Gautam", email });
+      setIsAuthenticated(true);
+      return true;
+    }
+    return false;
+  };
+
+  // Signup function
+  const signup = (name, email, password) => {
+    if (name && email && password) {
+      setUser({ name, email });
       setIsAuthenticated(true);
       return true;
     }
@@ -25,7 +35,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, user, login, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, user, login, signup, logout }}>
       {children}
     </AuthContext.Provider>
   );

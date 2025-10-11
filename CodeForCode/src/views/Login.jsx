@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Eye, Home, X } from 'lucide-react';
+import { Eye, Home, X, Key, Mail, Lock, User } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import Sidebar from '../components/layout/Sidebar';
 
@@ -8,8 +8,18 @@ const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showDemo, setShowDemo] = useState(false);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [resetEmail, setResetEmail] = useState('');
+  const [showSignup, setShowSignup] = useState(false);
+  const [signupName, setSignupName] = useState('');
+  const [signupEmail, setSignupEmail] = useState('');
+  const [signupPassword, setSignupPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+  const [resetMessage, setResetMessage] = useState('');
+  const [signupMessage, setSignupMessage] = useState('');
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, signup } = useAuth();
 
   const handleLogin = (e) => {
     e.preventDefault();
@@ -20,15 +30,25 @@ const Login = () => {
       if (success) {
         navigate('/dashboard');
       } else {
-        alert('Invalid credentials');
+        setErrorMessage('Invalid credentials');
       }
     }
   };
 
   const handleForgotPassword = () => {
-    // You can implement forgot password functionality here
-    alert('Forgot Password functionality to be implemented');
+    setShowForgotPassword(true);
   };
+
+  const handleResetPassword = (e) => {
+    e.preventDefault();
+    // Simulate sending reset email
+    setResetMessage(`Reset email sent to ${resetEmail}`);
+    setTimeout(() => setResetMessage(''), 10000);
+    setResetEmail('');
+    setShowForgotPassword(false);
+  };
+
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-teal-200 via-teal-200 to-teal-100 flex flex-col relative">
@@ -57,8 +77,16 @@ const Login = () => {
         <div className="max-w-md w-full bg-teal-50 rounded-2xl shadow-2xl p-8 animate-fade-in">
           {/* Form Header */}
           <div className="text-center mb-8">
+            <div className="flex justify-center mb-4">
+              <div className="bg-teal-100 p-4 rounded-full shadow-lg">
+                <Lock className="text-teal-600" size={32} />
+              </div>
+            </div>
             <h1 className="text-3xl font-bold text-teal-800 mb-2">Welcome Back</h1>
             <p className="text-gray-600">Sign in to your account</p>
+            {resetMessage && (
+              <p className="text-green-600 mt-4">{resetMessage}</p>
+            )}
           </div>
 
           {/* Login Form */}
@@ -68,15 +96,21 @@ const Login = () => {
               <label htmlFor="email" className="block text-sm font-medium text-teal-800 mb-2">
                 Email Address
               </label>
-              <input
-                type="email"
-                id="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-3 bg-teal-50 border border-grey-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-colors"
-                placeholder="Enter your email"
-                required
-              />
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-teal-500" size={20} />
+                <input
+                  type="email"
+                  id="email"
+                  value={email}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    setErrorMessage('');
+                  }}
+                  className="w-full pl-10 pr-4 py-3 bg-white border border-teal-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-200 shadow-sm"
+                  placeholder="Enter your email"
+                  required
+                />
+              </div>
             </div>
 
             {/* Password Field */}
@@ -84,15 +118,18 @@ const Login = () => {
               <label htmlFor="password" className="block text-sm font-medium text-teal-800 mb-2">
                 Password
               </label>
-              <input
-                type="password"
-                id="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-3 bg-teal-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-colors"
-                placeholder="Enter your password"
-                required
-              />
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-teal-500" size={20} />
+                <input
+                  type="password"
+                  id="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full pl-10 pr-4 py-3 bg-white border border-teal-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-200 shadow-sm"
+                  placeholder="Enter your password"
+                  required
+                />
+              </div>
             </div>
 
             {/* Buttons */}
@@ -118,9 +155,12 @@ const Login = () => {
           <div className="mt-8 text-center">
             <p className="text-sm text-gray-600">
               Don't have an account?{' '}
-              <button className="text-teal-500 hover:text-teal-300 font-medium focus:outline-none">
-                Sign up
-              </button>
+          <button
+            onClick={() => setShowSignup(true)}
+            className="text-teal-500 hover:text-teal-300 font-medium focus:outline-none"
+          >
+            Sign up
+          </button>
             </p>
           </div>
         </div>
@@ -140,27 +180,27 @@ const Login = () => {
             <div className="flex-1 p-6 bg-gray-50">
               <h2 className="text-2xl font-bold mb-6 text-teal-800">Dashboard Preview</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div className="bg-blue-100 p-6 rounded-lg shadow-md">
+                <div onClick={() => alert('This is a demo. Please login to access.')} className="bg-blue-100 p-6 rounded-lg shadow-md cursor-pointer">
                   <h3 className="font-semibold text-blue-800">Total Members</h3>
                   <p className="text-2xl font-bold text-blue-600">1,250</p>
                 </div>
-                <div className="bg-green-100 p-6 rounded-lg shadow-md">
+                <div onClick={() => alert('This is a demo. Please login to access.')} className="bg-green-100 p-6 rounded-lg shadow-md cursor-pointer">
                   <h3 className="font-semibold text-green-800">Active Trainers</h3>
                   <p className="text-2xl font-bold text-green-600">15</p>
                 </div>
-                <div className="bg-yellow-100 p-6 rounded-lg shadow-md">
+                <div onClick={() => alert('This is a demo. Please login to access.')} className="bg-yellow-100 p-6 rounded-lg shadow-md cursor-pointer">
                   <h3 className="font-semibold text-yellow-800">Revenue This Month</h3>
                   <p className="text-2xl font-bold text-yellow-600">$45,000</p>
                 </div>
-                <div className="bg-purple-100 p-6 rounded-lg shadow-md">
+                <div onClick={() => alert('This is a demo. Please login to access.')} className="bg-purple-100 p-6 rounded-lg shadow-md cursor-pointer">
                   <h3 className="font-semibold text-purple-800">Classes Today</h3>
                   <p className="text-2xl font-bold text-purple-600">8</p>
                 </div>
-                <div className="bg-pink-100 p-6 rounded-lg shadow-md">
+                <div onClick={() => alert('This is a demo. Please login to access.')} className="bg-pink-100 p-6 rounded-lg shadow-md cursor-pointer">
                   <h3 className="font-semibold text-pink-800">Products Sold</h3>
                   <p className="text-2xl font-bold text-pink-600">320</p>
                 </div>
-                <div className="bg-indigo-100 p-6 rounded-lg shadow-md">
+                <div onClick={() => alert('This is a demo. Please login to access.')} className="bg-indigo-100 p-6 rounded-lg shadow-md cursor-pointer">
                   <h3 className="font-semibold text-indigo-800">Support Tickets</h3>
                   <p className="text-2xl font-bold text-indigo-600">5</p>
                 </div>
@@ -172,6 +212,164 @@ const Login = () => {
             >
               <X size={24} />
             </button>
+          </div>
+        </div>
+      )}
+      {/* Signup Modal */}
+      {showSignup && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 animate-fade-in">
+          <div className="bg-gradient-to-br from-teal-400 via-teal-200 to-teal-50 rounded-3xl shadow-2xl p-6 w-full max-w-md border border-teal-300 relative overflow-hidden">
+            <div className="text-center mb-4">
+              <div className="flex justify-center mb-4">
+                <div className="bg-teal-100 p-4 rounded-full">
+                  <User className="text-teal-600" size={32} />
+                </div>
+              </div>
+              <h2 className="text-3xl font-bold text-teal-800 mb-2">Create Account</h2>
+              <p className="text-gray-600">Fill in the details to create your account.</p>
+              {errorMessage && (
+                <p className="text-red-600 mt-4">{errorMessage}</p>
+              )}
+              {signupMessage && (
+                <p className="text-green-600 mt-4">{signupMessage}</p>
+              )}
+            </div>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                setErrorMessage('');
+                setSignupMessage('');
+          if (signupPassword !== confirmPassword) {
+            setErrorMessage('Passwords do not match');
+            return;
+          }
+          const success = signup(signupName, signupEmail, signupPassword);
+          if (success) {
+            setSignupMessage('You have signed up successfully. Please log in.');
+          } else {
+            setErrorMessage('Signup failed. Please try again.');
+          }
+              }}
+              className="space-y-4"
+            >
+              <div>
+                <label htmlFor="signupName" className="block text-sm font-medium text-teal-800 mb-2">
+                  Full Name
+                </label>
+                <input
+                  type="text"
+                  id="signupName"
+                  value={signupName}
+                  onChange={(e) => setSignupName(e.target.value)}
+                  className="w-full px-4 py-3 bg-white border border-teal-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-200 shadow-sm"
+                  placeholder="Enter your full name"
+                  required
+                />
+              </div>
+              <div>
+                <label htmlFor="signupEmail" className="block text-sm font-medium text-teal-800 mb-2">
+                  Email Address
+                </label>
+                <input
+                  type="email"
+                  id="signupEmail"
+                  value={signupEmail}
+                  onChange={(e) => setSignupEmail(e.target.value)}
+                  className="w-full px-4 py-3 bg-white border border-teal-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-200 shadow-sm"
+                  placeholder="Enter your email"
+                  required
+                />
+              </div>
+              <div>
+                <label htmlFor="signupPassword" className="block text-sm font-medium text-teal-800 mb-2">
+                  Create Password
+                </label>
+                <input
+                  type="password"
+                  id="signupPassword"
+                  value={signupPassword}
+                  onChange={(e) => setSignupPassword(e.target.value)}
+                  className="w-full px-4 py-3 bg-white border border-teal-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-200 shadow-sm"
+                  placeholder="Create a password"
+                  required
+                />
+              </div>
+              <div>
+                <label htmlFor="confirmPassword" className="block text-sm font-medium text-teal-800 mb-2">
+                  Confirm Password
+                </label>
+                <input
+                  type="password"
+                  id="confirmPassword"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="w-full px-4 py-3 bg-white border border-teal-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-200 shadow-sm"
+                  placeholder="Confirm your password"
+                  required
+                />
+              </div>
+              <button
+                type="submit"
+                className="w-full bg-gradient-to-r from-teal-500 to-teal-700 hover:from-teal-600 hover:to-teal-800 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 shadow-lg transform hover:scale-105"
+              >
+                Create Account
+              </button>
+            </form>
+            <div className="mt-6 text-center">
+              <button
+                onClick={() => setShowSignup(false)}
+                className="text-teal-600 hover:text-teal-800 font-medium transition-colors"
+              >
+                Back to Login
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Forgot Password Modal */}
+      {showForgotPassword && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 animate-fade-in">
+          <div className="bg-gradient-to-br from-teal-400 via-teal-200 to-teal-50 rounded-3xl shadow-2xl p-8 w-full max-w-md border border-teal-300 relative overflow-hidden">
+            <div className="text-center mb-6">
+              <div className="flex justify-center mb-4">
+                <div className="bg-teal-100 p-4 rounded-full">
+                  <Key className="text-teal-600" size={32} />
+                </div>
+              </div>
+              <h2 className="text-3xl font-bold text-teal-800 mb-2">Forgot Your Password?</h2>
+              <p className="text-gray-600">No worries! Enter your email and we'll send you a reset link.</p>
+            </div>
+            <form onSubmit={handleResetPassword} className="space-y-6">
+              <div>
+                <label htmlFor="resetEmail" className="block text-sm font-medium text-teal-800 mb-2">
+                  Email Address
+                </label>
+                <input
+                  type="email"
+                  id="resetEmail"
+                  value={resetEmail}
+                  onChange={(e) => setResetEmail(e.target.value)}
+                  className="w-full px-4 py-3 bg-white border border-teal-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-200 shadow-sm"
+                  placeholder="Enter your email address"
+                  required
+                />
+              </div>
+              <button
+                type="submit"
+                className="w-full bg-gradient-to-r from-teal-500 to-teal-700 hover:from-teal-600 hover:to-teal-800 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 shadow-lg transform hover:scale-105"
+              >
+                Send Reset Email
+              </button>
+            </form>
+            <div className="mt-6 text-center">
+              <button
+                onClick={() => setShowForgotPassword(false)}
+                className="text-teal-600 hover:text-teal-800 font-medium transition-colors"
+              >
+                Back to Login
+              </button>
+            </div>
           </div>
         </div>
       )}

@@ -52,7 +52,7 @@ const Finance = () => {
         <h1 className="text-2xl font-bold text-flex-800">Finance  <span className="text-teal-300 font-lg">Management</span></h1>
         <button
           onClick={() => setShowForm(true)}
-          className="px-4 py-2 bg-teal-700 text-white font-medium rounded-lg hover:bg-blue-700 transition"
+          className="px-4 py-2 bg-gradient-to-r from-teal-700 to-blue-700 text-white font-medium rounded-lg hover:from-blue-700 hover:to-blue-800 transition"
         >
           + Add Transaction
         </button>
@@ -60,15 +60,15 @@ const Finance = () => {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-        <div className="p-5 bg-teal-100 rounded-lg shadow">
+        <div className="p-5 bg-gradient-to-r from-teal-100 to-teal-200 rounded-lg shadow">
           <h2 className="text-lg font-semibold text-teal-900">Total Income</h2>
           <p className="text-2xl font-bold">₹{totalIncome}</p>
         </div>
-        <div className="p-5 bg-teal-100 rounded-lg shadow">
+        <div className="p-5 bg-gradient-to-r from-teal-100 to-teal-200 rounded-lg shadow">
           <h2 className="text-lg font-semibold text-teal-900">Total Expense</h2>
           <p className="text-2xl font-bold">₹{totalExpense}</p>
         </div>
-        <div className="p-5 bg-teal-100 rounded-lg shadow">
+        <div className="p-5 bg-gradient-to-r from-teal-100 to-teal-200 rounded-lg shadow">
           <h2 className="text-lg font-semibold text-teal-900">Balance</h2>
           <p className="text-2xl font-bold">₹{balance}</p>
         </div>
@@ -78,7 +78,7 @@ const Finance = () => {
       <div className="overflow-x-auto bg-white shadow-lg rounded-lg">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="bg-teal-500 text-gray-700">
+            <tr className="bg-gradient-to-r from-teal-500 to-teal-600 text-gray-700">
               <th className="px-6 py-3">Date</th>
               <th className="px-6 py-3">Type</th>
               <th className="px-6 py-3">Amount</th>
@@ -131,7 +131,7 @@ const Finance = () => {
       {/* Modal Form */}
       {showForm && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+          <div className="bg-gradient-to-r from-white to-gray-50 p-6 rounded-lg shadow-lg w-96">
             <h2 className="text-lg font-bold mb-4">{editingTransaction ? "Edit Transaction" : "Add Transaction"}</h2>
             <form onSubmit={handleSubmit} className="space-y-4">
               <input
