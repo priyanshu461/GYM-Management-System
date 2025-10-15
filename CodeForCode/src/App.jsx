@@ -11,6 +11,7 @@ import WorkoutRoutine from './views/Workout& Diet Plan/WorkoutRoutinue'
 import DietPlan from './views/Workout& Diet Plan/CoustumDietPlan'
 import ProgressTracker from './views/Workout& Diet Plan/ProgressTracking'
 import ReportsAnalytics from './views/Workout& Diet Plan/ReportsAndAnalytics'
+import BMICalculator from './views/BMICalculator'
 import Courses from './views/OurCources/Courses'
 import ClassesSchedule from './views/OurCources/Classes&Schedule'
 import FranchiseAndMembership from './views/OurCources/Franchises&Management'
@@ -23,6 +24,7 @@ import SupportTickets from './views/SupportTickets'
 import GymBlog from './views/GymBlog'
 import NotificationsCommunication from './views/NotificationCommunication'
 import Dashboard from './views/Dashboard'
+import Profile from './views/Profile'
 
 function App() {
   return (
@@ -38,6 +40,7 @@ function App() {
           <Route path="/facilities" element={<Facilities />} />
           <Route path="/workoutRoutinue" element={<WorkoutRoutine />} />
           <Route path="/dietPlan" element={<DietPlan />} />
+          <Route path="/bmiCalculator" element={<BMICalculator />} />
           <Route path="/progressTracking" element={<ProgressTracker />} />
           <Route path="/reportsAnalytics" element={<ReportsAnalytics />} />
           <Route path="/classesSchedule" element={<ClassesSchedule />} />
@@ -51,6 +54,7 @@ function App() {
           <Route path='/supporttickets' element={<SupportTickets />} />
           <Route path='/gymblog' element={<GymBlog />} />
           <Route path='/notificationcommunication' element={<NotificationsCommunication />} />
+          <Route path='/profile' element={<Profile />} />
         </Routes>
       </div>
     </AuthProvider>

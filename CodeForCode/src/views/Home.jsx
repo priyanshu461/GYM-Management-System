@@ -4,6 +4,7 @@ import { Dumbbell, Users, Calendar, ShoppingBag, Mail, Phone, MapPin, X, Zap, Tr
 import { motion } from 'framer-motion';
 import emailjs from '@emailjs/browser';
 import Sidebar from '../components/layout/Sidebar';
+import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend, LineChart, Line } from "recharts";
 
 const Home = () => {
   const [showDemo, setShowDemo] = useState(false);
@@ -16,6 +17,26 @@ const Home = () => {
   });
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Sample data for demo charts
+  const memberData = [
+    { name: 'Active Members', value: 1000, color: '#0088FE' },
+    { name: 'Inactive Members', value: 250, color: '#00C49F' },
+  ];
+
+  const revenueData = [
+    { month: 'Jan', revenue: 30000 },
+    { month: 'Feb', revenue: 35000 },
+    { month: 'Mar', revenue: 40000 },
+    { month: 'Apr', revenue: 45000 },
+  ];
+
+  const growthData = [
+    { month: 'Jan', members: 950 },
+    { month: 'Feb', members: 1050 },
+    { month: 'Mar', members: 1150 },
+    { month: 'Apr', members: 1250 },
+  ];
 
   useEffect(() => {
     emailjs.init('_VkauSoEGbRlwu8Hr');
@@ -224,26 +245,28 @@ const Home = () => {
                 • Boost profits with automated upselling and cross-selling features
               </p>
             </motion.div>
-            <motion.div
-              className="group bg-white p-8 rounded-2xl shadow-md border-t-4 border-teal-400 transition-all cursor-pointer hover:bg-teal-400 hover:border-teal-400"
-              variants={{
-                hidden: { opacity: 0, y: 50 },
-                visible: { opacity: 1, y: 0 },
-              }}
-              whileHover={{ scale: 1.05, boxShadow: "0 10px 15px rgba(0,0,0,0.1)" }}
-              transition={{ duration: 0.3 }}
-            >
-              <Dumbbell className="h-12 w-12 text-teal-500 mb-4 group-hover:text-teal-100" />
-              <h3 className="text-xl font-semibold mb-2 group-hover:text-teal-900">Workout & Progress</h3>
-              <p className="text-teal-700 group-hover:opacity-0 transition-opacity duration-300">Build and track custom routines, member assessments, and progress charts with a trainer portal.</p>
-              <p className="text-teal-900 mt-2 max-h-0 overflow-hidden group-hover:max-h-40 transition-all duration-300 ease-in-out">
-                • Craft personalized workout plans tailored to every member's goals<br/>
-                • Visualize progress with advanced tracking via photos and metrics<br/>
-                • Perform comprehensive assessments to set achievable milestones<br/>
-                • Enable trainer notes for collaborative member support<br/>
-                • Foster motivation with goal-oriented communication portals
-              </p>
-            </motion.div>
+            <Link to="/bmiCalculator">
+              <motion.div
+                className="group bg-white p-8 rounded-2xl shadow-md border-t-4 border-teal-400 transition-all cursor-pointer hover:bg-teal-400 hover:border-teal-400"
+                variants={{
+                  hidden: { opacity: 0, y: 50 },
+                  visible: { opacity: 1, y: 0 },
+                }}
+                whileHover={{ scale: 1.05, boxShadow: "0 10px 15px rgba(0,0,0,0.1)" }}
+                transition={{ duration: 0.3 }}
+              >
+                <Dumbbell className="h-12 w-12 text-teal-500 mb-4 group-hover:text-teal-100" />
+                <h3 className="text-xl font-semibold mb-2 group-hover:text-teal-900">AI Fitness Plan Generator</h3>
+                <p className="text-teal-700 group-hover:opacity-0 transition-opacity duration-300">AI-powered fitness planning with BMI calculation, personalized diet and workout plans, and progress tracking.</p>
+                <p className="text-teal-900 mt-2 max-h-0 overflow-hidden group-hover:max-h-40 transition-all duration-300 ease-in-out">
+                  • Calculate BMI instantly with height, weight, age, and gender for health assessment<br/>
+                  • Generate AI-driven personalized diet plans based on BMI category<br/>
+                  • Create tailored workout routines for optimal results<br/>
+                  • Track progress with interactive charts and visualizations<br/>
+                  • Receive comprehensive reports including BMI metrics and fitness recommendations
+                </p>
+              </motion.div>
+            </Link>
             <motion.div
               className="group bg-white p-8 rounded-2xl shadow-md border-t-4 border-teal-400 transition-all cursor-pointer hover:bg-teal-400 hover:border-teal-400"
               variants={{
@@ -284,12 +307,13 @@ const Home = () => {
                 • Drive exponential growth with data-driven decision tools
               </p>
             </motion.div>
+
           </motion.div>
         </div>
       </section>
     
       {/* Why Us Section */}
-      <section id="whyus" className="py-20 bg-gradient-to-r from-teal-100 via-teal-100 to-teal-50 flex-items-center">
+      <section id="whyus" className="py-20 bg-gradient-to-r from-teal-100 via-teal-100 to-teal-50 flex items-center">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.h2
             className="text-4xl font-extrabold text-center text-teal-800 mb-8"
@@ -762,6 +786,47 @@ const Home = () => {
                 <div className="bg-indigo-100 p-6 rounded-lg shadow-md">
                   <h3 className="font-semibold text-indigo-800">Support Tickets</h3>
                   <p className="text-2xl font-bold text-indigo-600">5</p>
+                </div>
+              </div>
+              <div className="mt-8">
+                <h3 className="text-xl font-bold mb-4 text-teal-800">Analytics Charts</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="bg-white p-6 rounded-lg shadow-md">
+                    <h4 className="font-semibold mb-4 text-teal-800">Member Distribution</h4>
+                    <ResponsiveContainer width="100%" height={200}>
+                      <PieChart>
+                        <Pie data={memberData} cx="50%" cy="50%" outerRadius={60} fill="#8884d8" dataKey="value">
+                          {memberData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.color} />
+                          ))}
+                        </Pie>
+                        <Tooltip />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                  <div className="bg-white p-6 rounded-lg shadow-md">
+                    <h4 className="font-semibold mb-4 text-teal-800">Monthly Revenue</h4>
+                    <ResponsiveContainer width="100%" height={200}>
+                      <BarChart data={revenueData}>
+                        <XAxis dataKey="month" />
+                        <YAxis />
+                        <Tooltip />
+                        <Bar dataKey="revenue" fill="#00C49F" />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                  <div className="bg-white p-6 rounded-lg shadow-md col-span-1 md:col-span-2">
+                    <h4 className="font-semibold mb-4 text-teal-800">Member Growth</h4>
+                    <ResponsiveContainer width="100%" height={200}>
+                      <LineChart data={growthData}>
+                        <XAxis dataKey="month" />
+                        <YAxis />
+                        <Tooltip />
+                        <Legend />
+                        <Line type="monotone" dataKey="members" stroke="#0088FE" strokeWidth={2} />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
                 </div>
               </div>
             </div>

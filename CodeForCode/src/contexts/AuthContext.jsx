@@ -28,6 +28,11 @@ export const AuthProvider = ({ children }) => {
     return false;
   };
 
+  // Update user function
+  const updateUser = (updatedData) => {
+    setUser(prevUser => ({ ...prevUser, ...updatedData }));
+  };
+
   // Logout function
   const logout = () => {
     setIsAuthenticated(false);
@@ -35,7 +40,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, user, login, signup, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, user, login, signup, logout, updateUser }}>
       {children}
     </AuthContext.Provider>
   );

@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Menu, LogOut, LayoutDashboardIcon, Dumbbell, Laptop2 } from "lucide-react";
+import { Menu, LogOut, LayoutDashboardIcon, Dumbbell, Laptop2, X } from "lucide-react";
 import { MdGroup, MdNotificationAdd, MdOutlineSecurity, MdSupportAgent } from 'react-icons/md';
 import { TfiWallet } from 'react-icons/tfi';
 import { BsClockHistory, BsFillBox2HeartFill } from 'react-icons/bs';
@@ -14,10 +14,9 @@ import { SlSettings } from 'react-icons/sl';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 
-const Sidebar = ({ demo = false }) => {
+const Sidebar = ({ demo = false, isOpen, onClose, collapsed, onToggleCollapse, className }) => {
   const navigate = useNavigate();
   const { logout } = useAuth();
-  const [sidebarOpen, setSidebarOpen] = useState(true);
   const [managementOpen, setManagementOpen] = useState(false);
   const [workoutOpen, setWorkoutOpen] = useState(false);
   const [serviceOpen, setServiceOpen] = useState(false);
@@ -26,36 +25,35 @@ const Sidebar = ({ demo = false }) => {
   return (
     <div>
       <aside
-        className={`transition-all duration-300 bg-gradient-to-b from-teal to-teal-100 border-r border-teal-200 ${
-          sidebarOpen ? 'w-64' : 'w-20'
-        } shadow-lg h-screen sticky top-0 flex flex-col`}
+        className={`${className} ${collapsed ? 'md:w-20' : 'md:w-64'} flex flex-col sticky h-screen top-0`}
       >
         <div className="h-18 flex items-center px-4 justify-between border-b border-teal-300">
           <div className="flex items-center gap-3">
             <button
-              onClick={() => setSidebarOpen((s) => !s)}
-              className="p-2 rounded-md hover:bg-teal-200 transition-colors duration-200"
+              onClick={onToggleCollapse}
+              className="md:flex hidden p-2 rounded-md hover:bg-teal-200 transition-colors duration-200"
               aria-label="Toggle sidebar"
             >
               <Menu size={20} className="text-teal-900" />
             </button>
-            {sidebarOpen && (
+            {(isOpen || !collapsed) && (
               <h1 className="font-extrabold text-xl text-teal-600 select-none">Admin <span className='text-teal-900'>Panel</span></h1>
             )}
           </div>
-          {sidebarOpen && <div className="text-xs text-teal-500 select-none">v1.0</div>}
+          {(isOpen || !collapsed) && <div className="text-xs text-teal-500 select-none"></div>}
+          {isOpen && <button onClick={onClose} className="md:hidden p-2 rounded-md hover:bg-teal-200"><X size={20} /></button>}
         </div>
 
         <nav className="p-3 mt-4 flex-1 overflow-y-auto">
           {demo ? (
             <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-3 rounded-lg hover:teal-100 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
               <LayoutDashboardIcon size={20} className="text-teal-900" />
-              {sidebarOpen && <span className="font-semibold">Dashboard</span>}
+              {(isOpen || !collapsed) && <span className="font-semibold">Dashboard</span>}
             </div>
           ) : (
             <Link to="/dashboard" className="flex items-center gap-3 p-3 rounded-lg hover:teal-100 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
               <LayoutDashboardIcon size={20} className="text-teal-900" />
-              {sidebarOpen && <span className="font-semibold">Dashboard</span>}
+              {(isOpen || !collapsed) && <span className="font-semibold">Dashboard</span>}
             </Link>
           )}
 
@@ -68,8 +66,8 @@ const Sidebar = ({ demo = false }) => {
               aria-expanded={managementOpen}
             >
               <Laptop2 size={20} className="teteal-600" />
-              {sidebarOpen && <span className="font-semibold">Management</span>}
-              {sidebarOpen && (
+              {(isOpen || !collapsed) && <span className="font-semibold">Management</span>}
+              {(isOpen || !collapsed) && (
                 <svg
                   className={`ml-auto transition-transform ${managementOpen ? 'rotate-90' : ''}`}
                   width="14"
@@ -87,7 +85,7 @@ const Sidebar = ({ demo = false }) => {
                 </svg>
               )}
             </button>
-              {managementOpen && sidebarOpen && (
+              {managementOpen && (isOpen || !collapsed) && (
               <div className="ml-8 flex flex-col gap-2 mt-1">
                 {demo ? (
                   <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
@@ -146,8 +144,8 @@ const Sidebar = ({ demo = false }) => {
               aria-expanded={workoutOpen}
             >
               <BiDumbbell size={20} className="teteal-600" />
-              {sidebarOpen && <span className="font-semibold">Workout & Diet</span>}
-              {sidebarOpen && (
+              {(isOpen || !collapsed) && <span className="font-semibold">Workout & Diet</span>}
+              {(isOpen || !collapsed) && (
                 <svg
                   className={`ml-auto transition-transform ${workoutOpen ? 'rotate-90' : ''}`}
                   width="14"
@@ -165,7 +163,7 @@ const Sidebar = ({ demo = false }) => {
                 </svg>
               )}
             </button>
-            {workoutOpen && sidebarOpen && (
+            {workoutOpen && (isOpen || !collapsed) && (
               <div className="ml-8 flex flex-col gap-2 mt-1">
                 {demo ? (
                   <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
@@ -181,7 +179,18 @@ const Sidebar = ({ demo = false }) => {
                 {demo ? (
                   <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
                     <TbReportAnalytics size={18} />
-                    <span>Custom Diet</span>
+                    <span>BMI Calculator</span>
+                  </div>
+                ) : (
+                  <Link to="/bmiCalculator" className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
+                    <TbReportAnalytics size={18} />
+                    <span>BMI Calculator</span>
+                  </Link>
+                )}
+                {demo ? (
+                  <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
+                    <TbReportAnalytics size={18} />
+                    <span>Custom Diet </span>
                   </div>
                 ) : (
                   <Link to="/dietPlan" className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
@@ -224,8 +233,8 @@ const Sidebar = ({ demo = false }) => {
               aria-expanded={serviceOpen}
             >
               <LuFolderCog size={20} className="text-teal-900" />
-              {sidebarOpen && <span className="font-semibold">Services</span>}
-              {sidebarOpen && (
+              {(isOpen || !collapsed) && <span className="font-semibold">Services</span>}
+              {(isOpen || !collapsed) && (
                 <svg
                   className={`ml-auto transition-transform ${serviceOpen ? 'rotate-90' : ''}`}
                   width="14"
@@ -234,7 +243,7 @@ const Sidebar = ({ demo = false }) => {
                   fill="none"
                 >
                   <path
-                    d="M6 8L10 12L14 8"
+                    d="M6 8L10 12L 14 8"
                     stroke="currentColor"
                     strokeWidth="2"
                     strokeLinecap="round"
@@ -243,7 +252,7 @@ const Sidebar = ({ demo = false }) => {
                 </svg>
               )}
             </button>
-            {serviceOpen && sidebarOpen && (
+            {serviceOpen && (isOpen || !collapsed) && (
               <div className="ml-8 flex flex-col gap-2 mt-1">
                 {demo ? (
                   <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
@@ -292,8 +301,8 @@ const Sidebar = ({ demo = false }) => {
               aria-expanded={authenticationOpen}
             >
               <SiAuthentik size={20} className="teteal-600" />
-              {sidebarOpen && <span className="font-semibold">Authentication</span>}
-              {sidebarOpen && (
+              {(isOpen || !isCollapsed) && <span className="font-semibold">Authentication</span>}
+              {(isOpen || !isCollapsed) && (
                 <svg
                   className={`ml-auto transition-transform ${authenticationOpen ? 'rotate-90' : ''}`}
                   width="14"
@@ -311,7 +320,7 @@ const Sidebar = ({ demo = false }) => {
                 </svg>
               )}
             </button>
-            {authenticationOpen && sidebarOpen && (
+            {authenticationOpen && (isOpen || !isCollapsed) && (
               <div className="ml-8 flex flex-col gap-2 mt-1">
                 <a
                   className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 cursor-pointer text-sm text-teal-900 transition-colors duration-200"
@@ -347,8 +356,8 @@ const Sidebar = ({ demo = false }) => {
               aria-expanded={productOpen}
             >
               <FaCartPlus size={20} className="teteal-600" />
-              {sidebarOpen && <span className="font-semibold">Products</span>}
-              {sidebarOpen && (
+              {(isOpen || !collapsed) && <span className="font-semibold">Products</span>}
+              {(isOpen || !collapsed) && (
                 <svg
                   className={`ml-auto transition-transform ${productOpen ? 'rotate-90' : ''}`}
                   width="14"
@@ -366,7 +375,7 @@ const Sidebar = ({ demo = false }) => {
                 </svg>
               )}
             </button>
-            {productOpen && sidebarOpen && (
+            {productOpen && (isOpen || !collapsed) && (
               <div className="ml-8 flex flex-col gap-2 mt-1">
                 {demo ? (
                   <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
@@ -421,52 +430,54 @@ const Sidebar = ({ demo = false }) => {
             href="#"
           >
             <MdNotificationAdd size={18} />
-            {sidebarOpen && <span className="font-semibold">Notifications</span>}
+            {(isOpen || !collapsed) && <span className="font-semibold">Notifications</span>}
           </a>
           </Link>
           {demo ? (
             <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-3 rounded-lg hover:teal-100 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
               <FaBlog size={18} />
-              {sidebarOpen && <span className="font-semibold"> Blog</span>}
+              {(isOpen || !collapsed) && <span className="font-semibold"> Blog</span>}
             </div>
           ) : (
             <Link to="/GymBlog" className="flex items-center gap-3 p-3 rounded-lg hover:teal-100 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
               <FaBlog size={18} />
-              {sidebarOpen && <span className="font-semibold"> Blog</span>}
+              {(isOpen || !collapsed) && <span className="font-semibold"> Blog</span>}
             </Link>
           )}
           {demo ? (
             <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-3 rounded-lg hover:teal-100 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
               <MdSupportAgent size={18} />
-              {sidebarOpen && <span className="font-semibold">Support Tickets</span>}
+              {(isOpen || !collapsed) && <span className="font-semibold">Support Tickets</span>}
             </div>
           ) : (
-            <Link to="/supportTickets" className="flex items-center gap-3 p-3 rounded-lg hover:teal-100 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
+            <Link to="/supportTickets" className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
               <MdSupportAgent size={18} />
-              {sidebarOpen && <span className="font-semibold">Support Tickets</span>}
+              {(isOpen || !collapsed) && <span className="font-semibold">Support Tickets</span>}
             </Link>
           )}
           {demo ? (
             <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-3 rounded-lg hover:teal-100 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
               <SlSettings size={18} />
-              {sidebarOpen && <span className="font-semibold">Settings</span>}
+              {(isOpen || !collapsed) && <span className="font-semibold">Settings</span>}
             </div>
           ) : (
             <Link to="/Settings" className="flex items-center gap-3 p-3 rounded-lg hover:teal-100 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
               <SlSettings size={18} />
-              {sidebarOpen && <span className="font-semibold">Settings</span>}
+              {(isOpen || !collapsed) && <span className="font-semibold">Settings</span>}
             </Link>
           )}
         </nav>
 
         <div className="mt-auto p-4 border-t border-teal-300">
-          <div className="flex items-center gap-3">
-            <img
-              src="https://i.pravatar.cc/40"
-              alt="User Avatar"
-              className="w-10 h-10 rounded-full object-cover"
-            />
-            {sidebarOpen && (
+          <div className={`${collapsed ? 'flex justify-center' : 'flex items-center gap-3'}`}>
+            {(isOpen || !collapsed) && (
+              <img
+                src="https://i.pravatar.cc/40"
+                alt="User Avatar"
+                className="w-10 h-10 rounded-full object-cover"
+              />
+            )}
+            {(isOpen || !collapsed) && (
               <div>
                 <p className="text-sm font-semibold text-teal-800">Priyanshu Gautam</p>
                 <p className="text-xs text-teal-500">Admin</p>
@@ -477,7 +488,7 @@ const Sidebar = ({ demo = false }) => {
                 logout();
                 navigate('/login');
               }}
-              className="ml-auto p-2 rounded-md hover:bg-teal-200 transition-colors duration-200"
+              className={`${collapsed ? '' : 'ml-auto'} p-2 rounded-md hover:bg-teal-200 transition-colors duration-200`}
               aria-label="Logout"
             >
               <LogOut size={20} className="text-teal-900" />

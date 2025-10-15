@@ -1,7 +1,29 @@
 import React, { useState } from "react";
 import Layout from "../../components/Layout";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "../../components/ui/dialog";
+import { Button } from "../../components/ui/button";
+import { Input } from "../../components/ui/input";
 
 const Courses = () => {
+  const [selectedCourse, setSelectedCourse] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState("monthly");
+  const [paymentMethod, setPaymentMethod] = useState("card");
+  const [paymentDetails, setPaymentDetails] = useState({
+    cardNumber: "",
+    expiry: "",
+    cvv: "",
+    name: "",
+    upiId: "",
+  });
+
   const [courses] = useState([
     {
       id: 1,
@@ -69,7 +91,13 @@ const Courses = () => {
                   <span>Level: <span className="font-semibold text-slate-700">{course.level}</span></span>
                   <span>Duration: <span className="font-semibold text-slate-700">{course.duration}</span></span>
                 </div>
-                <button className="mt-5 w-full bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2 rounded-xl transition duration-200">
+                <button
+                  onClick={() => {
+                    setSelectedCourse(course);
+                    setIsModalOpen(true);
+                  }}
+                  className="mt-5 w-full bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2 rounded-xl transition duration-200"
+                >
                   Enroll Now
                 </button>
               </div>
@@ -78,6 +106,173 @@ const Courses = () => {
         </div>
       </div>
     </section>
+
+    <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+      <DialogContent className="max-w-2xl bg-gradient-to-br from-teal-50 to-slate-100 border-teal-200">
+        <DialogHeader>
+          <DialogTitle className="text-2xl font-bold text-teal-600">Enroll in {selectedCourse?.name}</DialogTitle>
+          <DialogDescription className="text-slate-600">
+            Complete your enrollment by selecting a subscription plan and providing payment details.
+          </DialogDescription>
+        </DialogHeader>
+
+        {selectedCourse && (
+          <div className="space-y-4">
+            <div className="flex gap-4 bg-white p-4 rounded-xl shadow-sm">
+              <img
+                src={selectedCourse.image}
+                alt={selectedCourse.name}
+                className="w-24 h-24 object-cover rounded-xl"
+              />
+              <div className="flex-1">
+                <h3 className="text-lg font-bold text-teal-600 mb-2">{selectedCourse.name}</h3>
+                <p className="text-slate-600 text-sm mb-3">{selectedCourse.description}</p>
+                <div className="flex gap-3 text-xs">
+                  <span className="bg-teal-100 text-teal-700 px-2 py-1 rounded-full font-semibold">
+                    Level: {selectedCourse.level}
+                  </span>
+                  <span className="bg-slate-100 text-slate-700 px-2 py-1 rounded-full font-semibold">
+                    Duration: {selectedCourse.duration}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white p-3 rounded-xl shadow-sm">
+              <h4 className="text-base font-semibold text-teal-600 mb-3">Subscription Plans</h4>
+              <div className="space-y-2">
+                <label className="flex items-center p-2 bg-teal-50 rounded-lg cursor-pointer hover:bg-teal-100 transition">
+                  <input
+                    type="radio"
+                    value="monthly"
+                    checked={selectedPlan === "monthly"}
+                    onChange={(e) => setSelectedPlan(e.target.value)}
+                    className="mr-2 text-teal-500"
+                  />
+                  <div>
+                    <span className="font-semibold text-slate-700 text-sm">Monthly Plan</span>
+                    <span className="text-teal-600 font-bold ml-2 text-sm">$50/month</span>
+                  </div>
+                </label>
+                <label className="flex items-center p-2 bg-teal-50 rounded-lg cursor-pointer hover:bg-teal-100 transition">
+                  <input
+                    type="radio"
+                    value="annual"
+                    checked={selectedPlan === "annual"}
+                    onChange={(e) => setSelectedPlan(e.target.value)}
+                    className="mr-2 text-teal-500"
+                  />
+                  <div>
+                    <span className="font-semibold text-slate-700 text-sm">Annual Plan</span>
+                    <span className="text-teal-600 font-bold ml-2 text-sm">$500/year</span>
+                    <span className="text-green-600 text-xs ml-2">(Save 17%)</span>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            <div className="bg-white p-3 rounded-xl shadow-sm">
+              <h4 className="text-base font-semibold text-teal-600 mb-3">Payment Method</h4>
+              <div className="space-y-2 mb-3">
+                <label className="flex items-center">
+                  <input
+                    type="radio"
+                    value="card"
+                    checked={paymentMethod === "card"}
+                    onChange={(e) => setPaymentMethod(e.target.value)}
+                    className="mr-2 text-teal-500"
+                  />
+                  <span className="font-semibold text-slate-700 text-sm">Credit/Debit Card</span>
+                </label>
+                <label className="flex items-center">
+                  <input
+                    type="radio"
+                    value="upi"
+                    checked={paymentMethod === "upi"}
+                    onChange={(e) => setPaymentMethod(e.target.value)}
+                    className="mr-2 text-teal-500"
+                  />
+                  <span className="font-semibold text-slate-700 text-sm">UPI</span>
+                </label>
+              </div>
+
+              {paymentMethod === "card" ? (
+                <div className="space-y-3">
+                  <Input
+                    placeholder="Card Number"
+                    value={paymentDetails.cardNumber}
+                    onChange={(e) =>
+                      setPaymentDetails({ ...paymentDetails, cardNumber: e.target.value })
+                    }
+                    className="border-teal-200 focus:border-teal-400 text-sm"
+                  />
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="MM/YY"
+                      value={paymentDetails.expiry}
+                      onChange={(e) =>
+                        setPaymentDetails({ ...paymentDetails, expiry: e.target.value })
+                      }
+                      className="border-teal-200 focus:border-teal-400 text-sm"
+                    />
+                    <Input
+                      placeholder="CVV"
+                      value={paymentDetails.cvv}
+                      onChange={(e) =>
+                        setPaymentDetails({ ...paymentDetails, cvv: e.target.value })
+                      }
+                      className="border-teal-200 focus:border-teal-400 text-sm"
+                    />
+                  </div>
+                  <Input
+                    placeholder="Cardholder Name"
+                    value={paymentDetails.name}
+                    onChange={(e) =>
+                      setPaymentDetails({ ...paymentDetails, name: e.target.value })
+                    }
+                    className="border-teal-200 focus:border-teal-400 text-sm"
+                  />
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <Input
+                    placeholder="UPI ID (e.g., user@upi)"
+                    value={paymentDetails.upiId}
+                    onChange={(e) =>
+                      setPaymentDetails({ ...paymentDetails, upiId: e.target.value })
+                    }
+                    className="border-teal-200 focus:border-teal-400 text-sm"
+                  />
+                </div>
+              )}
+            </div>
+
+            <div className="bg-white p-3 rounded-xl shadow-sm">
+              <h4 className="text-base font-semibold text-teal-600 mb-3">Total Payable Amount</h4>
+              <div className="text-2xl font-bold text-teal-600">
+                ${selectedPlan === "monthly" ? 50 : 500}
+              </div>
+            </div>
+          </div>
+        )}
+
+        <DialogFooter className="gap-3">
+          <Button variant="outline" onClick={() => setIsModalOpen(false)} className="border-teal-300 text-teal-600 hover:bg-teal-50">
+            Cancel
+          </Button>
+          <Button
+            onClick={() => {
+              // Handle payment logic here
+              alert("Payment processed successfully!");
+              setIsModalOpen(false);
+            }}
+            className="bg-teal-500 hover:bg-teal-600 text-white font-semibold px-6"
+          >
+            Pay Now
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
     </Layout>
   );
 };
