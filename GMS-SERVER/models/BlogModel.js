@@ -1,63 +1,41 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
+
 const blogSchema = new Schema(
   {
     title: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    description: {
-      type: String,
-      required: true,
-    },
-    category: {
-      type: String,
-      enum: [
-        "Workout",
-        "Nutrition",
-        "Lifestyle",
-        "Motivation",
-        "Bodybuilding",
-        "Cardio",
-      ],
-      required: true,
-    },
-    coverImage: {
-      type: String,
-      default: "",
+      type: String,required: [true, "Blog title is required"],trim: true,minlength: [3, "Title must be at least 3 characters long"],maxlength: [200, "Title can't exceed 200 characters"],
     },
     content: {
-      type: String,
-      required: true,
+      type: String,required: [true, "Blog content is required"],trim: true,
     },
     author: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
+      type: mongoose.Schema.Types.ObjectId,ref: "User",required: [true, "Author is required"],
+    },
+    category: {
+      type: String,trim: true,default: "General",
+    },
+    image: {
+      type: String,default: "",
     },
     tags: [
       {
-        type: String,
-        trim: true,
+        type: String,trim: true,
       },
     ],
-    likes: {
-      type: Number,
-      default: 0,
+    status: {
+      type: String,enum: ["Draft", "Published", "Archived"],default: "Draft",
     },
-    comments: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Comment",
-      },
-    ],
-    isFeatured: {
-      type: Boolean,
-      default: false,
+    views: {
+      type: Number,default: 0,
+    },
+    likes: {
+      type: Number,default: 0,
     },
   },
-  { timestamps: true }
+  {
+    timestamps: true, 
+    versionKey: false,
+  }
 );
-
-export default mongoose.model("Blog", blogSchema);
+module.exports = mongoose.model("Blog", blogSchema);
