@@ -1,4 +1,6 @@
 import React, { useMemo, useState } from "react";
+import { motion } from "framer-motion";
+import { MessageSquare, Users, CheckCircle, AlertTriangle, Plus, Search, Filter, Download, Settings, X, Send } from "lucide-react";
 import Layout from "../components/Layout";
 
 // Support Tickets page for a gym management website
@@ -75,70 +77,74 @@ export default function SupportTickets() {
     setDrawer(id);
   }
 
-  const base = highContrast ? "from-slate-900 via-slate-900 to-slate-900" : "from-slate-950 via-slate-900 to-slate-950";
-
   return (
     <Layout>
-       <div className={`min-h-screen w-full bg-gradient-to-b ${base} text-slate-100`}>
+       <div className="min-h-screen w-full bg-gradient-to-br from-teal-50 via-white to-teal-100 text-foreground">
       <div className="mx-auto max-w-7xl px-4 py-6">
         {/* Header */}
-        <div className="mb-6 flex items-center justify-between">
+        <motion.div className="mb-6 flex items-center justify-between" initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
           <div>
-            <h1 className="text-3xl font-extrabold tracking-tight">Support Tickets</h1>
-            <p className="mt-1 text-sm text-slate-300">Fast triage, clean visuals, real time updates.</p>
+            <h1 className="text-3xl font-extrabold tracking-tight text-teal-600">Support Tickets</h1>
+            <p className="mt-1 text-sm text-muted-foreground">Fast triage, clean visuals, real time updates.</p>
           </div>
           <div className="flex items-center gap-3">
-            <label className="flex items-center gap-2 text-xs">
-              <span>High contrast</span>
-              <input type="checkbox" checked={highContrast} onChange={e=>setHighContrast(e.target.checked)} />
-            </label>
-            <select value={range} onChange={e=>setRange(e.target.value)} className="rounded-xl bg-slate-800/70 px-3 py-2 text-xs ring-1 ring-white/10 focus:outline-none">
+            <select value={range} onChange={e=>setRange(e.target.value)} className="rounded-xl bg-teal-50 px-3 py-2 text-xs ring-1 ring-teal-200 focus:outline-none focus:ring-2 focus:ring-teal-500">
               <option value="7">Last 7 days</option>
               <option value="30">Last 30 days</option>
               <option value="90">Last 90 days</option>
             </select>
-            <button onClick={()=>setComposeOpen(true)} className="rounded-xl bg-emerald-500 px-4 py-2 text-sm font-semibold text-emerald-950 shadow-lg shadow-emerald-500/30 hover:brightness-110">New ticket</button>
+            <motion.button onClick={()=>setComposeOpen(true)} className="rounded-xl bg-teal-600 px-4 py-2 text-sm font-semibold text-white shadow-lg hover:bg-teal-700" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Plus className="inline mr-2 h-4 w-4" />
+              New ticket
+            </motion.button>
           </div>
-        </div>
+        </motion.div>
 
         {/* KPI cards */}
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {stats.map(s => (
-            <div key={s.label} className="rounded-2xl border border-white/10 bg-slate-800/60 p-4 backdrop-blur">
-              <div className="flex items-center justify-between">
-                <p className="text-xs uppercase tracking-wide text-slate-400">{s.label}</p>
-                <svg className="h-5 w-5 opacity-70" viewBox="0 0 24 24" fill="currentColor"><path d="M3 12h3l3 7 4-14 3 7h5"/></svg>
+        <motion.div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2 }}>
+          {stats.map((s, index) => (
+            <motion.div key={s.label} className="rounded-2xl border border-teal-300 bg-gradient-to-br from-teal-100 to-teal-200 p-4 shadow-lg flex items-center justify-between" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.3, delay: index * 0.1 }}>
+              <div>
+                <div className="text-xs text-teal-800 uppercase tracking-wide">{s.label}</div>
+                <div className="text-2xl font-bold mt-1 text-teal-900">{s.value}</div>
               </div>
-              <div className="mt-2 text-2xl font-bold">{s.value}</div>
-              <div className="text-xs text-slate-400">Updated {new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</div>
-            </div>
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-teal-300 to-teal-400 flex items-center justify-center shadow-md">
+                {s.label === "Open" && <MessageSquare size={20} className="text-teal-800" />}
+                {s.label === "Pending" && <AlertTriangle size={20} className="text-teal-800" />}
+                {s.label === "Resolved" && <CheckCircle size={20} className="text-teal-800" />}
+                {s.label === "Urgent" && <AlertTriangle size={20} className="text-red-600" />}
+              </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
 
         {/* Filters */}
-        <div className="mt-6 rounded-2xl border border-white/10 bg-slate-800/60 p-4">
+        <motion.div className="mt-6 rounded-2xl border border-teal-300 bg-gradient-to-r from-teal-100 to-teal-200 p-4 shadow-md" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.4 }}>
           <div className="grid gap-3 md:grid-cols-6">
-            <input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search tickets, members, assignees" className="md:col-span-2 rounded-xl bg-slate-900/70 px-3 py-2 text-sm ring-1 ring-white/10 focus:outline-none" />
-            <select value={status} onChange={e=>setStatus(e.target.value)} className="rounded-xl bg-slate-900/70 px-3 py-2 text-sm ring-1 ring-white/10"><option value="all">All status</option><option>Open</option><option>Pending</option><option>Resolved</option></select>
-            <select value={priority} onChange={e=>setPriority(e.target.value)} className="rounded-xl bg-slate-900/70 px-3 py-2 text-sm ring-1 ring-white/10"><option value="all">All priority</option><option>Urgent</option><option>High</option><option>Medium</option><option>Low</option></select>
-            <select value={category} onChange={e=>setCategory(e.target.value)} className="rounded-xl bg-slate-900/70 px-3 py-2 text-sm ring-1 ring-white/10"><option value="all">All categories</option><option>Billing</option><option>App</option><option>Facilities</option><option>Training</option></select>
-            <select value={sort} onChange={e=>setSort(e.target.value)} className="rounded-xl bg-slate-900/70 px-3 py-2 text-sm ring-1 ring-white/10"><option value="updated-desc">Newest updated</option><option value="updated-asc">Oldest updated</option><option value="priority">Priority</option></select>
+            <div className="md:col-span-2 relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-teal-600" />
+              <input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search tickets, members, assignees" className="w-full rounded-xl bg-white px-10 py-2 text-sm ring-1 ring-teal-200 focus:outline-none focus:ring-2 focus:ring-teal-500" />
+            </div>
+            <select value={status} onChange={e=>setStatus(e.target.value)} className="rounded-xl bg-white px-3 py-2 text-sm ring-1 ring-teal-200 focus:outline-none focus:ring-2 focus:ring-teal-500"><option value="all">All status</option><option>Open</option><option>Pending</option><option>Resolved</option></select>
+            <select value={priority} onChange={e=>setPriority(e.target.value)} className="rounded-xl bg-white px-3 py-2 text-sm ring-1 ring-teal-200 focus:outline-none focus:ring-2 focus:ring-teal-500"><option value="all">All priority</option><option>Urgent</option><option>High</option><option>Medium</option><option>Low</option></select>
+            <select value={category} onChange={e=>setCategory(e.target.value)} className="rounded-xl bg-white px-3 py-2 text-sm ring-1 ring-teal-200 focus:outline-none focus:ring-2 focus:ring-teal-500"><option value="all">All categories</option><option>Billing</option><option>App</option><option>Facilities</option><option>Training</option></select>
+            <select value={sort} onChange={e=>setSort(e.target.value)} className="rounded-xl bg-white px-3 py-2 text-sm ring-1 ring-teal-200 focus:outline-none focus:ring-2 focus:ring-teal-500"><option value="updated-desc">Newest updated</option><option value="updated-asc">Oldest updated</option><option value="priority">Priority</option></select>
           </div>
           {selected.length>0 && (
-            <div className="mt-3 flex items-center justify-between rounded-xl bg-slate-900/60 px-3 py-2 text-sm">
+            <motion.div className="mt-3 flex items-center justify-between rounded-xl bg-white px-3 py-2 text-sm" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.2 }}>
               <div>{selected.length} selected</div>
               <div className="flex items-center gap-2">
-                <button onClick={()=>bulkUpdate('status','Resolved')} className="rounded-lg bg-emerald-500 px-3 py-1 text-emerald-950">Mark resolved</button>
-                <button onClick={()=>bulkUpdate('assignee','—')} className="rounded-lg bg-slate-700 px-3 py-1">Unassign</button>
-                <button onClick={()=>setSelected([])} className="rounded-lg bg-slate-700 px-3 py-1">Clear</button>
+                <motion.button onClick={()=>bulkUpdate('status','Resolved')} className="rounded-lg bg-teal-600 px-3 py-1 text-white hover:bg-teal-700" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>Mark resolved</motion.button>
+                <motion.button onClick={()=>bulkUpdate('assignee','—')} className="rounded-lg bg-teal-500 px-3 py-1 text-white hover:bg-teal-600" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>Unassign</motion.button>
+                <motion.button onClick={()=>setSelected([])} className="rounded-lg bg-teal-100 px-3 py-1 text-teal-700 hover:bg-teal-200" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>Clear</motion.button>
               </div>
-            </div>
+            </motion.div>
           )}
-        </div>
+        </motion.div>
 
         {/* Table */}
-        <div className="mt-6 overflow-hidden rounded-2xl border border-white/10 bg-slate-800/60">
-          <div className="grid grid-cols-12 gap-3 border-b border-white/10 p-3 text-xs text-slate-400">
+        <motion.div className="mt-6 overflow-hidden rounded-2xl border border-teal-300 bg-gradient-to-br from-teal-50 to-teal-100" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.6 }}>
+          <div className="grid grid-cols-12 gap-3 border-b border-teal-300 p-3 text-xs text-teal-700 bg-teal-100">
             <div className="col-span-1">Select</div>
             <div className="col-span-2">Ticket</div>
             <div className="col-span-3">Subject</div>
@@ -147,44 +153,44 @@ export default function SupportTickets() {
             <div className="col-span-1">Status</div>
             <div className="col-span-2">Updated</div>
           </div>
-          <ul className="divide-y divide-white/10">
-            {filtered.map(t => (
-              <li key={t.id} className="grid grid-cols-12 items-center gap-3 px-3 py-3 hover:bg-slate-900/40">
+          <ul className="divide-y divide-teal-200">
+            {filtered.map((t, index) => (
+              <motion.li key={t.id} className="grid grid-cols-12 items-center gap-3 px-3 py-3 hover:bg-teal-50 transition-colors" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.3, delay: index * 0.05 }}>
                 <div className="col-span-1">
-                  <input type="checkbox" checked={selected.includes(t.id)} onChange={()=>toggleSelect(t.id)} />
+                  <input type="checkbox" checked={selected.includes(t.id)} onChange={()=>toggleSelect(t.id)} className="rounded border-teal-300" />
                 </div>
                 <div className="col-span-2">
-                  <button onClick={()=>setDrawer(t.id)} className="rounded bg-slate-700/60 px-2 py-1 text-xs hover:underline">{t.id}</button>
-                  <div className="text-[11px] text-slate-400">{t.category} • {t.club}</div>
+                  <motion.button onClick={()=>setDrawer(t.id)} className="rounded bg-teal-600 px-2 py-1 text-xs text-white hover:bg-teal-700 transition-colors" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>{t.id}</motion.button>
+                  <div className="text-[11px] text-teal-600">{t.category} • {t.club}</div>
                 </div>
                 <div className="col-span-3">
-                  <div className="text-sm font-medium">{t.subject}</div>
-                  <div className="text-xs text-slate-400">Assignee: {t.assignee}</div>
+                  <div className="text-sm font-medium text-teal-900">{t.subject}</div>
+                  <div className="text-xs text-teal-700">Assignee: {t.assignee}</div>
                 </div>
-                <div className="col-span-2 text-sm">{t.member}</div>
+                <div className="col-span-2 text-sm text-teal-900">{t.member}</div>
                 <div className="col-span-1">
                   <span className={`rounded px-2 py-1 text-xs ${
-                    t.priority==='Urgent'?'bg-red-500/20 text-red-300':
-                    t.priority==='High'?'bg-orange-500/20 text-orange-300':
-                    t.priority==='Medium'?'bg-yellow-500/20 text-yellow-300':'bg-slate-500/20 text-slate-300'}`}>{t.priority}</span>
+                    t.priority==='Urgent'?'bg-red-500/20 text-red-600':
+                    t.priority==='High'?'bg-orange-500/20 text-orange-600':
+                    t.priority==='Medium'?'bg-yellow-500/20 text-yellow-600':'bg-teal-200 text-teal-800'}`}>{t.priority}</span>
                 </div>
                 <div className="col-span-1">
-                  <span className={`rounded px-2 py-1 text-xs ${t.status==='Resolved'?'bg-emerald-500/20 text-emerald-300':t.status==='Pending'?'bg-cyan-500/20 text-cyan-300':'bg-indigo-500/20 text-indigo-300'}`}>{t.status}</span>
+                  <span className={`rounded px-2 py-1 text-xs ${t.status==='Resolved'?'bg-green-500/20 text-green-600':t.status==='Pending'?'bg-blue-500/20 text-blue-600':'bg-indigo-500/20 text-indigo-600'}`}>{t.status}</span>
                 </div>
-                <div className="col-span-2 text-xs text-slate-400">{t.updated}</div>
-              </li>
+                <div className="col-span-2 text-xs text-teal-700">{t.updated}</div>
+              </motion.li>
             ))}
           </ul>
-        </div>
+        </motion.div>
 
         {/* Footer actions */}
-        <div className="mt-6 flex items-center justify-between text-sm">
-          <div className="text-slate-400">{filtered.length} tickets</div>
+        <motion.div className="mt-6 flex items-center justify-between text-sm" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.8 }}>
+          <div className="text-muted-foreground">{filtered.length} tickets</div>
           <div className="flex items-center gap-2">
-            <button className="rounded-xl bg-slate-700 px-3 py-2">Export</button>
-            <button className="rounded-xl bg-slate-700 px-3 py-2">Automation</button>
+            <motion.button className="rounded-xl bg-secondary px-3 py-2 text-secondary-foreground hover:bg-secondary/80" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>Export</motion.button>
+            <motion.button className="rounded-xl bg-secondary px-3 py-2 text-secondary-foreground hover:bg-secondary/80" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>Automation</motion.button>
           </div>
-        </div>
+        </motion.div>
       </div>
 
       {/* Drawer */}
@@ -231,23 +237,23 @@ function TicketDrawer({ ticket, onClose, onUpdate }) {
           <h4 className="text-sm font-semibold mb-2">Replies ({ticket.replies})</h4>
           <div className="space-y-3 max-h-64 overflow-y-auto">
             {/* Mock replies */}
-            <div className="rounded-xl border border-white/10 bg-slate-800/60 p-3">
+            <div className="rounded-xl border border-white/10 bg-teal-100/60 p-3">
               <div className="text-xs text-slate-400">Vikram • 2025-10-03 14:12</div>
               <div className="text-sm mt-1">We're looking into this issue. Please provide more details about your device.</div>
             </div>
-            <div className="rounded-xl border border-white/10 bg-slate-800/60 p-3">
+            <div className="rounded-xl border border-white/10 bg-teal-100/60 p-3">
               <div className="text-xs text-slate-400">Aarav S. • 2025-10-03 13:45</div>
               <div className="text-sm mt-1">I'm using an iPhone 12 with the latest app version.</div>
             </div>
           </div>
         </div>
         <div className="grid grid-cols-2 gap-3 mb-4">
-          <select value={nextStatus} onChange={e=>setNextStatus(e.target.value)} className="rounded-xl bg-slate-800 px-3 py-2 text-sm ring-1 ring-white/10">
+          <select value={nextStatus} onChange={e=>setNextStatus(e.target.value)} className="rounded-xl bg-teal-100 px-3 py-2 text-sm ring-1 ring-white/10">
             <option>Open</option><option>Pending</option><option>Resolved</option>
           </select>
-          <input value={nextAssignee} onChange={e=>setNextAssignee(e.target.value)} placeholder="Assignee" className="rounded-xl bg-slate-800 px-3 py-2 text-sm ring-1 ring-white/10" />
+          <input value={nextAssignee} onChange={e=>setNextAssignee(e.target.value)} placeholder="Assignee" className="rounded-xl bg-teal-100 px-3 py-2 text-sm ring-1 ring-white/10" />
         </div>
-        <textarea value={reply} onChange={e=>setReply(e.target.value)} placeholder="Add a reply..." className="w-full rounded-xl bg-slate-800 px-3 py-2 text-sm ring-1 ring-white/10 mb-4" rows={3} />
+        <textarea value={reply} onChange={e=>setReply(e.target.value)} placeholder="Add a reply..." className="w-full rounded-xl bg-teal-100 px-3 py-2 text-sm ring-1 ring-white/10 mb-4" rows={3} />
         <div className="flex items-center justify-end gap-2">
           <button onClick={onClose} className="rounded-xl bg-slate-700 px-4 py-2 text-sm">Cancel</button>
           <button onClick={()=>{onUpdate({status:nextStatus, assignee:nextAssignee}); onClose();}} className="rounded-xl bg-emerald-500 px-4 py-2 text-sm font-semibold text-emerald-950 shadow-lg shadow-emerald-500/30">Update</button>
@@ -280,19 +286,19 @@ function ComposeModal({ onClose, onCreate }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-black/70 p-4">
-      <div className="w-full max-w-2xl rounded-2xl border border-white/10 bg-slate-900 p-5">
+    <div className="fixed inset-0 z-50 grid place-items-center bg-teal-50/70 p-4">
+      <div className="w-full max-w-2xl rounded-2xl border border-white/10 bg-teal-200 p-5">
         <div className="mb-3 flex items-center justify-between">
           <h3 className="text-lg font-semibold">Create ticket</h3>
           <button onClick={onClose} className="rounded-lg bg-slate-700 px-3 py-1 text-xs">Close</button>
         </div>
         <div className="grid grid-cols-2 gap-3">
-          <input value={subject} onChange={e=>setSubject(e.target.value)} placeholder="Subject" className="col-span-2 rounded-xl bg-slate-800 px-3 py-2 text-sm ring-1 ring-white/10" />
-          <input value={member} onChange={e=>setMember(e.target.value)} placeholder="Member name" className="rounded-xl bg-slate-800 px-3 py-2 text-sm ring-1 ring-white/10" />
-          <input value={club} onChange={e=>setClub(e.target.value)} placeholder="Club or location" className="rounded-xl bg-slate-800 px-3 py-2 text-sm ring-1 ring-white/10" />
-          <select value={priority} onChange={e=>setPriority(e.target.value)} className="rounded-xl bg-slate-800 px-3 py-2 text-sm ring-1 ring-white/10"><option>Urgent</option><option>High</option><option>Medium</option><option>Low</option></select>
-          <select value={category} onChange={e=>setCategory(e.target.value)} className="rounded-xl bg-slate-800 px-3 py-2 text-sm ring-1 ring-white/10"><option>Billing</option><option>App</option><option>Facilities</option><option>Training</option></select>
-          <input value={assignee} onChange={e=>setAssignee(e.target.value)} placeholder="Assign to" className="rounded-xl bg-slate-800 px-3 py-2 text-sm ring-1 ring-white/10" />
+          <input value={subject} onChange={e=>setSubject(e.target.value)} placeholder="Subject" className="col-span-2 rounded-xl bg-teal-100 px-3 py-2 text-sm ring-1 ring-white/10" />
+          <input value={member} onChange={e=>setMember(e.target.value)} placeholder="Member name" className="rounded-xl bg-teal-100 px-3 py-2 text-sm ring-1 ring-white/10" />
+          <input value={club} onChange={e=>setClub(e.target.value)} placeholder="Club or location" className="rounded-xl bg-teal-100 px-3 py-2 text-sm ring-1 ring-white/10" />
+          <select value={priority} onChange={e=>setPriority(e.target.value)} className="rounded-xl bg-teal-100 px-3 py-2 text-sm ring-1 ring-white/10"><option>Urgent</option><option>High</option><option>Medium</option><option>Low</option></select>
+          <select value={category} onChange={e=>setCategory(e.target.value)} className="rounded-xl bg-teal-100 px-3 py-2 text-sm ring-1 ring-white/10"><option>Billing</option><option>App</option><option>Facilities</option><option>Training</option></select>
+          <input value={assignee} onChange={e=>setAssignee(e.target.value)} placeholder="Assign to" className="rounded-xl bg-teal-100 px-3 py-2 text-sm ring-1 ring-white/10" />
         </div>
         <div className="mt-4 flex items-center justify-end gap-2">
           <button onClick={onClose} className="rounded-xl bg-slate-700 px-4 py-2 text-sm">Cancel</button>
@@ -302,3 +308,4 @@ function ComposeModal({ onClose, onCreate }) {
     </div>
   );
 }
+ 
