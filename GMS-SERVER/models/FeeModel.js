@@ -48,13 +48,6 @@ const feeSchema = new Schema(
   }
 );
 
-feeSchema.pre("save", function (next) {
-  if (!this.invoiceNo) {
-    this.invoiceNo = "INV-" + Date.now();
-  }
-  next();
-});
-
 feeSchema.virtual("summary").get(function () {
   return `${this.description} - ₹${this.amount} (${this.status})`;
 });
