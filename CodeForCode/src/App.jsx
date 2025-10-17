@@ -1,7 +1,6 @@
 import React from 'react'
 import { Route, Routes, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
-import { ThemeProvider } from './contexts/ThemeContext'
 import Login from './views/Login'
 import Home from './views/Home'
 import MemberManagement from './views/Management/MemberManagement'
@@ -34,7 +33,6 @@ function ProtectedRoute({ children }) {
 
 function App() {
   return (
-    <ThemeProvider>
       <AuthProvider>
         <div>
           <Routes>
@@ -65,7 +63,6 @@ function App() {
           </Routes>
         </div>
       </AuthProvider>
-    </ThemeProvider>
   )
 }
 
