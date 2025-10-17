@@ -1,5 +1,8 @@
 const mongoose = require("mongoose");
-const dbURI ="mongodb+srv://myshopuser:l0IlnvTAI2LFxfLt@myshop.kwc6clv.mongodb.net/gym";
+require('dotenv').config();
+const dbURI = process.env.MONGO_URI;
+console.log(dbURI);
+
 mongoose.connect(dbURI, { useNewUrlParser: true, useUnifiedTopology: true });
 
 const db = mongoose.connection;
