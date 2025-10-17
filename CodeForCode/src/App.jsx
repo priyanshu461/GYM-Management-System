@@ -1,6 +1,7 @@
 import React from 'react'
-import { Route, Routes } from 'react-router-dom'
-import { AuthProvider } from './contexts/AuthContext'
+import { Route, Routes, Navigate } from 'react-router-dom'
+import { AuthProvider, useAuth } from './contexts/AuthContext'
+import { ThemeProvider } from './contexts/ThemeContext'
 import Login from './views/Login'
 import Home from './views/Home'
 import MemberManagement from './views/Management/MemberManagement'
@@ -26,38 +27,45 @@ import NotificationsCommunication from './views/NotificationCommunication'
 import Dashboard from './views/Dashboard'
 import Profile from './views/Profile'
 
+function ProtectedRoute({ children }) {
+  const { isAuthenticated } = useAuth();
+  return isAuthenticated ? children : <Navigate to="/login" />;
+}
+
 function App() {
   return (
-    <AuthProvider>
-      <div>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/" element={<Home />} />
-          <Route path="/members" element={<MemberManagement />} />
-          <Route path="/finance" element={<Finance />} />
-          <Route path="/trainers" element={<Trainers />} />
-          <Route path="/facilities" element={<Facilities />} />
-          <Route path="/workoutRoutinue" element={<WorkoutRoutine />} />
-          <Route path="/dietPlan" element={<DietPlan />} />
-          <Route path="/bmiCalculator" element={<BMICalculator />} />
-          <Route path="/progressTracking" element={<ProgressTracker />} />
-          <Route path="/reportsAnalytics" element={<ReportsAnalytics />} />
-          <Route path="/classesSchedule" element={<ClassesSchedule />} />
-          <Route path="/courses" element={<Courses />} />
-          <Route path="/franchiseAndMembership" element={<FranchiseAndMembership />} />
-          <Route path="/protein" element={<Protein />} />
-          <Route path='/aminoacidsuppliments' element={<AminoAcidSuppliments />} />
-          <Route path='/suppliments' element={<Suppliments />} />
-          <Route path='/multivitaminandminerals' element={<MultivitaminAndMinerals />} />
-          <Route path='/settings' element={<Settings />} />
-          <Route path='/supporttickets' element={<SupportTickets />} />
-          <Route path='/gymblog' element={<GymBlog />} />
-          <Route path='/notificationcommunication' element={<NotificationsCommunication />} />
-          <Route path='/profile' element={<Profile />} />
-        </Routes>
-      </div>
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <div>
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+            <Route path="/" element={<Home />} />
+            <Route path="/members" element={<ProtectedRoute><MemberManagement /></ProtectedRoute>} />
+            <Route path="/finance" element={<ProtectedRoute><Finance /></ProtectedRoute>} />
+            <Route path="/trainers" element={<ProtectedRoute><Trainers /></ProtectedRoute>} />
+            <Route path="/facilities" element={<ProtectedRoute><Facilities /></ProtectedRoute>} />
+            <Route path="/workoutRoutinue" element={<ProtectedRoute><WorkoutRoutine /></ProtectedRoute>} />
+            <Route path="/dietPlan" element={<ProtectedRoute><DietPlan /></ProtectedRoute>} />
+            <Route path="/bmiCalculator" element={<ProtectedRoute><BMICalculator /></ProtectedRoute>} />
+            <Route path="/progressTracking" element={<ProtectedRoute><ProgressTracker /></ProtectedRoute>} />
+            <Route path="/reportsAnalytics" element={<ProtectedRoute><ReportsAnalytics /></ProtectedRoute>} />
+            <Route path="/classesSchedule" element={<ProtectedRoute><ClassesSchedule /></ProtectedRoute>} />
+            <Route path="/courses" element={<ProtectedRoute><Courses /></ProtectedRoute>} />
+            <Route path="/franchiseAndMembership" element={<ProtectedRoute><FranchiseAndMembership /></ProtectedRoute>} />
+            <Route path="/protein" element={<ProtectedRoute><Protein /></ProtectedRoute>} />
+            <Route path='/aminoacidsuppliments' element={<ProtectedRoute><AminoAcidSuppliments /></ProtectedRoute>} />
+            <Route path='/suppliments' element={<ProtectedRoute><Suppliments /></ProtectedRoute>} />
+            <Route path='/multivitaminandminerals' element={<ProtectedRoute><MultivitaminAndMinerals /></ProtectedRoute>} />
+            <Route path='/settings' element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+            <Route path='/supporttickets' element={<ProtectedRoute><SupportTickets /></ProtectedRoute>} />
+            <Route path='/gymblog' element={<ProtectedRoute><GymBlog /></ProtectedRoute>} />
+            <Route path='/notificationcommunication' element={<ProtectedRoute><NotificationsCommunication /></ProtectedRoute>} />
+            <Route path='/profile' element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+          </Routes>
+        </div>
+      </AuthProvider>
+    </ThemeProvider>
   )
 }
 

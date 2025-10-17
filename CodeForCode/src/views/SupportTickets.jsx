@@ -5,129 +5,6 @@ import Layout from "../components/Layout";
 // Bold, dark UI inspired by the provided dashboard screenshot
 // Tailwind only. No TypeScript.
 
-function TicketDrawer({ ticket, onClose, onUpdate }) {
-  const [reply, setReply] = useState("");
-  const [nextStatus, setNextStatus] = useState(ticket.status);
-  const [nextAssignee, setNextAssignee] = useState(ticket.assignee);
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
-      <div className="w-full max-w-lg rounded-2xl border border-teal-300 bg-teal p-6 relative">
-        <button
-          onClick={onClose}
-          className="absolute right-4 top-4 rounded bg-teal-300 px-3 py-1 text-xs text-teal-900"
-        >
-          Close
-        </button>
-        <h2 className="mb-2 text-xl font-bold text-teal-900">{ticket.subject}</h2>
-        <div className="mb-4 flex flex-wrap gap-2">
-          <Info label="Ticket ID" value={ticket.id} />
-          <Info label="Status" value={ticket.status} />
-          <Info label="Priority" value={ticket.priority} />
-          <Info label="Category" value={ticket.category} />
-        </div>
-        <div className="mb-4 grid grid-cols-2 gap-2">
-          <Info label="Member" value={ticket.member} />
-          <Info label="Club" value={ticket.club} />
-          <Info label="Assignee" value={ticket.assignee} />
-          <Info label="Replies" value={ticket.replies} />
-        </div>
-        <div className="mb-4 text-xs text-teal-700">
-          Created: {ticket.created} <br />
-          Updated: {ticket.updated}
-        </div>
-        <div className="mb-4 flex gap-2">
-          <select
-            value={nextStatus}
-            onChange={e => setNextStatus(e.target.value)}
-            className="rounded bg-teal px-2 py-1 text-sm ring-1 ring-teal-300"
-          >
-            <option>Open</option>
-            <option>Pending</option>
-            <option>Resolved</option>
-          </select>
-          <input
-            value={nextAssignee}
-            onChange={e => setNextAssignee(e.target.value)}
-            placeholder="Assignee"
-            className="rounded bg-teal px-2 py-1 text-sm ring-1 ring-teal-300"
-          />
-          <button
-            onClick={() => onUpdate({ status: nextStatus, assignee: nextAssignee })}
-            className="rounded bg-gradient-to-r from-emerald-400 to-emerald-600 px-3 py-1 text-teal font-semibold shadow-lg shadow-emerald-500/30 hover:from-emerald-500 hover:to-emerald-700 transition-all"
-          >
-            Update
-          </button>
-        </div>
-        <div className="mb-2">
-          <textarea
-            value={reply}
-            onChange={e => setReply(e.target.value)}
-            placeholder="Write a reply..."
-            className="w-full rounded bg-teal px-2 py-1 text-sm ring-1 ring-teal-300"
-            rows={3}
-          />
-        </div>
-        <button
-          onClick={() => {
-            setReply("");
-            onUpdate({ replies: ticket.replies + 1 });
-          }}
-          className="rounded bg-gradient-to-r from-indigo-400 to-indigo-600 px-4 py-2 text-teal font-semibold shadow-lg shadow-indigo-500/30 hover:from-indigo-500 hover:to-indigo-700 transition-all"
-        >
-          Send Reply
-        </button>
-      </div>
-    </div>
-  );
-}
-
-function Info({ label, value }) {
-  return (
-    <div className="rounded-xl border border-teal-300 bg-teal/60 p-3">
-      <div className="text-xs text-teal-700">{label}</div>
-      <div className="text-sm font-semibold text-teal-900">{value}</div>
-    </div>
-  );
-}
-
-function ComposeModal({ onClose, onCreate }) {
-  const [subject, setSubject] = useState("");
-  const [member, setMember] = useState("");
-  const [club, setClub] = useState("");
-  const [priority, setPriority] = useState("Medium");
-  const [category, setCategory] = useState("App");
-  const [assignee, setAssignee] = useState("");
-
-  function submit() {
-    if (!subject.trim()) return alert("Add a subject");
-    onCreate({ subject, member, club, priority, category, assignee });
-  }
-
-  return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-black/70 p-4">
-      <div className="w-full max-w-2xl rounded-2xl border border-teal-300 bg-teal p-5">
-        <div className="mb-3 flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-teal-900">Create ticket</h3>
-          <button onClick={onClose} className="rounded-lg bg-teal-300 px-3 py-1 text-xs text-teal-900">Close</button>
-        </div>
-        <div className="grid grid-cols-2 gap-3">
-          <input value={subject} onChange={e=>setSubject(e.target.value)} placeholder="Subject" className="col-span-2 rounded-xl bg-teal px-3 py-2 text-sm ring-1 ring-teal-300" />
-          <input value={member} onChange={e=>setMember(e.target.value)} placeholder="Member name" className="rounded-xl bg-teal px-3 py-2 text-sm ring-1 ring-teal-300" />
-          <input value={club} onChange={e=>setClub(e.target.value)} placeholder="Club or location" className="rounded-xl bg-teal px-3 py-2 text-sm ring-1 ring-teal-300" />
-          <select value={priority} onChange={e=>setPriority(e.target.value)} className="rounded-xl bg-teal px-3 py-2 text-sm ring-1 ring-teal-300"><option>Urgent</option><option>High</option><option>Medium</option><option>Low</option></select>
-          <select value={category} onChange={e=>setCategory(e.target.value)} className="rounded-xl bg-teal px-3 py-2 text-sm ring-1 ring-teal-300"><option>Billing</option><option>App</option><option>Facilities</option><option>Training</option></select>
-          <input value={assignee} onChange={e=>setAssignee(e.target.value)} placeholder="Assign to" className="rounded-xl bg-teal px-3 py-2 text-sm ring-1 ring-teal-300" />
-        </div>
-        <div className="mt-4 flex items-center justify-end gap-2">
-          <button onClick={onClose} className="rounded-xl bg-teal-300 px-4 py-2 text-sm text-teal-900">Cancel</button>
-          <button onClick={submit} className="rounded-xl bg-gradient-to-r from-emerald-400 to-emerald-600 px-4 py-2 text-sm font-semibold text-teal shadow-lg shadow-emerald-500/30 hover:from-emerald-500 hover:to-emerald-700 transition-all">Create</button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 const seedTickets = [
   { id: "GB-1042", subject: "App not logging workouts", member: "Aarav S.", club: "Hyderabad", priority: "High", status: "Open", created: "2025-10-01 09:34", updated: "2025-10-03 14:12", assignee: "Vikram", category: "App", replies: 2 },
   { id: "GB-1041", subject: "Refund for canceled class", member: "Nisha K.", club: "Agra", priority: "Medium", status: "Pending", created: "2025-10-01 08:02", updated: "2025-10-02 11:51", assignee: "Maya", category: "Billing", replies: 3 },
@@ -169,9 +46,7 @@ export default function SupportTickets() {
       .filter(t => (status === "all" ? true : t.status === status))
       .filter(t => (priority === "all" ? true : t.priority === priority))
       .filter(t => (category === "all" ? true : t.category === category))
-      .filter(t => (
-        `${t.id} ${t.subject} ${t.member} ${t.club} ${t.assignee}`.toLowerCase().includes(query.toLowerCase())
-      ));
+      .filter(t => `${t.id} ${t.subject} ${t.member} ${t.club} ${t.assignee}`.toLowerCase().includes(query.toLowerCase()));
 
     if (sort === "updated-desc") list = list.sort((a,b)=> new Date(b.updated) - new Date(a.updated));
     if (sort === "updated-asc") list = list.sort((a,b)=> new Date(a.updated) - new Date(b.updated));
@@ -192,7 +67,7 @@ export default function SupportTickets() {
   }
 
   function createTicket(data) {
-    const id = `GB-${1000 + Math.floor(Math.random()*9000)}`;
+    const id = `GB-${(1000 + Math.floor(Math.random()*9000))}`;
     const now = new Date().toISOString().slice(0,16).replace('T',' ');
     const t = { id, subject: data.subject, member: data.member || "—", club: data.club || "Online", priority: data.priority || "Medium", status: "Open", created: now, updated: now, assignee: data.assignee || "—", category: data.category || "App", replies: 0 };
     setTickets([t, ...tickets]);
@@ -200,70 +75,70 @@ export default function SupportTickets() {
     setDrawer(id);
   }
 
-const base = "bg-teal";
+  const base = highContrast ? "from-slate-900 via-slate-900 to-slate-900" : "from-slate-950 via-slate-900 to-slate-950";
 
   return (
     <Layout>
-       <div className={`min-h-screen w-full ${base} text-teal-900`}>
+       <div className={`min-h-screen w-full bg-gradient-to-b ${base} text-slate-100`}>
       <div className="mx-auto max-w-7xl px-4 py-6">
         {/* Header */}
         <div className="mb-6 flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-extrabold tracking-tight">Support Tickets</h1>
-            <p className="mt-1 text-sm text-teal-700">Fast triage, clean visuals, real time updates.</p>
+            <p className="mt-1 text-sm text-slate-300">Fast triage, clean visuals, real time updates.</p>
           </div>
           <div className="flex items-center gap-3">
             <label className="flex items-center gap-2 text-xs">
               <span>High contrast</span>
               <input type="checkbox" checked={highContrast} onChange={e=>setHighContrast(e.target.checked)} />
             </label>
-            <select value={range} onChange={e=>setRange(e.target.value)} className="rounded-xl bg-teal/70 px-3 py-2 text-xs ring-1 ring-teal-300 focus:outline-none">
+            <select value={range} onChange={e=>setRange(e.target.value)} className="rounded-xl bg-slate-800/70 px-3 py-2 text-xs ring-1 ring-white/10 focus:outline-none">
               <option value="7">Last 7 days</option>
               <option value="30">Last 30 days</option>
               <option value="90">Last 90 days</option>
             </select>
-            <button onClick={()=>setComposeOpen(true)} className="rounded-xl bg-gradient-to-r from-emerald-400 to-emerald-600 px-4 py-2 text-sm font-semibold text-teal shadow-lg shadow-emerald-500/30 hover:from-emerald-500 hover:to-emerald-700 transition-all">New ticket</button>
+            <button onClick={()=>setComposeOpen(true)} className="rounded-xl bg-emerald-500 px-4 py-2 text-sm font-semibold text-emerald-950 shadow-lg shadow-emerald-500/30 hover:brightness-110">New ticket</button>
           </div>
         </div>
 
         {/* KPI cards */}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {stats.map(s => (
-            <div key={s.label} className="rounded-2xl border border-teal-300 bg-teal p-4 backdrop-blur">
+            <div key={s.label} className="rounded-2xl border border-white/10 bg-slate-800/60 p-4 backdrop-blur">
               <div className="flex items-center justify-between">
-                <p className="text-xs uppercase tracking-wide text-teal-600">{s.label}</p>
+                <p className="text-xs uppercase tracking-wide text-slate-400">{s.label}</p>
                 <svg className="h-5 w-5 opacity-70" viewBox="0 0 24 24" fill="currentColor"><path d="M3 12h3l3 7 4-14 3 7h5"/></svg>
               </div>
               <div className="mt-2 text-2xl font-bold">{s.value}</div>
-              <div className="text-xs text-teal-600">Updated {new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</div>
+              <div className="text-xs text-slate-400">Updated {new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</div>
             </div>
           ))}
         </div>
 
         {/* Filters */}
-        <div className="mt-6 rounded-2xl border border-teal-300 bg-teal p-4">
+        <div className="mt-6 rounded-2xl border border-white/10 bg-slate-800/60 p-4">
           <div className="grid gap-3 md:grid-cols-6">
-            <input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search tickets, members, assignees" className="md:col-span-2 rounded-xl bg-teal px-3 py-2 text-sm ring-1 ring-teal-300 focus:outline-none" />
-            <select value={status} onChange={e=>setStatus(e.target.value)} className="rounded-xl bg-teal px-3 py-2 text-sm ring-1 ring-teal-300"><option value="all">All status</option><option>Open</option><option>Pending</option><option>Resolved</option></select>
-            <select value={priority} onChange={e=>setPriority(e.target.value)} className="rounded-xl bg-teal px-3 py-2 text-sm ring-1 ring-teal-300"><option value="all">All priority</option><option>Urgent</option><option>High</option><option>Medium</option><option>Low</option></select>
-            <select value={category} onChange={e=>setCategory(e.target.value)} className="rounded-xl bg-teal px-3 py-2 text-sm ring-1 ring-teal-300"><option value="all">All categories</option><option>Billing</option><option>App</option><option>Facilities</option><option>Training</option></select>
-            <select value={sort} onChange={e=>setSort(e.target.value)} className="rounded-xl bg-teal px-3 py-2 text-sm ring-1 ring-teal-300"><option value="updated-desc">Newest updated</option><option value="updated-asc">Oldest updated</option><option value="priority">Priority</option></select>
+            <input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search tickets, members, assignees" className="md:col-span-2 rounded-xl bg-slate-900/70 px-3 py-2 text-sm ring-1 ring-white/10 focus:outline-none" />
+            <select value={status} onChange={e=>setStatus(e.target.value)} className="rounded-xl bg-slate-900/70 px-3 py-2 text-sm ring-1 ring-white/10"><option value="all">All status</option><option>Open</option><option>Pending</option><option>Resolved</option></select>
+            <select value={priority} onChange={e=>setPriority(e.target.value)} className="rounded-xl bg-slate-900/70 px-3 py-2 text-sm ring-1 ring-white/10"><option value="all">All priority</option><option>Urgent</option><option>High</option><option>Medium</option><option>Low</option></select>
+            <select value={category} onChange={e=>setCategory(e.target.value)} className="rounded-xl bg-slate-900/70 px-3 py-2 text-sm ring-1 ring-white/10"><option value="all">All categories</option><option>Billing</option><option>App</option><option>Facilities</option><option>Training</option></select>
+            <select value={sort} onChange={e=>setSort(e.target.value)} className="rounded-xl bg-slate-900/70 px-3 py-2 text-sm ring-1 ring-white/10"><option value="updated-desc">Newest updated</option><option value="updated-asc">Oldest updated</option><option value="priority">Priority</option></select>
           </div>
           {selected.length>0 && (
-            <div className="mt-3 flex items-center justify-between rounded-xl bg-teal px-3 py-2 text-sm">
+            <div className="mt-3 flex items-center justify-between rounded-xl bg-slate-900/60 px-3 py-2 text-sm">
               <div>{selected.length} selected</div>
               <div className="flex items-center gap-2">
-                <button onClick={()=>bulkUpdate('status','Resolved')} className="rounded-lg bg-emerald-500 px-3 py-1 text-teal">Mark resolved</button>
-                <button onClick={()=>bulkUpdate('assignee','—')} className="rounded-lg bg-teal-300 px-3 py-1 text-teal-900">Unassign</button>
-                <button onClick={()=>setSelected([])} className="rounded-lg bg-teal-300 px-3 py-1 text-teal-900">Clear</button>
+                <button onClick={()=>bulkUpdate('status','Resolved')} className="rounded-lg bg-emerald-500 px-3 py-1 text-emerald-950">Mark resolved</button>
+                <button onClick={()=>bulkUpdate('assignee','—')} className="rounded-lg bg-slate-700 px-3 py-1">Unassign</button>
+                <button onClick={()=>setSelected([])} className="rounded-lg bg-slate-700 px-3 py-1">Clear</button>
               </div>
             </div>
           )}
         </div>
 
         {/* Table */}
-        <div className="mt-6 overflow-hidden rounded-2xl border border-teal-300 bg-teal">
-          <div className="grid grid-cols-12 gap-3 border-b border-teal-300 p-3 text-xs text-teal-600">
+        <div className="mt-6 overflow-hidden rounded-2xl border border-white/10 bg-slate-800/60">
+          <div className="grid grid-cols-12 gap-3 border-b border-white/10 p-3 text-xs text-slate-400">
             <div className="col-span-1">Select</div>
             <div className="col-span-2">Ticket</div>
             <div className="col-span-3">Subject</div>
@@ -272,29 +147,158 @@ const base = "bg-teal";
             <div className="col-span-1">Status</div>
             <div className="col-span-2">Updated</div>
           </div>
-          <ul className="divide-y divide-teal-300">
+          <ul className="divide-y divide-white/10">
             {filtered.map(t => (
-              <li key={t.id} className="grid grid-cols-12 items-center gap-3 px-3 py-3 hover:bg-teal-100" onClick={()=>setDrawer(t.id)}>
-                  <div className="col-span-1">
-                    <input type="checkbox" checked={selected.includes(t.id)} onChange={()=>toggleSelect(t.id)} />
-                  </div>
-                  <div className="col-span-2">{t.id}</div>
-                  <div className="col-span-3">{t.subject}</div>
-                  <div className="col-span-2">{t.member}</div>
-                  <div className="col-span-1">{t.priority}</div>
-                  <div className="col-span-1">{t.status}</div>
-                  <div className="col-span-2">{t.updated}</div>
-                </li>
-              ))}
-            </ul>
-          </div>
+              <li key={t.id} className="grid grid-cols-12 items-center gap-3 px-3 py-3 hover:bg-slate-900/40">
+                <div className="col-span-1">
+                  <input type="checkbox" checked={selected.includes(t.id)} onChange={()=>toggleSelect(t.id)} />
+                </div>
+                <div className="col-span-2">
+                  <button onClick={()=>setDrawer(t.id)} className="rounded bg-slate-700/60 px-2 py-1 text-xs hover:underline">{t.id}</button>
+                  <div className="text-[11px] text-slate-400">{t.category} • {t.club}</div>
+                </div>
+                <div className="col-span-3">
+                  <div className="text-sm font-medium">{t.subject}</div>
+                  <div className="text-xs text-slate-400">Assignee: {t.assignee}</div>
+                </div>
+                <div className="col-span-2 text-sm">{t.member}</div>
+                <div className="col-span-1">
+                  <span className={`rounded px-2 py-1 text-xs ${
+                    t.priority==='Urgent'?'bg-red-500/20 text-red-300':
+                    t.priority==='High'?'bg-orange-500/20 text-orange-300':
+                    t.priority==='Medium'?'bg-yellow-500/20 text-yellow-300':'bg-slate-500/20 text-slate-300'}`}>{t.priority}</span>
+                </div>
+                <div className="col-span-1">
+                  <span className={`rounded px-2 py-1 text-xs ${t.status==='Resolved'?'bg-emerald-500/20 text-emerald-300':t.status==='Pending'?'bg-cyan-500/20 text-cyan-300':'bg-indigo-500/20 text-indigo-300'}`}>{t.status}</span>
+                </div>
+                <div className="col-span-2 text-xs text-slate-400">{t.updated}</div>
+              </li>
+            ))}
+          </ul>
         </div>
 
-        {drawer && <TicketDrawer ticket={tickets.find(t=>t.id===drawer)} onClose={()=>setDrawer(null)} onUpdate={(updates)=>setTickets(ts=>ts.map(t=>t.id===drawer?{...t,...updates,updated:new Date().toISOString().slice(0,16).replace('T',' ')}:t))} />}
-
-        {composeOpen && <ComposeModal onClose={()=>setComposeOpen(false)} onCreate={createTicket} />}
-
+        {/* Footer actions */}
+        <div className="mt-6 flex items-center justify-between text-sm">
+          <div className="text-slate-400">{filtered.length} tickets</div>
+          <div className="flex items-center gap-2">
+            <button className="rounded-xl bg-slate-700 px-3 py-2">Export</button>
+            <button className="rounded-xl bg-slate-700 px-3 py-2">Automation</button>
+          </div>
+        </div>
       </div>
+
+      {/* Drawer */}
+      {drawer && (
+        <TicketDrawer ticket={tickets.find(x=>x.id===drawer)} onClose={()=>setDrawer(null)} onUpdate={(patch)=>{
+          setTickets(ts=>ts.map(t=> t.id===drawer? { ...t, ...patch, updated: new Date().toISOString().slice(0,16).replace('T',' ') }: t));
+        }} />
+      )}
+
+      {/* Compose */}
+      {composeOpen && (
+        <ComposeModal onClose={()=>setComposeOpen(false)} onCreate={createTicket} />
+      )}
+    </div>
     </Layout>
+  );
+}
+
+function TicketDrawer({ ticket, onClose, onUpdate }) {
+  const [reply, setReply] = useState("");
+  const [nextStatus, setNextStatus] = useState(ticket.status);
+  const [nextAssignee, setNextAssignee] = useState(ticket.assignee);
+
+  return (
+    <div className="fixed inset-0 z-50 grid place-items-center bg-black/70 p-4">
+      <div className="w-full max-w-4xl rounded-2xl border border-white/10 bg-slate-900 p-5">
+        <div className="mb-3 flex items-center justify-between">
+          <h3 className="text-lg font-semibold">{ticket.id} - {ticket.subject}</h3>
+          <button onClick={onClose} className="rounded-lg bg-slate-700 px-3 py-1 text-xs">Close</button>
+        </div>
+        <div className="grid grid-cols-4 gap-3 mb-4">
+          <Info label="Member" value={ticket.member} />
+          <Info label="Club" value={ticket.club} />
+          <Info label="Priority" value={ticket.priority} />
+          <Info label="Status" value={ticket.status} />
+        </div>
+        <div className="grid grid-cols-4 gap-3 mb-4">
+          <Info label="Category" value={ticket.category} />
+          <Info label="Assignee" value={ticket.assignee} />
+          <Info label="Created" value={ticket.created} />
+          <Info label="Updated" value={ticket.updated} />
+        </div>
+        <div className="mb-4">
+          <h4 className="text-sm font-semibold mb-2">Replies ({ticket.replies})</h4>
+          <div className="space-y-3 max-h-64 overflow-y-auto">
+            {/* Mock replies */}
+            <div className="rounded-xl border border-white/10 bg-slate-800/60 p-3">
+              <div className="text-xs text-slate-400">Vikram • 2025-10-03 14:12</div>
+              <div className="text-sm mt-1">We're looking into this issue. Please provide more details about your device.</div>
+            </div>
+            <div className="rounded-xl border border-white/10 bg-slate-800/60 p-3">
+              <div className="text-xs text-slate-400">Aarav S. • 2025-10-03 13:45</div>
+              <div className="text-sm mt-1">I'm using an iPhone 12 with the latest app version.</div>
+            </div>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-3 mb-4">
+          <select value={nextStatus} onChange={e=>setNextStatus(e.target.value)} className="rounded-xl bg-slate-800 px-3 py-2 text-sm ring-1 ring-white/10">
+            <option>Open</option><option>Pending</option><option>Resolved</option>
+          </select>
+          <input value={nextAssignee} onChange={e=>setNextAssignee(e.target.value)} placeholder="Assignee" className="rounded-xl bg-slate-800 px-3 py-2 text-sm ring-1 ring-white/10" />
+        </div>
+        <textarea value={reply} onChange={e=>setReply(e.target.value)} placeholder="Add a reply..." className="w-full rounded-xl bg-slate-800 px-3 py-2 text-sm ring-1 ring-white/10 mb-4" rows={3} />
+        <div className="flex items-center justify-end gap-2">
+          <button onClick={onClose} className="rounded-xl bg-slate-700 px-4 py-2 text-sm">Cancel</button>
+          <button onClick={()=>{onUpdate({status:nextStatus, assignee:nextAssignee}); onClose();}} className="rounded-xl bg-emerald-500 px-4 py-2 text-sm font-semibold text-emerald-950 shadow-lg shadow-emerald-500/30">Update</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Info({ label, value }) {
+  return (
+    <div className="rounded-xl border border-white/10 bg-slate-900/60 p-3">
+      <div className="text-xs text-slate-400">{label}</div>
+      <div className="text-sm font-semibold">{value}</div>
+    </div>
+  );
+}
+
+function ComposeModal({ onClose, onCreate }) {
+  const [subject, setSubject] = useState("");
+  const [member, setMember] = useState("");
+  const [club, setClub] = useState("");
+  const [priority, setPriority] = useState("Medium");
+  const [category, setCategory] = useState("App");
+  const [assignee, setAssignee] = useState("");
+
+  function submit() {
+    if (!subject.trim()) return alert("Add a subject");
+    onCreate({ subject, member, club, priority, category, assignee });
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 grid place-items-center bg-black/70 p-4">
+      <div className="w-full max-w-2xl rounded-2xl border border-white/10 bg-slate-900 p-5">
+        <div className="mb-3 flex items-center justify-between">
+          <h3 className="text-lg font-semibold">Create ticket</h3>
+          <button onClick={onClose} className="rounded-lg bg-slate-700 px-3 py-1 text-xs">Close</button>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <input value={subject} onChange={e=>setSubject(e.target.value)} placeholder="Subject" className="col-span-2 rounded-xl bg-slate-800 px-3 py-2 text-sm ring-1 ring-white/10" />
+          <input value={member} onChange={e=>setMember(e.target.value)} placeholder="Member name" className="rounded-xl bg-slate-800 px-3 py-2 text-sm ring-1 ring-white/10" />
+          <input value={club} onChange={e=>setClub(e.target.value)} placeholder="Club or location" className="rounded-xl bg-slate-800 px-3 py-2 text-sm ring-1 ring-white/10" />
+          <select value={priority} onChange={e=>setPriority(e.target.value)} className="rounded-xl bg-slate-800 px-3 py-2 text-sm ring-1 ring-white/10"><option>Urgent</option><option>High</option><option>Medium</option><option>Low</option></select>
+          <select value={category} onChange={e=>setCategory(e.target.value)} className="rounded-xl bg-slate-800 px-3 py-2 text-sm ring-1 ring-white/10"><option>Billing</option><option>App</option><option>Facilities</option><option>Training</option></select>
+          <input value={assignee} onChange={e=>setAssignee(e.target.value)} placeholder="Assign to" className="rounded-xl bg-slate-800 px-3 py-2 text-sm ring-1 ring-white/10" />
+        </div>
+        <div className="mt-4 flex items-center justify-end gap-2">
+          <button onClick={onClose} className="rounded-xl bg-slate-700 px-4 py-2 text-sm">Cancel</button>
+          <button onClick={submit} className="rounded-xl bg-emerald-500 px-4 py-2 text-sm font-semibold text-emerald-950 shadow-lg shadow-emerald-500/30">Create</button>
+        </div>
+      </div>
+    </div>
   );
 }

@@ -1,0 +1,21 @@
+const express = require("express");
+const app = express();
+const port = 8080;
+const bodyParser = require("body-parser");
+require("./lib/db"); // Database connection
+
+// Middleware
+app.use(bodyParser.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Sample route
+app.get("/", (req, res) => {
+  res.send("Hello World!");
+});
+app.post("/data", (req, res) => {
+  res.json({ received: req.body });
+});
+// Start server
+app.listen(port, () => {
+  console.log(`Server running at http://localhost:${port}/`);
+});

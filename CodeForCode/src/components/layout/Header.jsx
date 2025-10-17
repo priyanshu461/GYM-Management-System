@@ -1,8 +1,9 @@
 import React, { useState } from 'react'
 
-import { Search, Bell, Menu, User, Settings, LogOut } from "lucide-react";
+import { Search, Bell, Menu, User, Settings, LogOut, Sun, Moon } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { useTheme } from '../../contexts/ThemeContext';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,10 +16,11 @@ const Header = ({ onMobileMenuToggle, sidebarCollapsed }) => {
       const [query, setQuery] = useState("");
       const navigate = useNavigate();
       const { user, logout } = useAuth();
+      const { theme, toggleTheme } = useTheme();
 
   return (
     <div>
-         <header className={`fixed top-0 ${sidebarCollapsed ? 'md:left-20' : 'md:left-64'} left-0 right-0 z-50 bg-white shadow-md flex items-center justify-between gap-4 mb-6 px-6 py-2`}>
+         <header className={`fixed top-0 ${sidebarCollapsed ? 'md:left-20' : 'md:left-64'} left-0 right-0 z-50 bg-card shadow-md flex items-center justify-between gap-4 mb-6 px-6 py-2`}>
             <div className="flex items-center gap-4">
               <button
                 onClick={onMobileMenuToggle}
@@ -40,6 +42,13 @@ const Header = ({ onMobileMenuToggle, sidebarCollapsed }) => {
             </div>
 
             <div className="flex items-center gap-4">
+              <button
+                onClick={toggleTheme}
+                className="p-2 rounded-lg hover:bg-slate-100 transition-colors duration-200"
+                aria-label="Toggle theme"
+              >
+                {theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
+              </button>
               <button className="p-2 rounded-lg hover:bg-slate-100"><Bell size={18} /></button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>

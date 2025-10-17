@@ -32,12 +32,12 @@ const Dashboard = () => {
          <Layout>
              <section className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
             {stats.map((s) => (
-              <motion.div key={s.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="p-4 rounded-2xl bg-teal-50 shadow-sm flex items-center justify-between">
+              <motion.div key={s.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="p-4 rounded-2xl bg-muted shadow-sm flex items-center justify-between">
                 <div>
-                  <div className="text-xs text-teal-900">{s.title}</div>
+                  <div className="text-xs text-foreground">{s.title}</div>
                   <div className="text-xl font-bold mt-1">{s.value}</div>
                 </div>
-                <div className="w-12 h-12 rounded-xl bg-teal-200 flex items-center justify-center">
+                <div className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center">
                   <s.icon size={20} />
                 </div>
               </motion.div>
@@ -46,7 +46,7 @@ const Dashboard = () => {
 
           <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Sales Chart + Orders List */}
-            <div className="lg:col-span-2 bg-teal-50 p-4 rounded-2xl shadow-sm">
+            <div className="lg:col-span-2 bg-muted p-4 rounded-2xl shadow-sm">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-semibold">Sales Overview</h3>
                 <div className="text-xs text-slate-500">Last 30 days</div>
@@ -67,11 +67,11 @@ const Dashboard = () => {
                       <div key={o.id} className="flex items-center justify-between p-3 rounded-lg hover:bg-slate-50">
                         <div>
                           <div className="text-sm font-medium">Order #{o.id}</div>
-                          <div className="text-xs text-teal-900">{o.customer} • {o.date}</div>
+                  <div className="text-xs text-foreground">{o.customer} • {o.date}</div>
                         </div>
                         <div className="text-right">
                           <div className="font-semibold">₹{o.amount}</div>
-                          <div className={`text-xs ${o.status === 'Delivered' ? 'text-teal-600' : o.status === 'Returned' ? 'text-rose-600' : 'text-amber-600'}`}>{o.status}</div>
+                          <div className={`text-xs ${o.status === 'Delivered' ? 'text-primary' : o.status === 'Returned' ? 'text-destructive' : 'text-yellow-600'}`}>{o.status}</div>
                         </div>
                      </div>
                     ))}
@@ -96,7 +96,7 @@ const Dashboard = () => {
             </div>
 
             {/* Quick Actions */}
-            <div className="bg-teal-50 p-4 rounded-2xl shadow-sm">
+            <div className="bg-muted p-4 rounded-2xl shadow-sm">
               <h3 className="font-semibold mb-3">Quick Actions</h3>
               <div className="grid grid-cols-1 gap-3">
                 <button className="flex items-center justify-between p-3 rounded-lg hover:bg-slate-50">
@@ -136,7 +136,7 @@ const Dashboard = () => {
           </section>
 
           {/* Orders Table */}
-          <section className="mt-6 bg-teal-50 p-4 rounded-2xl shadow-sm">
+          <section className="mt-6 bg-muted p-4 rounded-2xl shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-semibold">All Orders</h3>
               <div className="text-sm text-slate-500">Showing latest 50 orders</div>

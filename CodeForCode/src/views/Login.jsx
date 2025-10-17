@@ -141,7 +141,7 @@ const Login = () => {
                 Login
               </button>
 
-              <button
+              <button 
                 type="button"
                 onClick={handleForgotPassword}
                 className="w-full bg-teal-50 hover:bg-gray-200 text-gray-700 font-medium py-3 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
