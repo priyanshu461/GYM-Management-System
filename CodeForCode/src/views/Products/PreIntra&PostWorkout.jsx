@@ -1,10 +1,7 @@
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react"
 import Layout from "../../components/Layout";
-
-// Dark dashboard-style catalog like your screenshot
-// TailwindCSS required. No TypeScript.
-
-const PRODUCTS = [
+import { useTheme } from "../../contexts/ThemeContext";
+const products = [
   // PRE 1-10
   { id: 1, name: "Nitro Surge Pre", category: "Pre", brand: "Volt Labs", price: 29.99, flavor: "Blue Raspberry", servings: 30, rating: 4.5, stock: 18, image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTF0XApBokz86IYVxbTnAn8gEy4Ruxocaihpg" },
   { id: 2, name: "Alpha Ignite", category: "Pre", brand: "PrimeForce", price: 34.99, flavor: "Watermelon", servings: 25, rating: 4.2, stock: 22, image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTRzxhazn4OmB6V_-syCM3K7kSBCoN1jz7twQ&s" },
@@ -40,164 +37,124 @@ const PRODUCTS = [
   { id: 30, name: "Regen Pro", category: "Post", brand: "HexaFit", price: 47.99, flavor: "Chocolate Fudge", servings: 27, rating: 4.6, stock: 15, image: "https://m.media-amazon.com/images/I/71oNpPrP8PL._SX679_.jpg" },
 ];
 
-const CategoryPill = ({ value, active, onClick }) => (
-  <button
-    onClick={onClick}
-    className={`px-4 py-2 rounded-xl text-sm font-medium border transition ${
-      active ? "bg-emerald-100 text-emerald-800 border-emerald-300" : "bg-gray-100 text-gray-700 border-gray-300 hover:border-gray-400"
-    }`}
-  >
-    {value}
-  </button>
-);
 
-const Rating = ({ value }) => {
-  const full = Math.floor(value);
-  const half = value - full >= 0.5;
-  const stars = new Array(5).fill(0).map((_, i) => {
-    if (i < full) return "★";
-    if (i === full && half) return "☆";
-    return "☆";
-  });
-  return <span className="text-yellow-400 text-sm" aria-label={`Rated ${value}`}>{stars.join(" ")}</span>;
-};
+export default function PreIntraPostWorkout() {
+  const { theme } = useTheme();
+  const [search, setSearch] = useState("")
+  const [category, setCategory] = useState("All")
 
-export default function Supplements() {
-  const [query, setQuery] = useState("");
-  const [category, setCategory] = useState("All");
-  const [sort, setSort] = useState("featured");
-
-  const list = useMemo(() => {
-    let out = [...PRODUCTS];
-    if (category !== "All") out = out.filter(p => p.category === category);
-    if (query.trim()) {
-      const q = query.toLowerCase();
-      out = out.filter(p => (p.name + " " + p.brand + " " + p.flavor).toLowerCase().includes(q));
-    }
-    switch (sort) {
-      case "price-asc": out.sort((a,b) => a.price - b.price); break;
-      case "price-desc": out.sort((a,b) => b.price - a.price); break;
-      case "rating": out.sort((a,b) => b.rating - a.rating); break;
-      case "stock": out.sort((a,b) => b.stock - a.stock); break;
-      default: out.sort((a,b) => (b.rating - a.rating) || (b.stock - a.stock));
-    }
-    return out;
-  }, [query, category, sort]);
-
-  const counts = useMemo(() => ({
-    total: PRODUCTS.length,
-    pre: PRODUCTS.filter(p=>p.category==='Pre').length,
-    intra: PRODUCTS.filter(p=>p.category==='Intra').length,
-    post: PRODUCTS.filter(p=>p.category==='Post').length,
-    oos: PRODUCTS.filter(p=>p.stock===0).length,
-  }), []);
+  const filtered = products.filter(
+    p =>
+      p.name.toLowerCase().includes(search.toLowerCase()) &&
+      (category === "All" || p.category === category)
+  )
 
   return (
    <Layout>
-     <div className="min-h-screen bg-gradient-to-br from-teal-50 via-slate-50 to-teal-100 text-slate-900">
-      <div className="mx-auto max-w-7xl px-4 py-8">
-        {/* Header */}
-        <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight text-teal-600">Products</h1>
-            <p className="text-slate-600 text-sm mt-1">Pre, Intra, and Post workout supplements</p>
-          </div>
-          <div className="flex gap-2">
-            <button className="px-3 py-2 rounded-lg bg-slate-100 border border-slate-300 text-sm hover:bg-slate-200">High contrast</button>
-            <select
-              value={sort}
-              onChange={(e)=>setSort(e.target.value)}
-              className="px-3 py-2 rounded-lg bg-slate-100 border border-slate-300 text-sm"
-            >
-              <option value="featured">Sort: Featured</option>
-              <option value="price-asc">Price: Low to High</option>
-              <option value="price-desc">Price: High to Low</option>
-              <option value="rating">Top Rated</option>
-              <option value="stock">Stock: High to Low</option>
-            </select>
-            <button onClick={()=>window.print()} className="px-3 py-2 rounded-lg bg-teal-100 border border-teal-300 text-teal-800 text-sm hover:bg-teal-200">Export</button>
-          </div>
+     <div className={`min-h-screen ${
+        theme === 'dark'
+          ? 'bg-gradient-to-br from-teal-900 via-teal-800 to-teal-900'
+          : 'bg-gradient-to-br from-teal-50 via-slate-50 to-teal-100'
+      } ${
+        theme === 'dark' ? 'text-white' : 'text-slate-900'
+      } px-4 py-6 md:px-8`}>
+      {/* Header */}
+      <div className="mb-8">
+        <h1 className={`text-3xl md:text-4xl font-extrabold tracking-tight ${
+          theme === 'dark' ? 'text-white' : 'text-teal-600'
+        }`}>
+          Pre, Intra & Post Workout Supplements
+        </h1>
+        <p className={`mt-1 ${
+          theme === 'dark' ? 'text-gray-300' : 'text-slate-600'
+        }`}>
+          Explore our premium selection of pre, intra, and post workout supplements for your fitness goals.
+        </p>
+      </div>
+
+      {/* Filters */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+        <div className="flex gap-3 flex-1">
+          <input
+            type="text"
+            placeholder="Search products..."
+            className={`flex-1 ${
+              theme === 'dark' ? 'bg-gray-700 border-gray-600 text-white' : 'bg-slate-100 border-slate-300'
+            } border rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500`}
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+          />
+          <select
+            className={`${
+              theme === 'dark' ? 'bg-gray-700 border-gray-600 text-white' : 'bg-slate-100 border-slate-300'
+            } border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500`}
+            value={category}
+            onChange={e => setCategory(e.target.value)}
+          >
+            <option>All</option>
+            <option>Pre</option>
+            <option>Intra</option>
+            <option>Post</option>
+          </select>
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-          <div className="rounded-2xl bg-gradient-to-br from-teal-50 to-teal-100 border border-slate-300 p-4">
-            <p className="text-slate-600 text-sm">Total products</p>
-            <p className="text-2xl font-semibold mt-1 text-slate-800">{counts.total}</p>
-          </div>
-          <div className="rounded-2xl bg-gradient-to-br from-teal-50 to-teal-100 border border-slate-300 p-4">
-            <p className="text-slate-600 text-sm">Pre workout</p>
-            <p className="text-2xl font-semibold mt-1 text-slate-800">{counts.pre}</p>
-          </div>
-          <div className="rounded-2xl bg-gradient-to-br from-teal-50 to-teal-100 border border-slate-300 p-4">
-            <p className="text-slate-600 text-sm">Intra workout</p>
-            <p className="text-2xl font-semibold mt-1 text-slate-800">{counts.intra}</p>
-          </div>
-          <div className="rounded-2xl bg-gradient-to-br from-teal-50 to-teal-100 border border-slate-300 p-4">
-            <p className="text-slate-600 text-sm">Out of stock</p>
-            <p className="text-2xl font-semibold mt-1 text-slate-800">{counts.oos}</p>
-          </div>
-        </div>
+        <button className="bg-teal-600 hover:bg-teal-500 transition px-5 py-2 rounded-lg font-semibold">
+          Add New Product
+        </button>
+      </div>
 
-        {/* Controls */}
-        <div className="mb-6 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <div className="flex gap-2 flex-wrap">
-            {['All','Pre','Intra','Post'].map(t => (
-              <CategoryPill key={t} value={t} active={category===t} onClick={()=>setCategory(t)} />
-            ))}
-          </div>
-          <div className="flex gap-2 w-full md:w-auto">
-            <input
-              value={query}
-              onChange={(e)=>setQuery(e.target.value)}
-              placeholder="Search name, brand, flavor"
-              className="w-full md:w-96 px-4 py-2 rounded-xl bg-slate-100 border border-slate-300 text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-500/40"
-            />
-          </div>
-        </div>
+      {/* Product Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
+        {filtered.map(product => (
+          <div
+            key={product.id}
+            className={`${
+              theme === 'dark'
+                ? 'bg-gradient-to-br from-gray-800 to-gray-900 border-gray-700'
+                : 'bg-gradient-to-br from-teal-50 to-teal-100 border-slate-200'
+            } rounded-2xl border overflow-hidden shadow-lg hover:shadow-teal-900/20 hover:scale-105 transition transform`}
+          >
+            <div className="aspect-square w-full overflow-hidden">
+              <img
+                src={product.image}
+                alt={product.name}
+                className="w-full h-full object-cover"
+              />
+            </div>
 
-        {/* Grid */}
-        <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {list.map(p => (
-            <li key={p.id} className="group">
-              <div className="rounded-2xl overflow-hidden bg-gradient-to-br from-teal-50 to-teal-100 border border-slate-300 shadow-lg hover:shadow-xl transition transform hover:scale-105">
-                <div className="relative">
-                  <img src={p.image} alt={p.name} className="h-48 w-full object-cover" loading="lazy" />
-                  <div className="absolute top-2 left-2 text-xs px-2 py-1 rounded-full bg-black/60 border border-slate-300">{p.category}</div>
-                  {p.stock === 0 && (
-                    <div className="absolute top-2 right-2 text-xs px-2 py-1 rounded-full bg-red-600/80">Out of stock</div>
-                  )}
+            <div className="p-4 flex flex-col justify-between h-[160px]">
+              <div>
+                <div className="flex items-center justify-between">
+                  <h3 className={`font-bold text-lg truncate ${
+                    theme === 'dark' ? 'text-white' : 'text-teal-600'
+                  }`}>{product.name}</h3>
+                  <span className="text-sm text-amber-400">★ {product.rating}</span>
                 </div>
-                <div className="p-4">
-                  <h3 className="font-semibold leading-tight text-teal-600">{p.name}</h3>
-                  <p className="text-xs text-slate-600 mt-0.5">{p.brand} • {p.flavor}</p>
-                  <div className="mt-2 flex items-center justify-between">
-                    <Rating value={p.rating} />
-                    <span className="text-xs text-slate-600">{p.servings} servings</span>
-                  </div>
-                  <div className="mt-3 flex items-center justify-between">
-                    <span className="text-lg font-semibold text-slate-800">${p.price.toFixed(2)}</span>
-                    <button
-                      disabled={p.stock===0}
-                      onClick={()=>alert(`Added ${p.name} to cart`)}
-                      className="px-3 py-2 text-sm rounded-lg bg-teal-100 border border-teal-300 text-teal-800 hover:bg-teal-200 disabled:opacity-50"
-                    >
-                      Add to cart
-                    </button>
-                  </div>
+                <p className={`text-sm ${
+                  theme === 'dark' ? 'text-gray-300' : 'text-slate-600'
+                }`}>{product.brand} • {product.flavor}</p>
+              </div>
+
+              <div className="flex items-center justify-between mt-2">
+                <div className={`text-xl font-extrabold ${
+                  theme === 'dark' ? 'text-white' : 'text-slate-800'
+                }`}>${product.price.toFixed(2)}</div>
+                <div className="flex gap-2">
+                  <button className="bg-teal-600 hover:bg-teal-500 text-sm px-3 py-1 rounded-lg font-semibold transition">
+                    Add
+                  </button>
+                  <button className={`${
+                    theme === 'dark' ? 'bg-gray-600 hover:bg-gray-500' : 'bg-slate-200 hover:bg-slate-300'
+                  } text-sm px-3 py-1 rounded-lg transition`}>
+                    View
+                  </button>
                 </div>
               </div>
-            </li>
-          ))}
-        </ul>
-
-        {list.length === 0 && (
-          <div className="text-center text-slate-600 mt-16">No products match your filters.</div>
-        )}
-
-        <div className="mt-8 text-center text-xs text-slate-500">30 products</div>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
    </Layout>
-  );
+  )
 }
