@@ -1,6 +1,5 @@
 const mongoose = require("mongoose");
-require('dotenv').config();
-const dbURI = process.env.MONGO_URI;
+const dbURI = "mongodb+srv://rathorenisha397_db_user:FyD450e9i4dRHZyD@userdata.x6f1kdi.mongodb.net/";
 console.log(dbURI);
 
 mongoose.connect(dbURI, { useNewUrlParser: true, useUnifiedTopology: true });

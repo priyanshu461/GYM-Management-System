@@ -3,11 +3,10 @@ const app = express();
 require("dotenv").config();
 console.log(process.env.PORT);
 const port = process.env.PORT || 8080;
-const bodyParser = require("body-parser");
 require("./lib/db"); // Database connection
 
 // Middleware
-app.use(bodyParser.json());
+app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Sample route
