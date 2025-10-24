@@ -3,7 +3,7 @@ require('dotenv').config();
 const dbURI = process.env.MONGO_URI;
 console.log(dbURI);
 
-mongoose.connect(dbURI, { useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.connect(dbURI);
 
 const db = mongoose.connection;
 db.on("error", console.error.bind(console, "connection error:"));
