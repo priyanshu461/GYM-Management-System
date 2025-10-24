@@ -12,7 +12,7 @@ const Layout = ({children}) => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 relative">
+    <div className="min-h-screen bg-background text-foreground relative">
       {/* Mobile Sidebar Overlay */}
       {isMobileSidebarOpen && (
         <div
@@ -28,7 +28,7 @@ const Layout = ({children}) => {
           onClose={() => setIsMobileSidebarOpen(false)}
           collapsed={sidebarCollapsed}
           onToggleCollapse={handleToggleCollapse}
-          className={`fixed inset-0 z-50 w-64 h-full transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out bg-gradient-to-b from-teal to-teal-100 shadow-lg`}
+          className={`fixed inset-0 z-50 w-64 h-full transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out bg-teal-100 dark:bg-teal-900 shadow-lg`}
         />
         <main className={`flex-1 py-6 pr-6 pl-6  relative z-10 w-full pt-5`}>
           <Header

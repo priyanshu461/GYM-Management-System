@@ -27,17 +27,17 @@ const Sidebar = ({ demo = false, isOpen, onClose, collapsed, onToggleCollapse, c
       <aside
         className={`${className} ${collapsed ? 'md:w-20' : 'md:w-64'} flex flex-col sticky h-screen top-0`}
       >
-        <div className="h-18 flex items-center px-4 justify-between border-b border-teal-300">
+        <div className="h-18 flex items-center px-4 justify-between border-b border-teal-300 dark:border-teal-700">
           <div className="flex items-center gap-3">
             <button
               onClick={onToggleCollapse}
-              className="md:flex hidden p-2 rounded-md hover:bg-teal-200 transition-colors duration-200"
+              className="md:flex hidden p-2 rounded-md hover:bg-teal-200 dark:hover:bg-teal-800 transition-colors duration-200"
               aria-label="Toggle sidebar"
             >
-              <Menu size={20} className="text-teal-900" />
+              <Menu size={20} className="text-teal-900 dark:text-white" />
             </button>
             {(isOpen || !collapsed) && (
-              <h1 className="font-extrabold text-xl text-teal-600 select-none">Admin <span className='text-teal-900'>Panel</span></h1>
+              <h1 className="font-extrabold text-xl text-teal-600 dark:text-white select-none">Admin <span className='text-teal-900 dark:text-white'>Panel</span></h1>
             )}
           </div>
           {(isOpen || !collapsed) && <div className="text-xs text-teal-500 select-none"></div>}
@@ -46,13 +46,13 @@ const Sidebar = ({ demo = false, isOpen, onClose, collapsed, onToggleCollapse, c
 
         <nav className="p-3 mt-4 flex-1 overflow-y-auto">
           {demo ? (
-            <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-3 rounded-lg hover:teal-100 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
-              <LayoutDashboardIcon size={20} className="text-teal-900" />
+            <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-3 rounded-lg hover:teal-100 dark:hover:bg-teal-800 cursor-pointer text-sm text-teal-900 dark:text-white transition-colors duration-200">
+              <LayoutDashboardIcon size={20} className="text-teal-900 dark:text-white" />
               {(isOpen || !collapsed) && <span className="font-semibold">Dashboard</span>}
             </div>
           ) : (
-            <Link to="/dashboard" className="flex items-center gap-3 p-3 rounded-lg hover:teal-100 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
-              <LayoutDashboardIcon size={20} className="text-teal-900" />
+            <Link to="/dashboard" className="flex items-center gap-3 p-3 rounded-lg hover:teal-100 dark:hover:bg-teal-800 cursor-pointer text-sm text-teal-900 dark:text-white transition-colors duration-200">
+              <LayoutDashboardIcon size={20} className="text-teal-900 dark:text-white" />
               {(isOpen || !collapsed) && <span className="font-semibold">Dashboard</span>}
             </Link>
           )}
@@ -61,11 +61,11 @@ const Sidebar = ({ demo = false, isOpen, onClose, collapsed, onToggleCollapse, c
           <div>
             <button
               type="button"
-              className="flex items-center gap-3 p-3 rounded-lg hover:teal-100 cursor-pointer text-sm text-teal-900 w-full transition-colors duration-200"
+              className="flex items-center gap-3 p-3 rounded-lg hover:teal-100 dark:hover:bg-teal-800 cursor-pointer text-sm text-teal-900 dark:text-white w-full transition-colors duration-200"
               onClick={() => setManagementOpen((open) => !open)}
               aria-expanded={managementOpen}
             >
-              <Laptop2 size={20} className="teteal-600" />
+              <Laptop2 size={20} className="text-teal-600 dark:text-white" />
               {(isOpen || !collapsed) && <span className="font-semibold">Management</span>}
               {(isOpen || !collapsed) && (
                 <svg
@@ -88,46 +88,46 @@ const Sidebar = ({ demo = false, isOpen, onClose, collapsed, onToggleCollapse, c
               {managementOpen && (isOpen || !collapsed) && (
               <div className="ml-8 flex flex-col gap-2 mt-1">
                 {demo ? (
-                  <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
-                    <MdGroup size={18} />
+                  <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 dark:hover:bg-teal-800 cursor-pointer text-sm text-teal-900 dark:text-white transition-colors duration-200">
+                    <MdGroup size={18} className="text-teal-900 dark:text-white" />
                     <span>Members Management</span>
                   </div>
                 ) : (
-                  <Link to="/members" className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
-                    <MdGroup size={18} />
+                  <Link to="/members" className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 dark:hover:bg-teal-800 cursor-pointer text-sm text-teal-900 dark:text-white transition-colors duration-200">
+                    <MdGroup size={18} className="text-teal-900 dark:text-white" />
                     <span>Members Management</span>
                   </Link>
                 )}
                 {demo ? (
-                  <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
-                    <FaUserTie size={18} />
+                  <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 dark:hover:bg-teal-800 cursor-pointer text-sm text-teal-900 dark:text-white transition-colors duration-200">
+                    <FaUserTie size={18} className="text-teal-900 dark:text-white" />
                     <span>Trainer</span>
                   </div>
                 ) : (
-                  <Link to="/trainers" className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
-                    <FaUserTie size={18} />
+                  <Link to="/trainers" className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 dark:hover:bg-teal-800 cursor-pointer text-sm text-teal-900 dark:text-white transition-colors duration-200">
+                    <FaUserTie size={18} className="text-teal-900 dark:text-white" />
                     <span>Trainers</span>
                   </Link>
                 )}
                 {demo ? (
-                  <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
-                    <TfiWallet size={18} />
+                  <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 dark:hover:bg-teal-800 cursor-pointer text-sm text-teal-900 dark:text-white transition-colors duration-200">
+                    <TfiWallet size={18} className="text-teal-900 dark:text-white" />
                     <span>Finance</span>
                   </div>
                 ) : (
-                  <Link to="/finance" className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
-                    <TfiWallet size={18} />
+                  <Link to="/finance" className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 dark:hover:bg-teal-800 cursor-pointer text-sm text-teal-900 dark:text-white transition-colors duration-200">
+                    <TfiWallet size={18} className="text-teal-900 dark:text-white" />
                     <span>Finance</span>
                   </Link>
                 )}
                 {demo ? (
-                  <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
-                    <BsFillBox2HeartFill size={18} />
+                  <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 dark:hover:bg-teal-800 cursor-pointer text-sm text-teal-900 dark:text-white transition-colors duration-200">
+                    <BsFillBox2HeartFill size={18} className="text-teal-900 dark:text-white" />
                     <span>Facilities</span>
                   </div>
                 ) : (
-                  <Link to="/facilities" className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
-                    <BsFillBox2HeartFill size={18} />
+                  <Link to="/facilities" className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 dark:hover:bg-teal-800 cursor-pointer text-sm text-teal-900 dark:text-white transition-colors duration-200">
+                    <BsFillBox2HeartFill size={18} className="text-teal-900 dark:text-white" />
                     <span>Facilities</span>
                   </Link>
                 )}
@@ -139,11 +139,11 @@ const Sidebar = ({ demo = false, isOpen, onClose, collapsed, onToggleCollapse, c
           <div>
             <button
               type="button"
-              className="flex items-center gap-3 p-3 rounded-lg hover:teal-100 cursor-pointer text-sm text-teal-900 w-full transition-colors duration-200"
+              className="flex items-center gap-3 p-3 rounded-lg hover:teal-100 dark:hover:bg-teal-800 cursor-pointer text-sm text-teal-900 dark:text-white w-full transition-colors duration-200"
               onClick={() => setWorkoutOpen((open) => !open)}
               aria-expanded={workoutOpen}
             >
-              <BiDumbbell size={20} className="teteal-600" />
+              <BiDumbbell size={20} className="text-teal-600 dark:text-white" />
               {(isOpen || !collapsed) && <span className="font-semibold">Workout & Diet</span>}
               {(isOpen || !collapsed) && (
                 <svg
@@ -166,57 +166,57 @@ const Sidebar = ({ demo = false, isOpen, onClose, collapsed, onToggleCollapse, c
             {workoutOpen && (isOpen || !collapsed) && (
               <div className="ml-8 flex flex-col gap-2 mt-1">
                 {demo ? (
-                  <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
-                    <BsClockHistory size={18} />
+                  <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 dark:hover:bg-teal-800 cursor-pointer text-sm text-teal-900 dark:text-white transition-colors duration-200">
+                    <BsClockHistory size={18} className="text-teal-900 dark:text-white" />
                     <span>Workout Routines</span>
                   </div>
                 ) : (
-                  <Link to="/workoutRoutinue" className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
-                    <BsClockHistory size={18} />
+                  <Link to="/workoutRoutinue" className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 dark:hover:bg-teal-800 cursor-pointer text-sm text-teal-900 dark:text-white transition-colors duration-200">
+                    <BsClockHistory size={18} className="text-teal-900 dark:text-white" />
                     <span>Workout Routines</span>
                   </Link>
                 )}
                 {demo ? (
-                  <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
-                    <TbReportAnalytics size={18} />
+                  <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 dark:hover:bg-teal-800 cursor-pointer text-sm text-teal-900 dark:text-white transition-colors duration-200">
+                    <TbReportAnalytics size={18} className="text-teal-900 dark:text-white" />
                     <span>BMI Calculator</span>
                   </div>
                 ) : (
-                  <Link to="/bmiCalculator" className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
-                    <TbReportAnalytics size={18} />
+                  <Link to="/bmiCalculator" className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 dark:hover:bg-teal-800 cursor-pointer text-sm text-teal-900 dark:text-white transition-colors duration-200">
+                    <TbReportAnalytics size={18} className="text-teal-900 dark:text-white" />
                     <span>BMI Calculator</span>
                   </Link>
                 )}
                 {demo ? (
-                  <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
-                    <TbReportAnalytics size={18} />
+                  <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 dark:hover:bg-teal-800 cursor-pointer text-sm text-teal-900 dark:text-white transition-colors duration-200">
+                    <TbReportAnalytics size={18} className="text-teal-900 dark:text-white" />
                     <span>Custom Diet </span>
                   </div>
                 ) : (
-                  <Link to="/dietPlan" className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
-                    <TbReportAnalytics size={18} />
+                  <Link to="/dietPlan" className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 dark:hover:bg-teal-800 cursor-pointer text-sm text-teal-900 dark:text-white transition-colors duration-200">
+                    <TbReportAnalytics size={18} className="text-teal-900 dark:text-white" />
                     <span>Custom Diet </span>
                   </Link>
                 )}
                 {demo ? (
-                  <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
-                    <GiProgression size={18} />
+                  <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 dark:hover:bg-teal-800 cursor-pointer text-sm text-teal-900 dark:text-white transition-colors duration-200">
+                    <GiProgression size={18} className="text-teal-900 dark:text-white" />
                     <span>Progress Tracking</span>
                   </div>
                 ) : (
-                  <Link to="/progressTracking" className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
-                    <GiProgression size={18} />
+                  <Link to="/progressTracking" className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 dark:hover:bg-teal-800 cursor-pointer text-sm text-teal-900 dark:text-white transition-colors duration-200">
+                    <GiProgression size={18} className="text-teal-900 dark:text-white" />
                     <span>Progress Tracking</span>
                   </Link>
                 )}
                 {demo ? (
-                  <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
-                    <TbReportSearch size={18} />
+                  <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 dark:hover:bg-teal-800 cursor-pointer text-sm text-teal-900 dark:text-white transition-colors duration-200">
+                    <TbReportSearch size={18} className="text-teal-900 dark:text-white" />
                     <span>Reports / Analytics</span>
                   </div>
                 ) : (
-                  <Link to="/reportsAnalytics" className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
-                    <TbReportSearch size={18} />
+                  <Link to="/reportsAnalytics" className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 dark:hover:bg-teal-800 cursor-pointer text-sm text-teal-900 dark:text-white transition-colors duration-200">
+                    <TbReportSearch size={18} className="text-teal-900 dark:text-white" />
                     <span>Reports / Analytics</span>
                   </Link>
                 )}
@@ -228,11 +228,11 @@ const Sidebar = ({ demo = false, isOpen, onClose, collapsed, onToggleCollapse, c
           <div>
             <button
               type="button"
-              className="flex items-center gap-3 p-3 rounded-lg hover:teal-100 cursor-pointer text-sm text-teal-900 w-full transition-colors duration-200"
+              className="flex items-center gap-3 p-3 rounded-lg hover:teal-100 dark:hover:bg-teal-800 cursor-pointer text-sm text-teal-900 dark:text-white w-full transition-colors duration-200"
               onClick={() => setServiceOpen((open) => !open)}
               aria-expanded={serviceOpen}
             >
-              <LuFolderCog size={20} className="text-teal-900" />
+              <LuFolderCog size={20} className="text-teal-900 dark:text-white" />
               {(isOpen || !collapsed) && <span className="font-semibold">Services</span>}
               {(isOpen || !collapsed) && (
                 <svg
@@ -255,35 +255,35 @@ const Sidebar = ({ demo = false, isOpen, onClose, collapsed, onToggleCollapse, c
             {serviceOpen && (isOpen || !collapsed) && (
               <div className="ml-8 flex flex-col gap-2 mt-1">
                 {demo ? (
-                  <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
-                    <SiGoogleclassroom size={18} />
+                  <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 dark:hover:bg-teal-800 cursor-pointer text-sm text-teal-900 dark:text-white transition-colors duration-200">
+                    <SiGoogleclassroom size={18} className="text-teal-900 dark:text-white" />
                     <span>Classes & Schedules</span>
                   </div>
                 ) : (
-                  <Link to="/classesSchedule" className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
-                    <SiGoogleclassroom size={18} />
+                  <Link to="/classesSchedule" className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 dark:hover:bg-teal-800 cursor-pointer text-sm text-teal-900 dark:text-white transition-colors duration-200">
+                    <SiGoogleclassroom size={18} className="text-teal-900 dark:text-white" />
                     <span>Classes & Schedules</span>
                   </Link>
                 )}
                 {demo ? (
-                  <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
-                    <AiOutlineAudit size={18} />
+                  <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 dark:hover:bg-teal-800 cursor-pointer text-sm text-teal-900 dark:text-white transition-colors duration-200">
+                    <AiOutlineAudit size={18} className="text-teal-900 dark:text-white" />
                     <span>Courses</span>
                   </div>
                 ) : (
-                  <Link to="/courses" className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
-                    <AiOutlineAudit size={18} />
+                  <Link to="/courses" className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 dark:hover:bg-teal-800 cursor-pointer text-sm text-teal-900 dark:text-white transition-colors duration-200">
+                    <AiOutlineAudit size={18} className="text-teal-900 dark:text-white" />
                     <span>Courses</span>
                   </Link>
                 )}
                 {demo ? (
-                  <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
-                    <GiGymBag size={18} />
+                  <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 dark:hover:bg-teal-800 cursor-pointer text-sm text-teal-900 dark:text-white transition-colors duration-200">
+                    <GiGymBag size={18} className="text-teal-900 dark:text-white" />
                     <span>Franchise & Members Managementhips</span>
                   </div>
                 ) : (
-                  <Link to="/FranchiseAndMembership" className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
-                    <GiGymBag size={18} />
+                  <Link to="/FranchiseAndMembership" className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 dark:hover:bg-teal-800 cursor-pointer text-sm text-teal-900 dark:text-white transition-colors duration-200">
+                    <GiGymBag size={18} className="text-teal-900 dark:text-white" />
                     <span>Franchise & Members Managementhips</span>
                   </Link>
                 )}
@@ -351,11 +351,11 @@ const Sidebar = ({ demo = false, isOpen, onClose, collapsed, onToggleCollapse, c
           <div>
             <button
               type="button"
-              className="flex items-center gap-3 p-3 rounded-lg hover:teal-100 cursor-pointer text-sm text-teal-900 w-full transition-colors duration-200"
+              className="flex items-center gap-3 p-3 rounded-lg hover:teal-100 dark:hover:bg-teal-800 cursor-pointer text-sm text-teal-900 dark:text-white w-full transition-colors duration-200"
               onClick={() => setProductOpen((open) => !open)}
               aria-expanded={productOpen}
             >
-              <FaCartPlus size={20} className="teteal-600" />
+              <FaCartPlus size={20} className="text-teal-600 dark:text-white" />
               {(isOpen || !collapsed) && <span className="font-semibold">Products</span>}
               {(isOpen || !collapsed) && (
                 <svg
@@ -378,46 +378,46 @@ const Sidebar = ({ demo = false, isOpen, onClose, collapsed, onToggleCollapse, c
             {productOpen && (isOpen || !collapsed) && (
               <div className="ml-8 flex flex-col gap-2 mt-1">
                 {demo ? (
-                  <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
-                    <GiFruitBowl size={18} />
+                  <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 dark:hover:bg-teal-800 cursor-pointer text-sm text-teal-900 dark:text-white transition-colors duration-200">
+                    <GiFruitBowl size={18} className="text-teal-900 dark:text-white" />
                     <span>Protein</span>
                   </div>
                 ) : (
-                  <Link to="/Protein" className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
-                    <GiFruitBowl size={18} />
+                  <Link to="/Protein" className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 dark:hover:bg-teal-800 cursor-pointer text-sm text-teal-900 dark:text-white transition-colors duration-200">
+                    <GiFruitBowl size={18} className="text-teal-900 dark:text-white" />
                     <span>Protein</span>
                   </Link>
                 )}
                 {demo ? (
-                  <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
-                    <Dumbbell size={20} />
+                  <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 dark:hover:bg-teal-800 cursor-pointer text-sm text-teal-900 dark:text-white transition-colors duration-200">
+                    <Dumbbell size={20} className="text-teal-900 dark:text-white" />
                     <span>Pre, Intra & Post-Workout Suppliments</span>
                   </div>
                 ) : (
-                  <Link to="/Suppliments" className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
-                    <Dumbbell size={20} />
+                  <Link to="/Suppliments" className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 dark:hover:bg-teal-800 cursor-pointer text-sm text-teal-900 dark:text-white transition-colors duration-200">
+                    <Dumbbell size={20} className="text-teal-900 dark:text-white" />
                     <span>Pre, Intra & Post-Workout Suppliments</span>
                   </Link>
                 )}
                 {demo ? (
-                  <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
-                    <AiTwotoneRest size={18} />
+                  <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 dark:hover:bg-teal-800 cursor-pointer text-sm text-teal-900 dark:text-white transition-colors duration-200">
+                    <AiTwotoneRest size={18} className="text-teal-900 dark:text-white" />
                     <span>Amino Acids Suppliments</span>
                   </div>
                 ) : (
-                  <Link to="/AminoAcidSuppliments" className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
-                    <AiTwotoneRest size={18} />
+                  <Link to="/AminoAcidSuppliments" className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 dark:hover:bg-teal-800 cursor-pointer text-sm text-teal-900 dark:text-white transition-colors duration-200">
+                    <AiTwotoneRest size={18} className="text-teal-900 dark:text-white" />
                     <span>Amino Acids Suppliments</span>
                   </Link>
                 )}
                 {demo ? (
-                  <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
-                    <FaCapsules size={18} />
+                  <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 dark:hover:bg-teal-800 cursor-pointer text-sm text-teal-900 dark:text-white transition-colors duration-200">
+                    <FaCapsules size={18} className="text-teal-900 dark:text-white" />
                     <span>Multivitamins & Minerals</span>
                   </div>
                 ) : (
-                  <Link to="/MultivitaminAndMinerals" className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
-                    <FaCapsules size={18} />
+                  <Link to="/MultivitaminAndMinerals" className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 dark:hover:bg-teal-800 cursor-pointer text-sm text-teal-900 dark:text-white transition-colors duration-200">
+                    <FaCapsules size={18} className="text-teal-900 dark:text-white" />
                     <span>Multivitamins & Minerals</span>
                   </Link>
                 )}
@@ -426,49 +426,49 @@ const Sidebar = ({ demo = false, isOpen, onClose, collapsed, onToggleCollapse, c
           </div>
           <Link to="/NotificationCommunication">
             <a
-            className="flex items-center gap-3 p-3 rounded-lg hover:teal-100 cursor-pointer text-sm text-teal-900 transition-colors duration-200"
+            className="flex items-center gap-3 p-3 rounded-lg hover:teal-100 dark:hover:bg-teal-800 cursor-pointer text-sm text-teal-900 dark:text-white transition-colors duration-200"
             href="#"
           >
-            <MdNotificationAdd size={18} />
+            <MdNotificationAdd size={18} className="text-teal-900 dark:text-white" />
             {(isOpen || !collapsed) && <span className="font-semibold">Notifications</span>}
           </a>
           </Link>
           {demo ? (
-            <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-3 rounded-lg hover:teal-100 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
-              <FaBlog size={18} />
+            <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-3 rounded-lg hover:teal-100 dark:hover:bg-teal-800 cursor-pointer text-sm text-teal-900 dark:text-white transition-colors duration-200">
+              <FaBlog size={18} className="text-teal-900 dark:text-white" />
               {(isOpen || !collapsed) && <span className="font-semibold"> Blog</span>}
             </div>
           ) : (
-            <Link to="/GymBlog" className="flex items-center gap-3 p-3 rounded-lg hover:teal-100 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
-              <FaBlog size={18} />
+            <Link to="/GymBlog" className="flex items-center gap-3 p-3 rounded-lg hover:teal-100 dark:hover:bg-teal-800 cursor-pointer text-sm text-teal-900 dark:text-white transition-colors duration-200">
+              <FaBlog size={18} className="text-teal-900 dark:text-white" />
               {(isOpen || !collapsed) && <span className="font-semibold"> Blog</span>}
             </Link>
           )}
           {demo ? (
-            <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-3 rounded-lg hover:teal-100 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
-              <MdSupportAgent size={18} />
+            <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-3 rounded-lg hover:teal-100 dark:hover:bg-teal-800 cursor-pointer text-sm text-teal-900 dark:text-white transition-colors duration-200">
+              <MdSupportAgent size={18} className="text-teal-900 dark:text-white" />
               {(isOpen || !collapsed) && <span className="font-semibold">Support Tickets</span>}
             </div>
           ) : (
-            <Link to="/supportTickets" className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
-              <MdSupportAgent size={18} />
+            <Link to="/supportTickets" className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 dark:hover:bg-teal-800 cursor-pointer text-sm text-teal-900 dark:text-white transition-colors duration-200">
+              <MdSupportAgent size={18} className="text-teal-900 dark:text-white" />
               {(isOpen || !collapsed) && <span className="font-semibold">Support Tickets</span>}
             </Link>
           )}
           {demo ? (
-            <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-3 rounded-lg hover:teal-100 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
-              <SlSettings size={18} />
+            <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-3 rounded-lg hover:teal-100 dark:hover:bg-teal-800 cursor-pointer text-sm text-teal-900 dark:text-white transition-colors duration-200">
+              <SlSettings size={18} className="text-teal-900 dark:text-white" />
               {(isOpen || !collapsed) && <span className="font-semibold">Settings</span>}
             </div>
           ) : (
-            <Link to="/Settings" className="flex items-center gap-3 p-3 rounded-lg hover:teal-100 cursor-pointer text-sm text-teal-900 transition-colors duration-200">
-              <SlSettings size={18} />
+            <Link to="/Settings" className="flex items-center gap-3 p-3 rounded-lg hover:teal-100 dark:hover:bg-teal-800 cursor-pointer text-sm text-teal-900 dark:text-white transition-colors duration-200">
+              <SlSettings size={18} className="text-teal-900 dark:text-white" />
               {(isOpen || !collapsed) && <span className="font-semibold">Settings</span>}
             </Link>
           )}
         </nav>
 
-        <div className="mt-auto p-4 border-t border-teal-300">
+        <div className="mt-auto p-4 border-t border-teal-300 dark:border-teal-700">
           <div className={`${collapsed ? 'flex justify-center' : 'flex items-center gap-3'}`}>
             {(isOpen || !collapsed) && (
               <img

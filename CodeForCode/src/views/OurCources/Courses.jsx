@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import Layout from "../../components/Layout";
+import { useTheme } from "../../contexts/ThemeContext";
 import {
   Dialog,
   DialogContent,
@@ -12,6 +13,7 @@ import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 
 const Courses = () => {
+  const { theme } = useTheme();
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState("monthly");
@@ -65,17 +67,29 @@ const Courses = () => {
 
   return (
     <Layout>
-        <section className="py-16 bg-gradient-to-br from-teal-50 via-slate-50 to-teal-100 min-h-screen">
+        <section className={`py-16 min-h-screen ${
+          theme === 'dark'
+            ? 'bg-gradient-to-br from-teal-900 via-teal-800 to-teal-900'
+            : 'bg-gradient-to-br from-teal-50 via-slate-50 to-teal-100'
+        }`}>
       <div className="max-w-7xl mx-auto px-6">
-        <h2 className="text-4xl font-extrabold text-center text-slate-800 mb-10">
-          Our <span className="text-teal-500">Gym Courses</span>
+        <h2 className={`text-4xl font-extrabold text-center mb-10 ${
+          theme === 'dark' ? 'text-white' : 'text-slate-800'
+        }`}>
+          Our <span className={`${
+            theme === 'dark' ? 'text-teal-400' : 'text-teal-500'
+          }`}>Gym Courses</span>
         </h2>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {courses.map((course) => (
             <div
               key={course.id}
-              className="bg-gradient-to-br from-teal-50 to-teal-100 rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition transform hover:scale-105"
+              className={`rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition transform hover:scale-105 ${
+                theme === 'dark'
+                  ? 'bg-gradient-to-br from-gray-700 to-gray-800'
+                  : 'bg-gradient-to-br from-teal-50 to-teal-100'
+              }`}
             >
               <img
                 src={course.image}
@@ -83,13 +97,23 @@ const Courses = () => {
                 className="h-56 w-full object-cover"
               />
               <div className="p-6">
-                <h3 className="text-2xl font-bold text-teal-600 mb-2">
+                <h3 className={`text-2xl font-bold mb-2 ${
+                  theme === 'dark' ? 'text-teal-400' : 'text-teal-600'
+                }`}>
                   {course.name}
                 </h3>
-                <p className="text-slate-600 text-sm mb-4">{course.description}</p>
-                <div className="flex justify-between text-sm text-slate-500">
-                  <span>Level: <span className="font-semibold text-slate-700">{course.level}</span></span>
-                  <span>Duration: <span className="font-semibold text-slate-700">{course.duration}</span></span>
+                <p className={`text-sm mb-4 ${
+                  theme === 'dark' ? 'text-gray-300' : 'text-slate-600'
+                }`}>{course.description}</p>
+                <div className={`flex justify-between text-sm ${
+                  theme === 'dark' ? 'text-gray-400' : 'text-slate-500'
+                }`}>
+                  <span>Level: <span className={`font-semibold ${
+                    theme === 'dark' ? 'text-white' : 'text-slate-700'
+                  }`}>{course.level}</span></span>
+                  <span>Duration: <span className={`font-semibold ${
+                    theme === 'dark' ? 'text-white' : 'text-slate-700'
+                  }`}>{course.duration}</span></span>
                 </div>
                 <button
                   onClick={() => {
@@ -108,40 +132,70 @@ const Courses = () => {
     </section>
 
     <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-      <DialogContent className="max-w-2xl bg-gradient-to-br from-teal-50 to-slate-100 border-teal-200">
+      <DialogContent className={`max-w-2xl ${
+        theme === 'dark'
+          ? 'bg-gradient-to-br from-gray-800 to-gray-900 border-gray-600'
+          : 'bg-gradient-to-br from-teal-50 to-slate-100 border-teal-200'
+      }`}>
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-teal-600">Enroll in {selectedCourse?.name}</DialogTitle>
-          <DialogDescription className="text-slate-600">
+          <DialogTitle className={`text-2xl font-bold ${
+            theme === 'dark' ? 'text-teal-400' : 'text-teal-600'
+          }`}>Enroll in {selectedCourse?.name}</DialogTitle>
+          <DialogDescription className={`${
+            theme === 'dark' ? 'text-gray-300' : 'text-slate-600'
+          }`}>
             Complete your enrollment by selecting a subscription plan and providing payment details.
           </DialogDescription>
         </DialogHeader>
 
         {selectedCourse && (
           <div className="space-y-4">
-            <div className="flex gap-4 bg-white p-4 rounded-xl shadow-sm">
+            <div className={`flex gap-4 p-4 rounded-xl shadow-sm ${
+              theme === 'dark' ? 'bg-gray-700' : 'bg-white'
+            }`}>
               <img
                 src={selectedCourse.image}
                 alt={selectedCourse.name}
                 className="w-24 h-24 object-cover rounded-xl"
               />
               <div className="flex-1">
-                <h3 className="text-lg font-bold text-teal-600 mb-2">{selectedCourse.name}</h3>
-                <p className="text-slate-600 text-sm mb-3">{selectedCourse.description}</p>
+                <h3 className={`text-lg font-bold mb-2 ${
+                  theme === 'dark' ? 'text-teal-400' : 'text-teal-600'
+                }`}>{selectedCourse.name}</h3>
+                <p className={`text-sm mb-3 ${
+                  theme === 'dark' ? 'text-gray-300' : 'text-slate-600'
+                }`}>{selectedCourse.description}</p>
                 <div className="flex gap-3 text-xs">
-                  <span className="bg-teal-100 text-teal-700 px-2 py-1 rounded-full font-semibold">
+                  <span className={`px-2 py-1 rounded-full font-semibold ${
+                    theme === 'dark'
+                      ? 'bg-teal-900 text-teal-300'
+                      : 'bg-teal-100 text-teal-700'
+                  }`}>
                     Level: {selectedCourse.level}
                   </span>
-                  <span className="bg-slate-100 text-slate-700 px-2 py-1 rounded-full font-semibold">
+                  <span className={`px-2 py-1 rounded-full font-semibold ${
+                    theme === 'dark'
+                      ? 'bg-gray-600 text-gray-300'
+                      : 'bg-slate-100 text-slate-700'
+                  }`}>
                     Duration: {selectedCourse.duration}
                   </span>
                 </div>
               </div>
             </div>
 
-            <div className="bg-white p-3 rounded-xl shadow-sm">
-              <h4 className="text-base font-semibold text-teal-600 mb-3">Subscription Plans</h4>
+            <div className={`p-3 rounded-xl shadow-sm ${
+              theme === 'dark' ? 'bg-gray-700' : 'bg-white'
+            }`}>
+              <h4 className={`text-base font-semibold mb-3 ${
+                theme === 'dark' ? 'text-teal-400' : 'text-teal-600'
+              }`}>Subscription Plans</h4>
               <div className="space-y-2">
-                <label className="flex items-center p-2 bg-teal-50 rounded-lg cursor-pointer hover:bg-teal-100 transition">
+                <label className={`flex items-center p-2 rounded-lg cursor-pointer transition ${
+                  theme === 'dark'
+                    ? 'bg-gray-600 hover:bg-gray-500'
+                    : 'bg-teal-50 hover:bg-teal-100'
+                }`}>
                   <input
                     type="radio"
                     value="monthly"
@@ -150,11 +204,19 @@ const Courses = () => {
                     className="mr-2 text-teal-500"
                   />
                   <div>
-                    <span className="font-semibold text-slate-700 text-sm">Monthly Plan</span>
-                    <span className="text-teal-600 font-bold ml-2 text-sm">$50/month</span>
+                    <span className={`font-semibold text-sm ${
+                      theme === 'dark' ? 'text-white' : 'text-slate-700'
+                    }`}>Monthly Plan</span>
+                    <span className={`font-bold ml-2 text-sm ${
+                      theme === 'dark' ? 'text-teal-400' : 'text-teal-600'
+                    }`}>$50/month</span>
                   </div>
                 </label>
-                <label className="flex items-center p-2 bg-teal-50 rounded-lg cursor-pointer hover:bg-teal-100 transition">
+                <label className={`flex items-center p-2 rounded-lg cursor-pointer transition ${
+                  theme === 'dark'
+                    ? 'bg-gray-600 hover:bg-gray-500'
+                    : 'bg-teal-50 hover:bg-teal-100'
+                }`}>
                   <input
                     type="radio"
                     value="annual"
@@ -163,16 +225,26 @@ const Courses = () => {
                     className="mr-2 text-teal-500"
                   />
                   <div>
-                    <span className="font-semibold text-slate-700 text-sm">Annual Plan</span>
-                    <span className="text-teal-600 font-bold ml-2 text-sm">$500/year</span>
-                    <span className="text-green-600 text-xs ml-2">(Save 17%)</span>
+                    <span className={`font-semibold text-sm ${
+                      theme === 'dark' ? 'text-white' : 'text-slate-700'
+                    }`}>Annual Plan</span>
+                    <span className={`font-bold ml-2 text-sm ${
+                      theme === 'dark' ? 'text-teal-400' : 'text-teal-600'
+                    }`}>$500/year</span>
+                    <span className={`text-xs ml-2 ${
+                      theme === 'dark' ? 'text-green-400' : 'text-green-600'
+                    }`}>(Save 17%)</span>
                   </div>
                 </label>
               </div>
             </div>
 
-            <div className="bg-white p-3 rounded-xl shadow-sm">
-              <h4 className="text-base font-semibold text-teal-600 mb-3">Payment Method</h4>
+            <div className={`p-3 rounded-xl shadow-sm ${
+              theme === 'dark' ? 'bg-gray-700' : 'bg-white'
+            }`}>
+              <h4 className={`text-base font-semibold mb-3 ${
+                theme === 'dark' ? 'text-teal-400' : 'text-teal-600'
+              }`}>Payment Method</h4>
               <div className="space-y-2 mb-3">
                 <label className="flex items-center">
                   <input
@@ -182,7 +254,9 @@ const Courses = () => {
                     onChange={(e) => setPaymentMethod(e.target.value)}
                     className="mr-2 text-teal-500"
                   />
-                  <span className="font-semibold text-slate-700 text-sm">Credit/Debit Card</span>
+                  <span className={`font-semibold text-sm ${
+                    theme === 'dark' ? 'text-white' : 'text-slate-700'
+                  }`}>Credit/Debit Card</span>
                 </label>
                 <label className="flex items-center">
                   <input
@@ -192,7 +266,9 @@ const Courses = () => {
                     onChange={(e) => setPaymentMethod(e.target.value)}
                     className="mr-2 text-teal-500"
                   />
-                  <span className="font-semibold text-slate-700 text-sm">UPI</span>
+                  <span className={`font-semibold text-sm ${
+                    theme === 'dark' ? 'text-white' : 'text-slate-700'
+                  }`}>UPI</span>
                 </label>
               </div>
 
@@ -204,7 +280,11 @@ const Courses = () => {
                     onChange={(e) =>
                       setPaymentDetails({ ...paymentDetails, cardNumber: e.target.value })
                     }
-                    className="border-teal-200 focus:border-teal-400 text-sm"
+                    className={`text-sm ${
+                      theme === 'dark'
+                        ? 'border-gray-600 focus:border-teal-400 bg-gray-600 text-white'
+                        : 'border-teal-200 focus:border-teal-400'
+                    }`}
                   />
                   <div className="flex gap-2">
                     <Input
@@ -213,7 +293,11 @@ const Courses = () => {
                       onChange={(e) =>
                         setPaymentDetails({ ...paymentDetails, expiry: e.target.value })
                       }
-                      className="border-teal-200 focus:border-teal-400 text-sm"
+                      className={`text-sm ${
+                        theme === 'dark'
+                          ? 'border-gray-600 focus:border-teal-400 bg-gray-600 text-white'
+                          : 'border-teal-200 focus:border-teal-400'
+                      }`}
                     />
                     <Input
                       placeholder="CVV"
@@ -221,7 +305,11 @@ const Courses = () => {
                       onChange={(e) =>
                         setPaymentDetails({ ...paymentDetails, cvv: e.target.value })
                       }
-                      className="border-teal-200 focus:border-teal-400 text-sm"
+                      className={`text-sm ${
+                        theme === 'dark'
+                          ? 'border-gray-600 focus:border-teal-400 bg-gray-600 text-white'
+                          : 'border-teal-200 focus:border-teal-400'
+                      }`}
                     />
                   </div>
                   <Input
@@ -230,7 +318,11 @@ const Courses = () => {
                     onChange={(e) =>
                       setPaymentDetails({ ...paymentDetails, name: e.target.value })
                     }
-                    className="border-teal-200 focus:border-teal-400 text-sm"
+                    className={`text-sm ${
+                      theme === 'dark'
+                        ? 'border-gray-600 focus:border-teal-400 bg-gray-600 text-white'
+                        : 'border-teal-200 focus:border-teal-400'
+                    }`}
                   />
                 </div>
               ) : (
@@ -241,15 +333,25 @@ const Courses = () => {
                     onChange={(e) =>
                       setPaymentDetails({ ...paymentDetails, upiId: e.target.value })
                     }
-                    className="border-teal-200 focus:border-teal-400 text-sm"
+                    className={`text-sm ${
+                      theme === 'dark'
+                        ? 'border-gray-600 focus:border-teal-400 bg-gray-600 text-white'
+                        : 'border-teal-200 focus:border-teal-400'
+                    }`}
                   />
                 </div>
               )}
             </div>
 
-            <div className="bg-white p-3 rounded-xl shadow-sm">
-              <h4 className="text-base font-semibold text-teal-600 mb-3">Total Payable Amount</h4>
-              <div className="text-2xl font-bold text-teal-600">
+            <div className={`p-3 rounded-xl shadow-sm ${
+              theme === 'dark' ? 'bg-gray-700' : 'bg-white'
+            }`}>
+              <h4 className={`text-base font-semibold mb-3 ${
+                theme === 'dark' ? 'text-teal-400' : 'text-teal-600'
+              }`}>Total Payable Amount</h4>
+              <div className={`text-2xl font-bold ${
+                theme === 'dark' ? 'text-teal-400' : 'text-teal-600'
+              }`}>
                 ${selectedPlan === "monthly" ? 50 : 500}
               </div>
             </div>
@@ -257,7 +359,11 @@ const Courses = () => {
         )}
 
         <DialogFooter className="gap-3">
-          <Button variant="outline" onClick={() => setIsModalOpen(false)} className="border-teal-300 text-teal-600 hover:bg-teal-50">
+          <Button variant="outline" onClick={() => setIsModalOpen(false)} className={`${
+            theme === 'dark'
+              ? 'border-gray-600 text-teal-400 hover:bg-gray-700'
+              : 'border-teal-300 text-teal-600 hover:bg-teal-50'
+          }`}>
             Cancel
           </Button>
           <Button

@@ -1,7 +1,9 @@
 import React from "react";
 import Layout from "../../components/Layout";
+import { useTheme } from "../../contexts/ThemeContext";
 
 const ClassesSchedule = () => {
+  const { theme } = useTheme();
   const classes = [
     {
       id: 1,
@@ -53,12 +55,22 @@ const ClassesSchedule = () => {
 
   return (
     <Layout>
-      <section className="bg-gradient-to-br from-teal-50 via-slate-50 to-teal-100 min-h-screen py-12 px-6 md:px-16">
+      <section className={`${
+        theme === 'dark'
+          ? 'bg-gradient-to-br from-teal-900 via-teal-800 to-teal-900'
+          : 'bg-gradient-to-br from-teal-50 via-slate-50 to-teal-100'
+      } min-h-screen py-12 px-6 md:px-16`}>
       <div className="text-center mb-10">
-        <h2 className="text-4xl font-extrabold text-slate-800 mb-3">
-          Gym Classes & <span className="text-teal-500">Schedules</span>
+        <h2 className={`text-4xl font-extrabold mb-3 ${
+          theme === 'dark' ? 'text-white' : 'text-slate-800'
+        }`}>
+          Gym Classes & <span className={`${
+            theme === 'dark' ? 'text-teal-400' : 'text-teal-500'
+          }`}>Schedules</span>
         </h2>
-        <p className="text-slate-600">
+        <p className={`${
+          theme === 'dark' ? 'text-gray-300' : 'text-slate-600'
+        }`}>
           Choose your favorite class and stay fit with our professional trainers.
         </p>
       </div>
@@ -68,7 +80,11 @@ const ClassesSchedule = () => {
         {classes.map((gymClass) => (
           <div
             key={gymClass.id}
-            className="bg-gradient-to-br from-teal-50 to-teal-100 shadow-lg rounded-2xl overflow-hidden hover:shadow-xl transition transform hover:scale-105"
+            className={`shadow-lg rounded-2xl overflow-hidden hover:shadow-xl transition transform hover:scale-105 ${
+              theme === 'dark'
+                ? 'bg-gradient-to-br from-gray-700 to-gray-800'
+                : 'bg-gradient-to-br from-teal-50 to-teal-100'
+            }`}
           >
             <img
               src={gymClass.image}
@@ -76,13 +92,21 @@ const ClassesSchedule = () => {
               className="h-48 w-full object-cover"
             />
             <div className="p-5">
-              <h3 className="text-2xl font-bold text-teal-600 mb-1">
+              <h3 className={`text-2xl font-bold mb-1 ${
+                theme === 'dark' ? 'text-teal-400' : 'text-teal-600'
+              }`}>
                 {gymClass.name}
               </h3>
-              <p className="text-slate-500 mb-2">
-                Instructor: <span className="font-medium text-slate-700">{gymClass.instructor}</span>
+              <p className={`mb-2 ${
+                theme === 'dark' ? 'text-gray-400' : 'text-slate-500'
+              }`}>
+                Instructor: <span className={`font-medium ${
+                  theme === 'dark' ? 'text-white' : 'text-slate-700'
+                }`}>{gymClass.instructor}</span>
               </p>
-              <p className="text-slate-600">
+              <p className={`${
+                theme === 'dark' ? 'text-gray-300' : 'text-slate-600'
+              }`}>
                 🕒 {gymClass.time} <br /> 📅 {gymClass.days}
               </p>
             </div>
@@ -91,25 +115,45 @@ const ClassesSchedule = () => {
       </div>
 
       {/* Schedule Table */}
-      <div className="mt-16 bg-gradient-to-br from-teal-50 to-teal-500 rounded-2xl shadow-lg overflow-hidden">
-        <h3 className="text-3xl font-semibold text-center bg-teal-600 text-white py-4">
+      <div className={`mt-16 rounded-2xl shadow-lg overflow-hidden ${
+        theme === 'dark'
+          ? 'bg-gradient-to-br from-gray-700 to-gray-800'
+          : 'bg-gradient-to-br from-teal-50 to-teal-500'
+      }`}>
+        <h3 className={`text-3xl font-semibold text-center py-4 ${
+          theme === 'dark' ? 'bg-teal-900 text-white' : 'bg-teal-600 text-white'
+        }`}>
           Weekly Schedule
         </h3>
-        <table className="w-full text-left text-slate-700">
-          <thead className="bg-slate-100">
+        <table className="w-full text-left">
+          <thead className={`${
+            theme === 'dark' ? 'bg-gray-600' : 'bg-slate-100'
+          }`}>
             <tr>
-              <th className="p-4 text-teal-600">Day</th>
-              <th className="p-4 text-teal-600">Classes</th>
+              <th className={`p-4 ${
+                theme === 'dark' ? 'text-teal-400' : 'text-teal-600'
+              }`}>Day</th>
+              <th className={`p-4 ${
+                theme === 'dark' ? 'text-teal-400' : 'text-teal-600'
+              }`}>Classes</th>
             </tr>
           </thead>
           <tbody>
             {schedule.map((row, index) => (
               <tr
                 key={index}
-                className="border-b border-slate-300 hover:bg-slate-50 transition-colors"
+                className={`border-b transition-colors ${
+                  theme === 'dark'
+                    ? 'border-gray-600 hover:bg-gray-600'
+                    : 'border-slate-300 hover:bg-slate-50'
+                }`}
               >
-                <td className="p-4 font-semibold text-slate-800">{row.day}</td>
-                <td className="p-4 text-slate-800">{row.classes.join(", ")}</td>
+                <td className={`p-4 font-semibold ${
+                  theme === 'dark' ? 'text-white' : 'text-slate-800'
+                }`}>{row.day}</td>
+                <td className={`p-4 ${
+                  theme === 'dark' ? 'text-gray-300' : 'text-slate-800'
+                }`}>{row.classes.join(", ")}</td>
               </tr>
             ))}
           </tbody>

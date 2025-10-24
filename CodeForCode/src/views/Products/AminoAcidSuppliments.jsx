@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from "react"
 import Layout from "../../components/Layout";
+import { useTheme } from "../../contexts/ThemeContext";
 
 // Amino Acid Supplements Catalog - React + Tailwind, no TypeScript
 // Matches a dark, dashboard-like look with rounded cards and subtle glow
@@ -352,6 +353,7 @@ function Rating({ value }) {
 }
 
 export default function AminoAcidSuppliments() {
+  const { theme } = useTheme();
   const [tab, setTab] = useState("All")
   const [search, setSearch] = useState("")
   const [sortBy, setSortBy] = useState("popular")
@@ -367,27 +369,34 @@ export default function AminoAcidSuppliments() {
 
   return (
   <Layout>
-    <div className="min-h-screen bg-gradient-to-br from-teal-50 via-slate-50 to-teal-100 text-slate-900">
+    <div className={`min-h-screen ${theme === 'dark' ? 'bg-gradient-to-br from-teal-900 via-teal-800 to-teal-900 text-white' : 'bg-gradient-to-br from-teal-50 via-slate-50 to-teal-100 text-slate-900'}`}>
       <div className="mx-auto max-w-7xl px-4 md:px-8 py-6 md:py-10">
         {/* Header */}
-        <header className="mb-6">
-          <h1 className="text-3xl md:text-5xl font-black tracking-tight text-teal-600">
-            Amino Acid Supplements
-          </h1>
-          <p className="text-slate-600 mt-1">
-            Essential amino acids for muscle recovery, performance, and overall health.
-          </p>
+        <header className="mb-8 flex items-center gap-4">
+          <div className="rounded-2xl bg-gradient-to-br from-teal-500 to-emerald-500 p-3 shadow-lg">
+            <svg className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+            </svg>
+          </div>
+          <div>
+            <h1 className="text-4xl md:text-5xl font-black tracking-tight text-teal-600">
+              Amino Acid Supplements
+            </h1>
+            <p className="text-slate-600 mt-2 text-base">
+              Essential amino acids for muscle recovery, performance, and overall health.
+            </p>
+          </div>
         </header>
 
         {/* Filters */}
-        <div className="flex flex-col md:flex-row md:items-center gap-4 mb-6">
-          <div className="flex gap-2 bg-slate-100 p-1 rounded-xl ring-1 ring-slate-300 w-fit">
+        <div className="flex flex-col md:flex-row md:items-center gap-4 mb-8">
+          <div className="flex gap-2 bg-white/80 p-1 rounded-xl ring-1 ring-slate-300 w-fit shadow-sm">
             {CATEGORIES.map((c) => (
               <button
                 key={c}
                 onClick={() => setTab(c)}
-                className={`px-4 py-2 rounded-lg text-sm font-semibold transition ${
-                  tab === c ? "bg-teal-600" : "hover:bg-slate-200"
+                className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ${
+                  tab === c ? "bg-gradient-to-r from-teal-500 to-emerald-500 text-white shadow-lg" : "hover:bg-slate-200"
                 }`}
               >
                 {c}
@@ -396,23 +405,28 @@ export default function AminoAcidSuppliments() {
           </div>
 
           <div className="md:ml-auto grid grid-cols-1 sm:grid-cols-3 gap-3 w-full md:w-auto">
-            <input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search products"
-              className="bg-slate-100 ring-1 ring-slate-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
-            />
+            <div className="relative">
+              <input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search products"
+                className="w-full bg-white/80 ring-1 ring-slate-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 shadow-sm"
+              />
+              <svg className="absolute right-3 top-3 h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="bg-slate-100 ring-1 ring-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+              className="bg-white/80 ring-1 ring-slate-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 shadow-sm"
             >
               <option value="popular">Sort by popular</option>
               <option value="priceLow">Price: Low to High</option>
               <option value="priceHigh">Price: High to Low</option>
               <option value="rating">Top rated</option>
             </select>
-            <button className="bg-slate-100 ring-1 ring-slate-300 rounded-lg px-4 py-2 text-sm hover:bg-slate-200">
+            <button className="bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-400 hover:to-emerald-400 px-4 py-3 rounded-xl text-sm font-semibold text-white shadow-lg shadow-teal-500/40 hover:shadow-teal-500/60 hover:scale-105 transition-all duration-300">
               Export list
             </button>
           </div>

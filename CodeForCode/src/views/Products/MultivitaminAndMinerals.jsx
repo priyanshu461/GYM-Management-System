@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from "react";
 import Layout from "../../components/Layout";
+import { useTheme } from "../../contexts/ThemeContext";
 
 const CATEGORIES = ["All", "Men", "Women", "Unisex", "Immunity", "Performance"];
 const FORMS = ["Tablets", "Capsules", "Gummies", "Powder"];
@@ -308,6 +309,7 @@ function Rating({ value }) {
 }
 
 export default function MultivitaminAndMinerals() {
+  const { theme } = useTheme();
   const [tab, setTab] = useState("All");
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState("popular");
@@ -327,7 +329,7 @@ export default function MultivitaminAndMinerals() {
 
   return (
    <Layout>
-     <div className="min-h-screen bg-gradient-to-br from-teal-50 via-slate-50 to-teal-100 text-slate-900">
+     <div className={`min-h-screen ${theme === 'dark' ? 'bg-teal-900 text-white' : 'bg-gradient-to-br from-teal-50 via-slate-50 to-teal-100 text-slate-900'}`}>
       <div className="mx-auto max-w-7xl px-4 md:px-8 py-6 md:py-10">
         {/* Header */}
         <header className="mb-6">

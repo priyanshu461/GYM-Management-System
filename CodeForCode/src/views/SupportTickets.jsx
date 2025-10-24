@@ -2,6 +2,7 @@ import React, { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { MessageSquare, Users, CheckCircle, AlertTriangle, Plus, Search, Filter, Download, Settings, X, Send } from "lucide-react";
 import Layout from "../components/Layout";
+import { useTheme } from "../contexts/ThemeContext";
 
 // Support Tickets page for a gym management website
 // Bold, dark UI inspired by the provided dashboard screenshot
@@ -18,6 +19,7 @@ const seedTickets = [
 ];
 
 export default function SupportTickets() {
+  const { theme } = useTheme();
   const [tickets, setTickets] = useState(seedTickets);
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState("all");
@@ -79,21 +81,21 @@ export default function SupportTickets() {
 
   return (
     <Layout>
-       <div className="min-h-screen w-full bg-gradient-to-br from-teal-50 via-white to-teal-100 text-foreground">
+       <div className={`min-h-screen w-full ${theme === 'dark' ? 'bg-gradient-to-br from-teal-900 via-teal-800 to-teal-900 text-gray-100' : 'bg-gradient-to-br from-teal-50 via-white to-teal-100 text-gray-900'}`}>
       <div className="mx-auto max-w-7xl px-4 py-6">
         {/* Header */}
         <motion.div className="mb-6 flex items-center justify-between" initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
           <div>
-            <h1 className="text-3xl font-extrabold tracking-tight text-teal-600">Support Tickets</h1>
-            <p className="mt-1 text-sm text-muted-foreground">Fast triage, clean visuals, real time updates.</p>
+            <h1 className={`text-3xl font-extrabold tracking-tight ${theme === 'dark' ? 'text-teal-400' : 'text-teal-600'}`}>Support Tickets</h1>
+            <p className={`mt-1 text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-muted-foreground'}`}>Fast triage, clean visuals, real time updates.</p>
           </div>
           <div className="flex items-center gap-3">
-            <select value={range} onChange={e=>setRange(e.target.value)} className="rounded-xl bg-teal-50 px-3 py-2 text-xs ring-1 ring-teal-200 focus:outline-none focus:ring-2 focus:ring-teal-500">
+            <select value={range} onChange={e=>setRange(e.target.value)} className={`rounded-xl px-3 py-2 text-xs ring-1 focus:outline-none focus:ring-2 ${theme === 'dark' ? 'bg-teal-800 text-teal-100 ring-teal-600 focus:ring-teal-400' : 'bg-teal-50 text-gray-900 ring-teal-200 focus:ring-teal-500'}`}>
               <option value="7">Last 7 days</option>
               <option value="30">Last 30 days</option>
               <option value="90">Last 90 days</option>
             </select>
-            <motion.button onClick={()=>setComposeOpen(true)} className="rounded-xl bg-teal-600 px-4 py-2 text-sm font-semibold text-white shadow-lg hover:bg-teal-700" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+            <motion.button onClick={()=>setComposeOpen(true)} className={`rounded-xl px-4 py-2 text-sm font-semibold shadow-lg ${theme === 'dark' ? 'bg-teal-600 text-white hover:bg-teal-700' : 'bg-teal-600 text-white hover:bg-teal-700'}`} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
               <Plus className="inline mr-2 h-4 w-4" />
               New ticket
             </motion.button>
@@ -103,15 +105,15 @@ export default function SupportTickets() {
         {/* KPI cards */}
         <motion.div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2 }}>
           {stats.map((s, index) => (
-            <motion.div key={s.label} className="rounded-2xl border border-teal-300 bg-gradient-to-br from-teal-100 to-teal-200 p-4 shadow-lg flex items-center justify-between" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.3, delay: index * 0.1 }}>
+            <motion.div key={s.label} className={`rounded-2xl border p-4 shadow-lg flex items-center justify-between ${theme === 'dark' ? 'border-teal-600 bg-teal-900' : 'border-teal-300 bg-gradient-to-br from-teal-100 to-teal-200'}`} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.3, delay: index * 0.1 }}>
               <div>
-                <div className="text-xs text-teal-800 uppercase tracking-wide">{s.label}</div>
-                <div className="text-2xl font-bold mt-1 text-teal-900">{s.value}</div>
+                <div className={`text-xs uppercase tracking-wide ${theme === 'dark' ? 'text-teal-300' : 'text-teal-800'}`}>{s.label}</div>
+                <div className={`text-2xl font-bold mt-1 ${theme === 'dark' ? 'text-teal-100' : 'text-teal-900'}`}>{s.value}</div>
               </div>
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-teal-300 to-teal-400 flex items-center justify-center shadow-md">
-                {s.label === "Open" && <MessageSquare size={20} className="text-teal-800" />}
-                {s.label === "Pending" && <AlertTriangle size={20} className="text-teal-800" />}
-                {s.label === "Resolved" && <CheckCircle size={20} className="text-teal-800" />}
+              <div className={`w-12 h-12 rounded-xl flex items-center justify-center shadow-md ${theme === 'dark' ? 'bg-teal-800' : 'bg-gradient-to-br from-teal-300 to-teal-400'}`}>
+                {s.label === "Open" && <MessageSquare size={20} className={theme === 'dark' ? 'text-teal-300' : 'text-teal-800'} />}
+                {s.label === "Pending" && <AlertTriangle size={20} className={theme === 'dark' ? 'text-teal-300' : 'text-teal-800'} />}
+                {s.label === "Resolved" && <CheckCircle size={20} className={theme === 'dark' ? 'text-teal-300' : 'text-teal-800'} />}
                 {s.label === "Urgent" && <AlertTriangle size={20} className="text-red-600" />}
               </div>
             </motion.div>
@@ -119,32 +121,32 @@ export default function SupportTickets() {
         </motion.div>
 
         {/* Filters */}
-        <motion.div className="mt-6 rounded-2xl border border-teal-300 bg-gradient-to-r from-teal-100 to-teal-200 p-4 shadow-md" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.4 }}>
+        <motion.div className={`mt-6 rounded-2xl border p-4 shadow-md ${theme === 'dark' ? 'border-teal-600 bg-gradient-to-r from-teal-700 to-gray-800' : 'border-teal-600 bg-gradient-to-r from-teal-100 to-teal-200'}`} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.4 }}>
           <div className="grid gap-3 md:grid-cols-6">
             <div className="md:col-span-2 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-teal-600" />
-              <input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search tickets, members, assignees" className="w-full rounded-xl bg-white px-10 py-2 text-sm ring-1 ring-teal-200 focus:outline-none focus:ring-2 focus:ring-teal-500" />
+              <Search className={`absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 ${theme === 'dark' ? 'text-teal-400' : 'text-teal-600'}`} />
+              <input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search tickets, members, assignees" className={`w-full rounded-xl px-10 py-2 text-sm ring-1 focus:outline-none focus:ring-2 ${theme === 'dark' ? 'bg-teal-800 text-teal-100 ring-teal-600 focus:ring-teal-400' : 'bg-white text-gray-900 ring-teal-200 focus:ring-teal-500'}`} />
             </div>
-            <select value={status} onChange={e=>setStatus(e.target.value)} className="rounded-xl bg-white px-3 py-2 text-sm ring-1 ring-teal-200 focus:outline-none focus:ring-2 focus:ring-teal-500"><option value="all">All status</option><option>Open</option><option>Pending</option><option>Resolved</option></select>
-            <select value={priority} onChange={e=>setPriority(e.target.value)} className="rounded-xl bg-white px-3 py-2 text-sm ring-1 ring-teal-200 focus:outline-none focus:ring-2 focus:ring-teal-500"><option value="all">All priority</option><option>Urgent</option><option>High</option><option>Medium</option><option>Low</option></select>
-            <select value={category} onChange={e=>setCategory(e.target.value)} className="rounded-xl bg-white px-3 py-2 text-sm ring-1 ring-teal-200 focus:outline-none focus:ring-2 focus:ring-teal-500"><option value="all">All categories</option><option>Billing</option><option>App</option><option>Facilities</option><option>Training</option></select>
-            <select value={sort} onChange={e=>setSort(e.target.value)} className="rounded-xl bg-white px-3 py-2 text-sm ring-1 ring-teal-200 focus:outline-none focus:ring-2 focus:ring-teal-500"><option value="updated-desc">Newest updated</option><option value="updated-asc">Oldest updated</option><option value="priority">Priority</option></select>
+            <select value={status} onChange={e=>setStatus(e.target.value)} className={`rounded-xl px-3 py-2 text-sm ring-1 focus:outline-none focus:ring-2 ${theme === 'dark' ? 'bg-teal-800 text-teal-100 ring-teal-600 focus:ring-teal-400' : 'bg-white text-gray-900 ring-teal-200 focus:ring-teal-500'}`}><option value="all">All status</option><option>Open</option><option>Pending</option><option>Resolved</option></select>
+            <select value={priority} onChange={e=>setPriority(e.target.value)} className={`rounded-xl px-3 py-2 text-sm ring-1 focus:outline-none focus:ring-2 ${theme === 'dark' ? 'bg-teal-800 text-teal-100 ring-teal-600 focus:ring-teal-400' : 'bg-white text-gray-900 ring-teal-200 focus:ring-teal-500'}`}><option value="all">All priority</option><option>Urgent</option><option>High</option><option>Medium</option><option>Low</option></select>
+            <select value={category} onChange={e=>setCategory(e.target.value)} className={`rounded-xl px-3 py-2 text-sm ring-1 focus:outline-none focus:ring-2 ${theme === 'dark' ? 'bg-teal-800 text-teal-100 ring-teal-600 focus:ring-teal-400' : 'bg-white text-gray-900 ring-teal-200 focus:ring-teal-500'}`}><option value="all">All categories</option><option>Billing</option><option>App</option><option>Facilities</option><option>Training</option></select>
+            <select value={sort} onChange={e=>setSort(e.target.value)} className={`rounded-xl px-3 py-2 text-sm ring-1 focus:outline-none focus:ring-2 ${theme === 'dark' ? 'bg-teal-800 text-teal-100 ring-teal-600 focus:ring-teal-400' : 'bg-white text-gray-900 ring-teal-200 focus:ring-teal-500'}`}><option value="updated-desc">Newest updated</option><option value="updated-asc">Oldest updated</option><option value="priority">Priority</option></select>
           </div>
           {selected.length>0 && (
-            <motion.div className="mt-3 flex items-center justify-between rounded-xl bg-white px-3 py-2 text-sm" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.2 }}>
+            <motion.div className={`mt-3 flex items-center justify-between rounded-xl px-3 py-2 text-sm ${theme === 'dark' ? 'bg-gray-800 text-gray-100' : 'bg-white text-gray-900'}`} initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.2 }}>
               <div>{selected.length} selected</div>
               <div className="flex items-center gap-2">
                 <motion.button onClick={()=>bulkUpdate('status','Resolved')} className="rounded-lg bg-teal-600 px-3 py-1 text-white hover:bg-teal-700" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>Mark resolved</motion.button>
                 <motion.button onClick={()=>bulkUpdate('assignee','—')} className="rounded-lg bg-teal-500 px-3 py-1 text-white hover:bg-teal-600" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>Unassign</motion.button>
-                <motion.button onClick={()=>setSelected([])} className="rounded-lg bg-teal-100 px-3 py-1 text-teal-700 hover:bg-teal-200" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>Clear</motion.button>
+                <motion.button onClick={()=>setSelected([])} className={`rounded-lg px-3 py-1 hover:bg-teal-200 ${theme === 'dark' ? 'bg-gray-700 text-gray-100 hover:bg-gray-600' : 'bg-teal-100 text-teal-700'}`} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>Clear</motion.button>
               </div>
             </motion.div>
           )}
         </motion.div>
 
         {/* Table */}
-        <motion.div className="mt-6 overflow-hidden rounded-2xl border border-teal-300 bg-gradient-to-br from-teal-50 to-teal-100" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.6 }}>
-          <div className="grid grid-cols-12 gap-3 border-b border-teal-300 p-3 text-xs text-teal-700 bg-teal-100">
+        <motion.div className={`mt-6 overflow-hidden rounded-2xl border p-4 shadow-md ${theme === 'dark' ? 'border-teal-600 bg-teal-900' : 'border-teal-300 bg-gradient-to-br from-teal-50 to-teal-100'}`} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.6 }}>
+          <div className={`grid grid-cols-12 gap-3 border-b p-3 text-xs ${theme === 'dark' ? 'border-teal-600 text-teal-100 bg-teal-800' : 'border-teal-300 text-teal-700 bg-teal-100'}`}>
             <div className="col-span-1">Select</div>
             <div className="col-span-2">Ticket</div>
             <div className="col-span-3">Subject</div>
@@ -153,21 +155,21 @@ export default function SupportTickets() {
             <div className="col-span-1">Status</div>
             <div className="col-span-2">Updated</div>
           </div>
-          <ul className="divide-y divide-teal-200">
+          <ul className={`divide-y ${theme === 'dark' ? 'divide-teal-700' : 'divide-teal-200'}`}>
             {filtered.map((t, index) => (
-              <motion.li key={t.id} className="grid grid-cols-12 items-center gap-3 px-3 py-3 hover:bg-teal-50 transition-colors" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.3, delay: index * 0.05 }}>
+              <motion.li key={t.id} className={`grid grid-cols-12 items-center gap-3 px-3 py-3 transition-colors ${theme === 'dark' ? 'hover:bg-teal-800' : 'hover:bg-teal-50'}`} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.3, delay: index * 0.05 }}>
                 <div className="col-span-1">
-                  <input type="checkbox" checked={selected.includes(t.id)} onChange={()=>toggleSelect(t.id)} className="rounded border-teal-300" />
+                  <input type="checkbox" checked={selected.includes(t.id)} onChange={()=>toggleSelect(t.id)} className={`rounded ${theme === 'dark' ? 'border-teal-600' : 'border-teal-300'}`} />
                 </div>
                 <div className="col-span-2">
                   <motion.button onClick={()=>setDrawer(t.id)} className="rounded bg-teal-600 px-2 py-1 text-xs text-white hover:bg-teal-700 transition-colors" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>{t.id}</motion.button>
-                  <div className="text-[11px] text-teal-600">{t.category} • {t.club}</div>
+                  <div className={`text-[11px] ${theme === 'dark' ? 'text-teal-300' : 'text-teal-600'}`}>{t.category} • {t.club}</div>
                 </div>
                 <div className="col-span-3">
-                  <div className="text-sm font-medium text-teal-900">{t.subject}</div>
-                  <div className="text-xs text-teal-700">Assignee: {t.assignee}</div>
+                  <div className={`text-sm font-medium ${theme === 'dark' ? 'text-teal-100' : 'text-teal-900'}`}>{t.subject}</div>
+                  <div className={`text-xs ${theme === 'dark' ? 'text-teal-300' : 'text-teal-700'}`}>Assignee: {t.assignee}</div>
                 </div>
-                <div className="col-span-2 text-sm text-teal-900">{t.member}</div>
+                <div className={`col-span-2 text-sm ${theme === 'dark' ? 'text-teal-100' : 'text-teal-900'}`}>{t.member}</div>
                 <div className="col-span-1">
                   <span className={`rounded px-2 py-1 text-xs ${
                     t.priority==='Urgent'?'bg-red-500/20 text-red-600':
@@ -177,18 +179,18 @@ export default function SupportTickets() {
                 <div className="col-span-1">
                   <span className={`rounded px-2 py-1 text-xs ${t.status==='Resolved'?'bg-green-500/20 text-green-600':t.status==='Pending'?'bg-blue-500/20 text-blue-600':'bg-indigo-500/20 text-indigo-600'}`}>{t.status}</span>
                 </div>
-                <div className="col-span-2 text-xs text-teal-700">{t.updated}</div>
+                <div className={`col-span-2 text-xs ${theme === 'dark' ? 'text-teal-300' : 'text-teal-700'}`}>{t.updated}</div>
               </motion.li>
             ))}
           </ul>
         </motion.div>
 
         {/* Footer actions */}
-        <motion.div className="mt-6 flex items-center justify-between text-sm" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.8 }}>
-          <div className="text-muted-foreground">{filtered.length} tickets</div>
+        <motion.div className={`mt-6 flex items-center justify-between text-sm ${theme === 'dark' ? 'text-teal-300' : 'text-gray-600'}`} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.8 }}>
+          <div>{filtered.length} tickets</div>
           <div className="flex items-center gap-2">
-            <motion.button className="rounded-xl bg-secondary px-3 py-2 text-secondary-foreground hover:bg-secondary/80" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>Export</motion.button>
-            <motion.button className="rounded-xl bg-secondary px-3 py-2 text-secondary-foreground hover:bg-secondary/80" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>Automation</motion.button>
+            <motion.button className={`rounded-xl px-3 py-2 hover:bg-opacity-80 ${theme === 'dark' ? 'bg-teal-700 text-teal-100 hover:bg-teal-600' : 'bg-gray-200 text-gray-900 hover:bg-gray-300'}`} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>Export</motion.button>
+            <motion.button className={`rounded-xl px-3 py-2 hover:bg-opacity-80 ${theme === 'dark' ? 'bg-teal-700 text-teal-100 hover:bg-teal-600' : 'bg-gray-200 text-gray-900 hover:bg-gray-300'}`} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>Automation</motion.button>
           </div>
         </motion.div>
       </div>

@@ -98,7 +98,9 @@ export default function PreIntraPostWorkout() {
           </select>
         </div>
 
-        <button className="bg-teal-600 hover:bg-teal-500 transition px-5 py-2 rounded-lg font-semibold">
+        <button className={`${
+          theme === 'dark' ? 'bg-teal-700 hover:bg-teal-600' : 'bg-teal-600 hover:bg-teal-500'
+        } transition px-5 py-2 rounded-lg font-semibold`}>
           Add New Product
         </button>
       </div>
@@ -108,11 +110,11 @@ export default function PreIntraPostWorkout() {
         {filtered.map(product => (
           <div
             key={product.id}
-            className={`${
-              theme === 'dark'
-                ? 'bg-gradient-to-br from-gray-800 to-gray-900 border-gray-700'
-                : 'bg-gradient-to-br from-teal-50 to-teal-100 border-slate-200'
-            } rounded-2xl border overflow-hidden shadow-lg hover:shadow-teal-900/20 hover:scale-105 transition transform`}
+              className={`${
+                theme === 'dark'
+                  ? 'bg-gradient-to-br from-teal-900 via-teal-800 to-teal-900 border-teal-700'
+                  : 'bg-gradient-to-br from-teal-50 to-teal-100 border-slate-200'
+              } rounded-2xl border overflow-hidden shadow-lg hover:shadow-teal-900/20 hover:scale-105 transition transform`}
           >
             <div className="aspect-square w-full overflow-hidden">
               <img
@@ -140,7 +142,9 @@ export default function PreIntraPostWorkout() {
                   theme === 'dark' ? 'text-white' : 'text-slate-800'
                 }`}>${product.price.toFixed(2)}</div>
                 <div className="flex gap-2">
-                  <button className="bg-teal-600 hover:bg-teal-500 text-sm px-3 py-1 rounded-lg font-semibold transition">
+                  <button className={`${
+                    theme === 'dark' ? 'bg-teal-700 hover:bg-teal-600' : 'bg-teal-600 hover:bg-teal-500'
+                  } text-sm px-3 py-1 rounded-lg font-semibold transition`}>
                     Add
                   </button>
                   <button className={`${

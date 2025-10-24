@@ -15,6 +15,7 @@ import {
   Legend,
 } from "recharts";
 import Layout from "../../components/Layout";
+import { useTheme } from "../../contexts/ThemeContext";
 
 
 // Default export: a self-contained React component (Tailwind + Recharts)
@@ -25,6 +26,7 @@ export default function ReportsAnalytics({ initialData }) {
   // initialData is optional. If not passed, component uses internal mock data.
   const [range, setRange] = useState("30d");
   const [selectedPlan, setSelectedPlan] = useState("All");
+  const { theme } = useTheme();
 
   // Mock data generator (replace with real API data)
   const mockData = useMemo(() => {
@@ -113,11 +115,25 @@ export default function ReportsAnalytics({ initialData }) {
 
   return (
     <Layout>
-      <div className="p-6 max-w-6xl mx-auto bg-gradient-to-br from-teal-50 via-slate-50 to-teal-100 min-h-screen">
+      <div className={`p-6 max-w-6xl mx-auto min-h-screen ${
+        theme === 'dark'
+          ? 'bg-gradient-to-br from-teal-900 via-teal-800 to-teal-900'
+          : 'bg-gradient-to-br from-teal-50 via-slate-50 to-teal-100'
+      }`}>
         <header className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-2xl font-extrabold">Reports and <span className="text-teal-500 font-extrabold">Analytics</span></h1>
-            <p className="text-lg text-slate-500">Dynamic reporting to measure plan performance & member engagement</p>
+            <h1 className={`text-2xl font-extrabold ${
+              theme === 'dark' ? 'text-white' : 'text-black'
+            }`}>
+              Reports and <span className={`font-extrabold ${
+                theme === 'dark' ? 'text-teal-400' : 'text-teal-500'
+              }`}>Analytics</span>
+            </h1>
+            <p className={`text-lg ${
+              theme === 'dark' ? 'text-gray-300' : 'text-slate-500'
+            }`}>
+              Dynamic reporting to measure plan performance & member engagement
+            </p>
           </div>
 
           <div className="flex gap-3 items-center">
@@ -152,49 +168,97 @@ export default function ReportsAnalytics({ initialData }) {
 
         {/* KPI cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-          <div className="bg-gradient-to-br from-teal-50 to-teal-100 p-5 rounded-2xl shadow-sm hover:shadow-lg transition transform hover:scale-105 text-center">
-            <h3 className="text-lg font-semibold text-teal-500">Total Subscribers</h3>
-            <p className="text-2xl font-bold mt-2 text-slate-800">{totalSubscribers}</p>
-            <p className="text-sm text-slate-500">Across selected plans</p>
+          <div className={`p-5 rounded-2xl shadow-sm hover:shadow-lg transition transform hover:scale-105 text-center ${
+            theme === 'dark'
+              ? 'bg-gradient-to-br from-teal-900 to-teal-800'
+              : 'bg-gradient-to-br from-teal-50 to-teal-100'
+          }`}>
+            <h3 className={`text-lg font-semibold ${
+              theme === 'dark' ? 'text-teal-400' : 'text-teal-500'
+            }`}>Total Subscribers</h3>
+            <p className={`text-2xl font-bold mt-2 ${
+              theme === 'dark' ? 'text-white' : 'text-slate-800'
+            }`}>{totalSubscribers}</p>
+            <p className={`text-sm ${
+              theme === 'dark' ? 'text-gray-300' : 'text-slate-500'
+            }`}>Across selected plans</p>
           </div>
 
-          <div className="bg-gradient-to-br from-teal-50 to-teal-100 p-5 rounded-2xl shadow-sm hover:shadow-lg transition transform hover:scale-105 text-center">
-            <h3 className="text-lg font-semibold text-teal-500">Avg Compliance</h3>
-            <p className="text-2xl font-bold mt-2 text-slate-800">{(avgCompliance * 100).toFixed(0)}%</p>
-            <p className="text-sm text-slate-500">Member adherence to plans</p>
+          <div className={`p-5 rounded-2xl shadow-sm hover:shadow-lg transition transform hover:scale-105 text-center ${
+            theme === 'dark'
+              ? 'bg-gradient-to-br from-teal-900 to-teal-800'
+              : 'bg-gradient-to-br from-teal-50 to-teal-100'
+          }`}>
+            <h3 className={`text-lg font-semibold ${
+              theme === 'dark' ? 'text-teal-400' : 'text-teal-500'
+            }`}>Avg Compliance</h3>
+            <p className={`text-2xl font-bold mt-2 ${
+              theme === 'dark' ? 'text-white' : 'text-slate-800'
+            }`}>{(avgCompliance * 100).toFixed(0)}%</p>
+            <p className={`text-sm ${
+              theme === 'dark' ? 'text-gray-300' : 'text-slate-500'
+            }`}>Member adherence to plans</p>
           </div>
 
-          <div className="bg-gradient-to-br from-teal-50 to-teal-100 p-5 rounded-2xl shadow-sm hover:shadow-lg transition transform hover:scale-105 text-center">
-            <h3 className="text-lg font-semibold text-teal-500">Active Plans</h3>
-            <p className="text-2xl font-bold mt-2 text-slate-800">{filteredPlans.length}</p>
-            <p className="text-sm text-slate-500">Plans in selection</p>
+          <div className={`p-5 rounded-2xl shadow-sm hover:shadow-lg transition transform hover:scale-105 text-center ${
+            theme === 'dark'
+              ? 'bg-gradient-to-br from-teal-900 to-teal-800'
+              : 'bg-gradient-to-br from-teal-50 to-teal-100'
+          }`}>
+            <h3 className={`text-lg font-semibold ${
+              theme === 'dark' ? 'text-teal-400' : 'text-teal-500'
+            }`}>Active Plans</h3>
+            <p className={`text-2xl font-bold mt-2 ${
+              theme === 'dark' ? 'text-white' : 'text-slate-800'
+            }`}>{filteredPlans.length}</p>
+            <p className={`text-sm ${
+              theme === 'dark' ? 'text-gray-300' : 'text-slate-500'
+            }`}>Plans in selection</p>
           </div>
 
-          <div className="bg-gradient-to-br from-teal-100 to-teal-50 p-5 rounded-2xl shadow-sm hover:shadow-lg transition transform hover:scale-105 text-center">
-            <h3 className="text-lg font-semibold text-teal-500">Avg Workout Duration</h3>
-            <p className="text-2xl font-bold mt-2 text-slate-800">
+          <div className={`p-5 rounded-2xl shadow-sm hover:shadow-lg transition transform hover:scale-105 text-center ${
+            theme === 'dark'
+              ? 'bg-gradient-to-br from-teal-800 to-teal-900'
+              : 'bg-gradient-to-br from-teal-100 to-teal-50'
+          }`}>
+            <h3 className={`text-lg font-semibold ${
+              theme === 'dark' ? 'text-teal-400' : 'text-teal-500'
+            }`}>Avg Workout Duration</h3>
+            <p className={`text-2xl font-bold mt-2 ${
+              theme === 'dark' ? 'text-white' : 'text-slate-800'
+            }`}>
               {Math.round(
                 filteredPlans.reduce((s, p) => s + (p.avgDurationMin || p.avgCalories || 0), 0) / Math.max(1, filteredPlans.length)
               )} min
             </p>
-            <p className="text-sm text-slate-500">Estimated</p>
+            <p className={`text-sm ${
+              theme === 'dark' ? 'text-gray-300' : 'text-slate-500'
+            }`}>Estimated</p>
           </div>
         </div>
 
         {/* Charts grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Line Chart: Workouts & Calories */}
-          <div className="col-span-2 bg-gradient-to-br from-teal-50 to-teal-500 p-5 rounded-2xl shadow-sm">
+          <div className={`col-span-2 p-5 rounded-2xl shadow-sm ${
+            theme === 'dark'
+              ? 'bg-gradient-to-br from-teal-900 to-teal-700'
+              : 'bg-gradient-to-br from-teal-50 to-teal-500'
+          }`}>
             <div className="flex items-center justify-between mb-3">
-              <h3 className="text-lg font-semibold text-teal-600">Member Activity (trend)</h3>
-              <div className="text-sm text-slate-500">Showing: {range}</div>
+              <h3 className={`text-lg font-semibold ${
+                theme === 'dark' ? 'text-teal-400' : 'text-teal-600'
+              }`}>Member Activity (trend)</h3>
+              <div className={`text-sm ${
+                theme === 'dark' ? 'text-gray-300' : 'text-slate-500'
+              }`}>Showing: {range}</div>
             </div>
             <div style={{ height: 260 }}>
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={data.workoutTrend} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#64748b" />
-                  <XAxis dataKey="date" stroke="#64748b" />
-                  <YAxis stroke="#64748b" />
+                  <CartesianGrid strokeDasharray="3 3" stroke={theme === 'dark' ? '#64748b' : '#64748b'} />
+                  <XAxis dataKey="date" stroke={theme === 'dark' ? '#64748b' : '#64748b'} />
+                  <YAxis stroke={theme === 'dark' ? '#64748b' : '#64748b'} />
                   <Tooltip />
                   <Line type="monotone" dataKey="workouts" stroke="#14b8a6" strokeWidth={3} dot={false} />
                   <Line type="monotone" dataKey="caloriesBurned" stroke="#f97316" strokeWidth={3} dot={false} />
@@ -204,8 +268,14 @@ export default function ReportsAnalytics({ initialData }) {
           </div>
 
           {/* Pie Chart: Diet macro distribution */}
-          <div className="bg-gradient-to-br from-teal-50 to-teal-500 p-5 rounded-2xl shadow-sm">
-            <h3 className="text-lg font-semibold mb-2 text-teal-600">Diet Macro Distribution</h3>
+          <div className={`p-5 rounded-2xl shadow-sm ${
+            theme === 'dark'
+              ? 'bg-gradient-to-br from-teal-900 to-teal-700'
+              : 'bg-gradient-to-br from-teal-50 to-teal-500'
+          }`}>
+            <h3 className={`text-lg font-semibold mb-2 ${
+              theme === 'dark' ? 'text-teal-400' : 'text-teal-600'
+            }`}>Diet Macro Distribution</h3>
             <div style={{ height: 260 }}>
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
@@ -232,10 +302,18 @@ export default function ReportsAnalytics({ initialData }) {
 
         {/* Plans table and small bar chart */}
         <div className="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="col-span-2 bg-gradient-to-br from-teal-50 to-teal-500 p-5 rounded-2xl shadow-sm overflow-x-auto">
-            <h3 className="text-lg font-semibold mb-3 text-teal-600">Plans Overview</h3>
+          <div className={`col-span-2 p-5 rounded-2xl shadow-sm overflow-x-auto ${
+            theme === 'dark'
+              ? 'bg-gradient-to-br from-teal-900 to-teal-700'
+              : 'bg-gradient-to-br from-teal-50 to-teal-500'
+          }`}>
+            <h3 className={`text-lg font-semibold mb-3 ${
+              theme === 'dark' ? 'text-teal-400' : 'text-teal-600'
+            }`}>Plans Overview</h3>
             <table className="min-w-full text-left text-sm">
-              <thead className="text-xs text-slate-500 uppercase">
+              <thead className={`text-xs uppercase ${
+                theme === 'dark' ? 'text-gray-300' : 'text-slate-500'
+              }`}>
                 <tr>
                   <th className="py-2 px-3">Plan</th>
                   <th className="py-2 px-3">Type</th>
@@ -246,25 +324,43 @@ export default function ReportsAnalytics({ initialData }) {
               </thead>
               <tbody>
                 {filteredPlans.map((p) => (
-                  <tr key={p.id} className="border-t border-slate-300">
-                    <td className="py-3 px-3 font-medium text-slate-800">{p.name}</td>
-                    <td className="py-3 px-3 text-slate-600">{p.type}</td>
-                    <td className="py-3 px-3 text-slate-800">{p.subscribers}</td>
-                    <td className="py-3 px-3 text-slate-800">{p.avgDurationMin || p.avgCalories || "—"}</td>
-                    <td className="py-3 px-3 text-slate-800">{Math.round((p.complianceRate || 0) * 100)}%</td>
+                  <tr key={p.id} className={`border-t ${
+                    theme === 'dark' ? 'border-gray-600' : 'border-slate-300'
+                  }`}>
+                    <td className={`py-3 px-3 font-medium ${
+                      theme === 'dark' ? 'text-white' : 'text-slate-800'
+                    }`}>{p.name}</td>
+                    <td className={`py-3 px-3 ${
+                      theme === 'dark' ? 'text-gray-300' : 'text-slate-600'
+                    }`}>{p.type}</td>
+                    <td className={`py-3 px-3 ${
+                      theme === 'dark' ? 'text-white' : 'text-slate-800'
+                    }`}>{p.subscribers}</td>
+                    <td className={`py-3 px-3 ${
+                      theme === 'dark' ? 'text-white' : 'text-slate-800'
+                    }`}>{p.avgDurationMin || p.avgCalories || "—"}</td>
+                    <td className={`py-3 px-3 ${
+                      theme === 'dark' ? 'text-white' : 'text-slate-800'
+                    }`}>{Math.round((p.complianceRate || 0) * 100)}%</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
 
-          <div className="bg-gradient-to-br from-teal-50 to-teal-500 p-5 rounded-2xl shadow-sm">
-            <h3 className="text-lg font-semibold mb-3 text-teal-600">Subscribers by Plan</h3>
+          <div className={`p-5 rounded-2xl shadow-sm ${
+            theme === 'dark'
+              ? 'bg-gradient-to-br from-teal-900 to-teal-700'
+              : 'bg-gradient-to-br from-teal-50 to-teal-500'
+          }`}>
+            <h3 className={`text-lg font-semibold mb-3 ${
+              theme === 'dark' ? 'text-teal-400' : 'text-teal-600'
+            }`}>Subscribers by Plan</h3>
             <div style={{ height: 220 }}>
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={data.plans} margin={{ left: -20 }}>
                   <XAxis dataKey="name" hide />
-                  <YAxis stroke="#64748b" />
+                  <YAxis stroke={theme === 'dark' ? '#64748b' : '#64748b'} />
                   <Tooltip />
                   <Bar dataKey="subscribers" radius={[6, 6, 0, 0]} fill="#14b8a6" />
                 </BarChart>

@@ -1,5 +1,6 @@
 import React, { useState } from "react"
 import Layout from "../../components/Layout";
+import { useTheme } from "../../contexts/ThemeContext";
 const products = [
   {
     id: 1,
@@ -85,6 +86,7 @@ const products = [
 
 
 export default function Protein() {
+  const { theme } = useTheme();
   const [search, setSearch] = useState("")
   const [category, setCategory] = useState("All")
 
@@ -96,29 +98,55 @@ export default function Protein() {
 
   return (
    <Layout>
-     <div className="min-h-screen bg-gradient-to-br from-teal-50 via-slate-50 to-teal-100 text-slate-900 px-4 py-6 md:px-8">
+     <div className={`min-h-screen ${
+        theme === 'dark'
+          ? 'bg-gradient-to-br from-teal-900 via-teal-800 to-teal-900'
+          : 'bg-gradient-to-br from-teal-50 via-slate-50 to-teal-100'
+      } ${
+        theme === 'dark' ? 'text-white' : 'text-slate-900'
+      } px-4 py-6 md:px-8`}>
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-teal-600">
-          Protein Store
-        </h1>
-        <p className="text-slate-600 mt-1">
-          Explore our premium selection of protein powders for your fitness goals.
-        </p>
+      <div className="mb-8 flex items-center gap-4">
+        <div className="rounded-2xl bg-gradient-to-br from-teal-500 to-emerald-500 p-3 shadow-lg">
+          <svg className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+          </svg>
+        </div>
+        <div>
+          <h1 className={`text-4xl font-extrabold tracking-tight ${
+            theme === 'dark' ? 'text-white' : 'text-teal-600'
+          }`}>
+            Protein Store
+          </h1>
+          <p className={`mt-2 text-base ${
+            theme === 'dark' ? 'text-gray-300' : 'text-slate-600'
+          }`}>
+            Explore our premium selection of protein powders for your fitness goals.
+          </p>
+        </div>
       </div>
 
       {/* Filters */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
         <div className="flex gap-3 flex-1">
-          <input
-            type="text"
-            placeholder="Search products..."
-            className="flex-1 bg-slate-100 border border-slate-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-          />
+          <div className="relative flex-1">
+            <input
+              type="text"
+              placeholder="Search products..."
+              className={`w-full ${
+                theme === 'dark' ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white/80 border-slate-300'
+              } border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 shadow-sm`}
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+            />
+            <svg className="absolute right-3 top-3 h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
           <select
-            className="bg-slate-100 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+            className={`${
+              theme === 'dark' ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white/80 border-slate-300'
+            } border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 shadow-sm`}
             value={category}
             onChange={e => setCategory(e.target.value)}
           >
@@ -128,7 +156,7 @@ export default function Protein() {
           </select>
         </div>
 
-        <button className="bg-teal-600 hover:bg-teal-500 transition px-5 py-2 rounded-lg font-semibold">
+        <button className="bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-400 hover:to-emerald-400 px-6 py-3 rounded-xl font-semibold text-white shadow-lg shadow-teal-500/40 hover:shadow-teal-500/60 hover:scale-105 transition-all duration-300">
           Add New Product
         </button>
       </div>
@@ -138,32 +166,48 @@ export default function Protein() {
         {filtered.map(product => (
           <div
             key={product.id}
-            className="bg-gradient-to-br from-teal-50 to-teal-100 rounded-2xl border border-slate-200 overflow-hidden shadow-lg hover:shadow-teal-900/20 hover:scale-105 transition transform"
+            className={`group ${
+              theme === 'dark'
+                ? 'bg-gradient-to-br from-gray-800 to-gray-900 border-gray-700'
+                : 'bg-gradient-to-br from-white/90 to-teal-50/90 border-slate-200'
+            } rounded-3xl border overflow-hidden shadow-xl hover:shadow-2xl hover:shadow-teal-500/20 hover:scale-[1.02] transition-all duration-300 backdrop-blur-sm`}
           >
-            <div className="aspect-square w-full overflow-hidden">
+            <div className="aspect-square w-full overflow-hidden relative">
               <img
                 src={product.image}
                 alt={product.name}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
               />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             </div>
 
-            <div className="p-4 flex flex-col justify-between h-[160px]">
+            <div className="p-5 flex flex-col justify-between h-[180px]">
               <div>
-                <div className="flex items-center justify-between">
-                  <h3 className="font-bold text-lg truncate text-teal-600">{product.name}</h3>
-                  <span className="text-sm text-amber-400">★ {product.rating}</span>
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className={`font-bold text-lg truncate ${
+                    theme === 'dark' ? 'text-white' : 'text-teal-700'
+                  }`}>{product.name}</h3>
+                  <div className="flex items-center gap-1 bg-amber-400/20 px-2 py-1 rounded-full">
+                    <span className="text-sm text-amber-500">★</span>
+                    <span className="text-sm font-semibold text-amber-600">{product.rating}</span>
+                  </div>
                 </div>
-                <p className="text-slate-600 text-sm">{product.flavor}</p>
+                <p className={`text-sm ${
+                  theme === 'dark' ? 'text-gray-300' : 'text-slate-600'
+                }`}>{product.flavor}</p>
               </div>
 
-              <div className="flex items-center justify-between mt-2">
-                <div className="text-xl font-extrabold text-slate-800">₹{product.price}</div>
+              <div className="flex items-center justify-between mt-4">
+                <div className={`text-2xl font-extrabold ${
+                  theme === 'dark' ? 'text-white' : 'text-slate-800'
+                }`}>₹{product.price}</div>
                 <div className="flex gap-2">
-                  <button className="bg-teal-600 hover:bg-teal-500 text-sm px-3 py-1 rounded-lg font-semibold transition">
+                  <button className="bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-400 hover:to-emerald-400 text-white text-sm px-4 py-2 rounded-xl font-semibold shadow-lg shadow-teal-500/40 hover:shadow-teal-500/60 hover:scale-105 transition-all duration-300">
                     Add
                   </button>
-                  <button className="bg-slate-200 hover:bg-slate-300 text-sm px-3 py-1 rounded-lg transition">
+                  <button className={`${
+                    theme === 'dark' ? 'bg-gray-600 hover:bg-gray-500' : 'bg-slate-200 hover:bg-slate-300'
+                  } text-sm px-4 py-2 rounded-xl transition-all duration-300 hover:scale-105`}>
                     View
                   </button>
                 </div>

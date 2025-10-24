@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import Layout from "../../components/Layout";
+import { useTheme } from "../../contexts/ThemeContext";
 
 const FranchiseAndMembership = () => {
+  const { theme } = useTheme();
   const [activeTab, setActiveTab] = useState("franchise");
 
   const franchiseData = [
@@ -54,12 +56,20 @@ const FranchiseAndMembership = () => {
 
   return (
     <Layout>
-      <section className="w-full bg-gradient-to-br from-teal-50 via-slate-50 to-teal-100 min-h-screen text-slate-900 py-16 px-6 md:px-20">
+      <section className={`w-full ${
+        theme === 'dark'
+          ? 'bg-gradient-to-br from-teal-900 via-teal-800 to-teal-900'
+          : 'bg-gradient-to-br from-teal-50 via-slate-50 to-teal-100'
+      } min-h-screen py-16 px-6 md:px-20`}>
         <div className="text-center mb-10">
-          <h2 className="text-4xl font-extrabold text-teal-600 mb-3">
+          <h2 className={`text-4xl font-extrabold mb-3 ${
+            theme === 'dark' ? 'text-white' : 'text-teal-600'
+          }`}>
             Franchise & Membership
           </h2>
-          <p className="text-slate-700 max-w-2xl mx-auto">
+          <p className={`max-w-2xl mx-auto ${
+            theme === 'dark' ? 'text-gray-300' : 'text-slate-700'
+          }`}>
             Whether you want to start your own gym or join our fitness community,
             we’ve got flexible options for everyone.
           </p>
@@ -72,7 +82,9 @@ const FranchiseAndMembership = () => {
             className={`px-6 py-2 mx-2 rounded-full transition-all duration-300 ${
               activeTab === "franchise"
                 ? "bg-teal-600 text-white font-semibold shadow-lg shadow-teal-400/50"
-                : "bg-slate-200 hover:bg-slate-300"
+                : theme === 'dark'
+                  ? "bg-gray-600 text-white hover:bg-gray-500"
+                  : "bg-slate-200 hover:bg-slate-300"
             }`}
           >
             Franchise
@@ -82,7 +94,9 @@ const FranchiseAndMembership = () => {
             className={`px-6 py-2 mx-2 rounded-full transition-all duration-300 ${
               activeTab === "membership"
                 ? "bg-teal-600 text-white font-semibold shadow-lg shadow-teal-400/50"
-                : "bg-slate-200 hover:bg-slate-300"
+                : theme === 'dark'
+                  ? "bg-gray-600 text-white hover:bg-gray-500"
+                  : "bg-slate-200 hover:bg-slate-300"
             }`}
           >
             Membership
@@ -91,41 +105,79 @@ const FranchiseAndMembership = () => {
 
         {/* Franchise Section */}
         {activeTab === "franchise" && (
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-3 gap-8 animate-fade-in">
             {franchiseData.map((item, index) => (
               <div
                 key={index}
-                className="bg-gradient-to-br from-teal-50 to-teal-100 p-6 rounded-2xl shadow-lg hover:shadow-xl hover:-translate-y-1 transition-transform duration-300"
+                className={`relative p-6 rounded-2xl shadow-lg hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 group overflow-hidden ${
+                  theme === 'dark'
+                    ? 'bg-gradient-to-br from-gray-700 via-gray-800 to-gray-900 border border-teal-700'
+                    : 'bg-gradient-to-br from-teal-50 via-teal-100 to-teal-200 border border-teal-300'
+                }`}
+                style={{ animationDelay: `${index * 0.1}s` }}
               >
-                <h3 className="text-2xl font-extrabold text-teal-600 mb-2">
-                  {item.title}
-                </h3>
-                <p className="text-slate-700 mb-4">{item.desc}</p>
-                <p className="text-sm mb-1">
-                  <span className="font-semibold text-slate-900">Investment:</span>{" "}
-                  {item.investment}
-                </p>
-                <p className="text-sm">
-                  <span className="font-semibold text-slate-900">ROI:</span> {item.roi}
-                </p>
+                <div className={`absolute inset-0 ${
+                  theme === 'dark'
+                    ? 'bg-gradient-to-br from-teal-900/20 to-transparent'
+                    : 'bg-gradient-to-br from-teal-400/10 to-transparent'
+                } opacity-0 group-hover:opacity-100 transition-opacity duration-500`}></div>
+                <div className="relative z-10">
+                  <h3 className={`text-2xl font-extrabold mb-2 flex items-center ${
+                    theme === 'dark' ? 'text-teal-400' : 'text-teal-600'
+                  }`}>
+                    <span className="mr-2">🏢</span>
+                    {item.title}
+                  </h3>
+                  <p className={`mb-4 ${
+                    theme === 'dark' ? 'text-gray-300' : 'text-slate-700'
+                  }`}>{item.desc}</p>
+                  <div className="space-y-2">
+                    <p className="text-sm flex items-center">
+                      <span className="mr-2">💰</span>
+                      <span className={`font-semibold ${
+                        theme === 'dark' ? 'text-white' : 'text-slate-900'
+                      }`}>Investment:</span>{" "}
+                      <span className={`${
+                        theme === 'dark' ? 'text-gray-300' : 'text-slate-700'
+                      }`}>{item.investment}</span>
+                    </p>
+                    <p className="text-sm flex items-center">
+                      <span className="mr-2">📈</span>
+                      <span className={`font-semibold ${
+                        theme === 'dark' ? 'text-white' : 'text-slate-900'
+                      }`}>ROI:</span> <span className={`${
+                        theme === 'dark' ? 'text-gray-300' : 'text-slate-700'
+                      }`}>{item.roi}</span>
+                    </p>
+                  </div>
+                </div>
               </div>
             ))}
           </div>
         )}
 
-        {/* Membership Section */}
         {activeTab === "membership" && (
           <div className="grid md:grid-cols-3 gap-8">
             {membershipPlans.map((plan, index) => (
               <div
                 key={index}
-                className="bg-gradient-to-br from-teal-50 to-teal-100 p-6 rounded-2xl shadow-lg hover:shadow-xl hover:scale-105 transition-transform duration-300"
+                className={`p-6 rounded-2xl shadow-lg hover:shadow-xl hover:scale-105 transition-transform duration-300 ${
+                  theme === 'dark'
+                    ? 'bg-gradient-to-br from-gray-700 to-gray-800'
+                    : 'bg-gradient-to-br from-teal-50 to-teal-100'
+                }`}
               >
-                <h3 className="text-2xl font-extrabold text-teal-600 mb-2">
+                <h3 className={`text-2xl font-extrabold mb-2 ${
+                  theme === 'dark' ? 'text-teal-400' : 'text-teal-600'
+                }`}>
                   {plan.name}
                 </h3>
-                <p className="text-3xl font-extrabold mb-4 text-slate-800">{plan.price}</p>
-                <ul className="text-slate-700 space-y-2 mb-6">
+                <p className={`text-3xl font-extrabold mb-4 ${
+                  theme === 'dark' ? 'text-white' : 'text-slate-800'
+                }`}>{plan.price}</p>
+                <ul className={`space-y-2 mb-6 ${
+                  theme === 'dark' ? 'text-gray-300' : 'text-slate-700'
+                }`}>
                   {plan.benefits.map((benefit, i) => (
                     <li key={i}>• {benefit}</li>
                   ))}

@@ -1,176 +1,308 @@
 import React from 'react'
 import { motion } from "framer-motion";
-import {Box, ShoppingCart, Users, BarChart } from "lucide-react";
+import { Box, ShoppingCart, Users, BarChart, TrendingUp, Package, Eye, Send, Home } from "lucide-react";
 import Layout from '../components/Layout';
 
-
 const Dashboard = () => {
-      const stats = [
-        { id: 1, title: "Total Sales", value: "₹1,24,560", icon: ShoppingCart },
-        { id: 2, title: "Orders", value: "1,240", icon: Box },
-        { id: 3, title: "Customers", value: "3,420", icon: Users },
-        { id: 4, title: "Traffic", value: "18,400", icon: BarChart },
-      ];
+  const stats = [
+    { id: 1, title: "Total Sales", value: "₹1,24,560", icon: ShoppingCart, change: "+12.5%", changeType: "positive" },
+    { id: 2, title: "Orders", value: "1,240", icon: Box, change: "+8.2%", changeType: "positive" },
+    { id: 3, title: "Customers", value: "3,420", icon: Users, change: "+15.3%", changeType: "positive" },
+    { id: 4, title: "Traffic", value: "18,400", icon: BarChart, change: "-2.1%", changeType: "negative" },
+  ];
 
-      const topProducts = [
-        { id: 1, title: "Leather Jacket", price: "₹4,499", sold: 140 },
-        { id: 2, title: "Running Shoes", price: "₹2,299", sold: 120 },
-        { id: 3, title: "Smart Watch", price: "₹6,999", sold: 95 },
-        { id: 4, title: "Backpack", price: "₹1,299", sold: 88 },
-      ];
+  const topProducts = [
+    { id: 1, title: "Leather Jacket", price: "₹4,499", sold: 140, image: "🧥" },
+    { id: 2, title: "Running Shoes", price: "₹2,299", sold: 120, image: "👟" },
+    { id: 3, title: "Smart Watch", price: "₹6,999", sold: 95, image: "⌚" },
+    { id: 4, title: "Backpack", price: "₹1,299", sold: 88, image: "🎒" },
+  ];
 
-      const orders = Array.from({ length: 6 }).map((_, i) => ({
-        id: 1000 + i,
-        customer: ["Asha", "Ravi", "Deepa", "Karan", "Maya", "Ishan"][i % 6],
-        amount: [2599, 499, 1299, 7499, 899, 199][i % 6],
-        status: ["Delivered", "Processing", "Returned", "Shipped", "Processing", "Delivered"][i % 6],
-        date: ["2025-09-28", "2025-09-29", "2025-09-25", "2025-09-27", "2025-09-30", "2025-09-24"][i % 6]
-      }));
+  const orders = Array.from({ length: 6 }).map((_, i) => ({
+    id: 1000 + i,
+    customer: ["Asha", "Ravi", "Deepa", "Karan", "Maya", "Ishan"][i % 6],
+    amount: [2599, 499, 1299, 7499, 899, 199][i % 6],
+    status: ["Delivered", "Processing", "Returned", "Shipped", "Processing", "Delivered"][i % 6],
+    date: ["2025-09-28", "2025-09-29", "2025-09-25", "2025-09-27", "2025-09-30", "2025-09-24"][i % 6]
+  }));
+
+  const quickActions = [
+    {
+      title: "Add product",
+      description: "Create a new product listing",
+      icon: Package,
+      shortcut: "Ctrl + P",
+      color: "from-blue-600 to-blue-500"
+    },
+    {
+      title: "View reports",
+      description: "Detailed sales & analytics",
+      icon: BarChart,
+      shortcut: "Enter",
+      color: "from-green-600 to-green-500"
+    },
+    {
+      title: "Send promo",
+      description: "Email/SMS campaign",
+      icon: Send,
+      shortcut: "/",
+      color: "from-purple-600 to-purple-500"
+    }
+  ];
 
   return (
-    <div>
-         <Layout>
-             <section className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-            {stats.map((s) => (
-              <motion.div key={s.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="p-4 rounded-2xl bg-muted shadow-sm flex items-center justify-between">
-                <div>
-                  <div className="text-xs text-foreground">{s.title}</div>
-                  <div className="text-xl font-bold mt-1">{s.value}</div>
+    <Layout>
+      <div className="min-h-screen bg-gradient-to-br from-teal-900 via-teal-800 to-teal-900 text-white py-10 px-4">
+        <div className="max-w-7xl mx-auto">
+          {/* Title */}
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex justify-between items-center mb-8"
+          >
+            <div>
+              <h1 className="text-4xl font-extrabold mb-3 text-foreground tracking-tight">
+                <Home className="inline-block w-10 h-10 mr-3 text-teal-500 dark:text-teal-400" />
+                Dashboard<span className="text-teal-500 dark:text-teal-400"> Overview</span>
+              </h1>
+              <p className="text-muted-foreground text-lg">Welcome back! Here's what's happening with your business today.</p>
+            </div>
+          </motion.div>
+
+          {/* Stats Cards */}
+          <motion.section
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
+          >
+            {stats.map((s, index) => (
+              <motion.div
+                key={s.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 + index * 0.1 }}
+                whileHover={{ scale: 1.02 }}
+                className="bg-gradient-to-br from-teal-900/10 to-teal-800/5 dark:from-teal-900/20 dark:to-teal-800/10 border border-teal-700/20 dark:border-teal-600/30 p-6 rounded-2xl shadow-xl"
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-teal-600 to-teal-500 flex items-center justify-center shadow-lg">
+                    <s.icon size={20} className="text-white" />
+                  </div>
+                  <div className={`flex items-center gap-1 text-sm font-medium ${s.changeType === 'positive' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                    <TrendingUp className="w-4 h-4" />
+                    {s.change}
+                  </div>
                 </div>
-                <div className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center">
-                  <s.icon size={20} />
+                <div>
+                  <div className="text-sm text-muted-foreground font-medium">{s.title}</div>
+                  <div className="text-3xl font-bold mt-2 text-foreground">{s.value}</div>
                 </div>
               </motion.div>
             ))}
-          </section>
+          </motion.section>
 
-          <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Sales Chart + Orders List */}
-            <div className="lg:col-span-2 bg-muted p-4 rounded-2xl shadow-sm">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="font-semibold">Sales Overview</h3>
-                <div className="text-xs text-slate-500">Last 30 days</div>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+              className="lg:col-span-2 bg-gradient-to-br from-teal-900/10 to-teal-800/5 dark:from-teal-900/20 dark:to-teal-800/10 border border-teal-700/20 dark:border-teal-600/30 p-6 rounded-2xl shadow-xl"
+            >
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-semibold text-foreground flex items-center gap-2">
+                  <BarChart className="w-5 h-5 text-teal-500 dark:text-teal-400" />
+                  Sales Overview
+                </h3>
+                <div className="text-sm text-muted-foreground bg-muted px-3 py-1 rounded-full">Last 30 days</div>
               </div>
 
-              {/* Simple SVG chart (sparkline + bars) */}
-              <div className="w-full h-40 mb-4">
+              {/* Enhanced SVG chart */}
+              <div className="w-full h-48 mb-6 bg-gradient-to-r from-teal-900/5 to-teal-800/5 dark:from-teal-900/10 dark:to-teal-800/10 rounded-xl p-4 border border-teal-700/10 dark:border-teal-600/20">
                 <svg className="w-full h-full" viewBox="0 0 600 160" preserveAspectRatio="none">
-                  <polyline fill="none" stroke="#0ea5e9" strokeWidth="3" points="0,120 80,100 160,80 240,95 320,60 400,72 480,40 560,55 600,30" />
+                  <defs>
+                    <linearGradient id="chartGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                      <stop offset="0%" stopColor="#14b8a6" stopOpacity="0.3" />
+                      <stop offset="100%" stopColor="#14b8a6" stopOpacity="0.8" />
+                    </linearGradient>
+                  </defs>
+                  <polyline fill="none" stroke="#14b8a6" strokeWidth="4" points="0,120 80,100 160,80 240,95 320,60 400,72 480,40 560,55 600,30" />
+                  <polyline fill="url(#chartGradient)" stroke="none" points="0,120 80,100 160,80 240,95 320,60 400,72 480,40 560,55 600,30 600,160 0,160" />
                 </svg>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <h4 className="text-sm font-medium mb-2">Recent Orders</h4>
-                  <div className="space-y-2">
-                    {orders.map((o) => (
-                      <div key={o.id} className="flex items-center justify-between p-3 rounded-lg hover:bg-slate-50">
+                  <h4 className="text-lg font-semibold mb-4 text-foreground flex items-center gap-2">
+                    <Box className="w-5 h-5 text-teal-500 dark:text-teal-400" />
+                    Recent Orders
+                  </h4>
+                  <div className="space-y-3">
+                    {orders.slice(0, 4).map((o, index) => (
+                      <motion.div
+                        key={o.id}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.6 + index * 0.1 }}
+                        className="flex items-center justify-between p-4 rounded-xl bg-background border border-border hover:bg-gradient-to-r hover:from-teal-900/5 hover:to-teal-800/5 dark:hover:from-teal-900/10 dark:hover:to-teal-800/10 transition-all duration-200"
+                      >
                         <div>
-                          <div className="text-sm font-medium">Order #{o.id}</div>
-                  <div className="text-xs text-foreground">{o.customer} • {o.date}</div>
+                          <div className="text-sm font-semibold text-foreground">Order #{o.id}</div>
+                          <div className="text-xs text-muted-foreground">{o.customer} • {o.date}</div>
                         </div>
                         <div className="text-right">
-                          <div className="font-semibold">₹{o.amount}</div>
-                          <div className={`text-xs ${o.status === 'Delivered' ? 'text-primary' : o.status === 'Returned' ? 'text-destructive' : 'text-yellow-600'}`}>{o.status}</div>
+                          <div className="font-bold text-foreground">₹{o.amount.toLocaleString()}</div>
+                          <div className={`text-xs font-medium px-2 py-1 rounded-full ${
+                            o.status === 'Delivered' ? 'bg-green-100 text-green-800 border border-green-300 dark:bg-green-900/20 dark:text-green-400 dark:border-green-600' :
+                            o.status === 'Returned' ? 'bg-red-100 text-red-800 border border-red-300 dark:bg-red-900/20 dark:text-red-400 dark:border-red-600' :
+                            'bg-yellow-100 text-yellow-800 border border-yellow-300 dark:bg-yellow-900/20 dark:text-yellow-400 dark:border-yellow-600'
+                          }`}>
+                            {o.status}
+                          </div>
                         </div>
-                     </div>
+                      </motion.div>
                     ))}
                   </div>
                 </div>
 
                 <div>
-                  <h4 className="text-sm font-medium mb-2">Top Products</h4>
-                  <ul className="space-y-2">
-                    {topProducts.map((p) => (
-                      <li key={p.id} className="p-3 rounded-lg hover:bg-slate-50 flex items-center justify-between">
-                        <div>
-                          <div className="font-medium">{p.title}</div>
-                          <div className="text-xs text-slate-500">Sold: {p.sold}</div>
+                  <h4 className="text-lg font-semibold mb-4 text-foreground flex items-center gap-2">
+                    <TrendingUp className="w-5 h-5 text-teal-500 dark:text-teal-400" />
+                    Top Products
+                  </h4>
+                  <ul className="space-y-3">
+                    {topProducts.map((p, index) => (
+                      <motion.li
+                        key={p.id}
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.8 + index * 0.1 }}
+                        className="p-4 rounded-xl bg-background border border-border hover:bg-gradient-to-r hover:from-teal-900/5 hover:to-teal-800/5 dark:hover:from-teal-900/10 dark:hover:to-teal-800/10 transition-all duration-200 flex items-center justify-between"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="text-2xl">{p.image}</div>
+                          <div>
+                            <div className="font-semibold text-foreground">{p.title}</div>
+                            <div className="text-xs text-muted-foreground">Sold: {p.sold}</div>
+                          </div>
                         </div>
-                        <div className="text-sm font-semibold">{p.price}</div>
-                      </li>
+                        <div className="text-lg font-bold text-teal-600 dark:text-teal-400">{p.price}</div>
+                      </motion.li>
                     ))}
                   </ul>
                 </div>
               </div>
-            </div>
+            </motion.div>
 
             {/* Quick Actions */}
-            <div className="bg-muted p-4 rounded-2xl shadow-sm">
-              <h3 className="font-semibold mb-3">Quick Actions</h3>
-              <div className="grid grid-cols-1 gap-3">
-                <button className="flex items-center justify-between p-3 rounded-lg hover:bg-slate-50">
-                  <div className="flex items-center gap-3">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 7h18M3 12h18M3 17h18"/></svg>
-                    <div>
-                      <div className="text-sm font-medium">Add product</div>
-                      <div className="text-xs text-slate-500">Create a new product listing</div>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6 }}
+              className="bg-gradient-to-br from-teal-900/10 to-teal-800/5 dark:from-teal-900/20 dark:to-teal-800/10 border border-teal-700/20 dark:border-teal-600/30 p-6 rounded-2xl shadow-xl"
+            >
+              <h3 className="text-xl font-semibold mb-6 text-foreground flex items-center gap-2">
+                <Package className="w-5 h-5 text-teal-500 dark:text-teal-400" />
+                Quick Actions
+              </h3>
+              <div className="grid grid-cols-1 gap-4">
+                {quickActions.map((action, index) => (
+                  <motion.button
+                    key={index}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.8 + index * 0.1 }}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="flex items-center justify-between p-4 rounded-xl bg-background border border-border hover:bg-gradient-to-r hover:from-teal-900/5 hover:to-teal-800/5 dark:hover:from-teal-900/10 dark:hover:to-teal-800/10 transition-all duration-200 group"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${action.color} flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform`}>
+                        <action.icon className="w-5 h-5 text-white" />
+                      </div>
+                      <div className="text-left">
+                        <div className="text-sm font-semibold text-foreground">{action.title}</div>
+                        <div className="text-xs text-muted-foreground">{action.description}</div>
+                      </div>
                     </div>
-                  </div>
-                  <div className="text-xs text-slate-400">Ctrl + P</div>
-                </button>
-
-                <button className="flex items-center justify-between p-3 rounded-lg hover:bg-slate-50">
-                  <div className="flex items-center gap-3">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 17v-6a2 2 0 012-2h2a2 2 0 012 2v6M7 21h10"/></svg>
-                    <div>
-                      <div className="text-sm font-medium">View reports</div>
-                      <div className="text-xs text-slate-500">Detailed sales & analytics</div>
+                    <div className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded-md font-mono">
+                      {action.shortcut}
                     </div>
-                  </div>
-                  <div className="text-xs text-slate-400">Enter</div>
-                </button>
-
-                <button className="flex items-center justify-between p-3 rounded-lg hover:bg-slate-50">
-                  <div className="flex items-center gap-3">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3"/></svg>
-                    <div>
-                      <div className="text-sm font-medium">Send promo</div>
-                      <div className="text-xs text-slate-500">Email/SMS campaign</div>
-                    </div>
-                  </div>
-                  <div className="text-xs text-slate-400">/</div>
-                </button>
+                  </motion.button>
+                ))}
               </div>
-            </div>
-          </section>
+            </motion.div>
+          </div>
 
           {/* Orders Table */}
-          <section className="mt-6 bg-muted p-4 rounded-2xl shadow-sm">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-semibold">All Orders</h3>
-              <div className="text-sm text-slate-500">Showing latest 50 orders</div>
+          <motion.section
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.0 }}
+            className="mt-8 bg-gradient-to-br from-teal-900/10 to-teal-800/5 dark:from-teal-900/20 dark:to-teal-800/10 border border-teal-700/20 dark:border-teal-600/30 p-6 rounded-2xl shadow-xl"
+          >
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-semibold text-foreground flex items-center gap-2">
+                <Box className="w-5 h-5 text-teal-500 dark:text-teal-400" />
+                All Orders
+              </h3>
+              <div className="text-sm text-muted-foreground bg-muted px-3 py-1 rounded-full">Showing latest 50 orders</div>
             </div>
 
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm">
-                <thead className="text-xs text-slate-500 border-b">
+              <table className="w-full text-left border-collapse">
+                <thead className="bg-gradient-to-r from-teal-600 to-teal-500">
                   <tr>
-                    <th className="py-2">Order</th>
-                    <th className="py-2">Customer</th>
-                    <th className="py-2">Amount</th>
-                    <th className="py-2">Status</th>
-                    <th className="py-2">Date</th>
-                    <th className="py-2">Action</th>
+                    <th className="px-6 py-4 text-white font-semibold">Order</th>
+                    <th className="px-6 py-4 text-white font-semibold">Customer</th>
+                    <th className="px-6 py-4 text-white font-semibold">Amount</th>
+                    <th className="px-6 py-4 text-white font-semibold">Status</th>
+                    <th className="px-6 py-4 text-white font-semibold">Date</th>
+                    <th className="px-6 py-4 text-white font-semibold text-center">Action</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y">
-                  {orders.map(o => (
-                    <tr key={o.id} className="hover:bg-slate-50">
-                      <td className="py-3">#{o.id}</td>
-                      <td className="py-3">{o.customer}</td>
-                      <td className="py-3">₹{o.amount}</td>
-                      <td className="py-3">{o.status}</td>
-                      <td className="py-3">{o.date}</td>
-                      <td className="py-3"><button className="text-sm px-3 py-1 rounded-md bg-slate-100 hover:bg-slate-200">View</button></td>
-                    </tr>
+                <tbody>
+                  {orders.map((o, index) => (
+                    <motion.tr
+                      key={o.id}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 1.2 + index * 0.05 }}
+                      className="border-b border-border hover:bg-gradient-to-r hover:from-teal-900/5 hover:to-teal-800/5 dark:hover:from-teal-900/10 dark:hover:to-teal-800/10 transition-all duration-200"
+                    >
+                      <td className="px-6 py-4 font-semibold text-foreground">#{o.id}</td>
+                      <td className="px-6 py-4 text-foreground">{o.customer}</td>
+                      <td className="px-6 py-4 font-bold text-foreground">₹{o.amount.toLocaleString()}</td>
+                      <td className="px-6 py-4">
+                        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                          o.status === 'Delivered' ? 'bg-green-100 text-green-800 border border-green-300 dark:bg-green-900/20 dark:text-green-400 dark:border-green-600' :
+                          o.status === 'Returned' ? 'bg-red-100 text-red-800 border border-red-300 dark:bg-red-900/20 dark:text-red-400 dark:border-red-600' :
+                          'bg-yellow-100 text-yellow-800 border border-yellow-300 dark:bg-yellow-900/20 dark:text-yellow-400 dark:border-yellow-600'
+                        }`}>
+                          {o.status}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-muted-foreground">{o.date}</td>
+                      <td className="px-6 py-4 text-center">
+                        <motion.button
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          className="px-4 py-2 bg-gradient-to-r from-teal-600 to-teal-500 text-white rounded-xl shadow-lg hover:from-teal-700 hover:to-teal-600 transition-all font-medium flex items-center gap-2"
+                        >
+                          <Eye className="w-4 h-4" />
+                          View
+                        </motion.button>
+                      </td>
+                    </motion.tr>
                   ))}
                 </tbody>
               </table>
             </div>
-          </section>
-         </Layout>
-    </div>
+          </motion.section>
+        </div>
+      </div>
+    </Layout>
   )
 }
 

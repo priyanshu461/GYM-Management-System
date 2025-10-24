@@ -20,7 +20,7 @@ const Header = ({ onMobileMenuToggle, sidebarCollapsed }) => {
 
   return (
     <div>
-         <header className={`fixed top-0 ${sidebarCollapsed ? 'md:left-20' : 'md:left-64'} left-0 right-0 z-50 bg-card shadow-md flex items-center justify-between gap-4 mb-6 px-6 py-2`}>
+         <header className={`fixed top-0 ${sidebarCollapsed ? 'md:left-20' : 'md:left-64'} left-0 right-0 z-50 bg-card shadow-md flex items-center justify-between gap-4 mb-6 px-6 py-2 dark:bg-teal-900 dark:text-white`}>
             <div className="flex items-center gap-4">
               <button
                 onClick={onMobileMenuToggle}
@@ -49,7 +49,10 @@ const Header = ({ onMobileMenuToggle, sidebarCollapsed }) => {
               >
                 {theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
               </button>
-              <button className="p-2 rounded-lg hover:bg-slate-100"><Bell size={18} /></button>
+              <button className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-gray-600 dark:bg-gray-700 dark:text-teal-100 transition-colors duration-200 relative">
+                <Bell size={18} />
+                <span className="absolute -top-1 -right-1 h-3 w-3 bg-red-500 rounded-full border border-white dark:border-gray-700"></span>
+              </button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <div className="flex items-center gap-3 cursor-pointer p-2 rounded-md hover:bg-slate-100 transition-colors duration-200">

@@ -1,8 +1,10 @@
 import React, { useMemo, useState } from "react";
 import Layout from "../components/Layout";
+import { useTheme } from "../contexts/ThemeContext";
 
 // Gym Blog page, now teal-themed!
 export default function GymBlog() {
+  const { theme } = useTheme();
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("all");
   const [range, setRange] = useState("7");
@@ -338,26 +340,26 @@ export default function GymBlog() {
 
   return (
     <Layout>
-      <div className={`min-h-screen w-full bg-gradient-to-b ${gradient} text-teal-900`}>
+      <div className={`min-h-screen w-full ${theme === 'dark' ? 'bg-teal-900 text-teal-100' : `bg-gradient-to-b ${gradient} text-teal-900`}`}>
         <div className="mx-auto max-w-screen-xl px-4 py-8">
 
           {/* Header */}
           <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-teal-800">Gym Blog</h1>
-              <p className="mt-1 text-sm text-teal-700">Fresh workouts, real nutrition, sharp recovery tips. Clean visuals. Quick reads.</p>
+              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-teal-800 dark:text-teal-200">Gym Blog</h1>
+              <p className="mt-1 text-sm text-teal-700 dark:text-teal-300">Fresh workouts, real nutrition, sharp recovery tips. Clean visuals. Quick reads.</p>
             </div>
             <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-              <label className="flex items-center gap-2 text-xs">
+              <label className="flex items-center gap-2 text-xs dark:text-teal-300">
                 <span>High contrast</span>
-                <input type="checkbox" checked={highContrast} onChange={e=>setHighContrast(e.target.checked)} />
+                <input type="checkbox" checked={highContrast} onChange={e=>setHighContrast(e.target.checked)} className="dark:bg-gray-700 dark:border-gray-600" />
               </label>
-              <select value={range} onChange={e=>setRange(e.target.value)} className="rounded-xl bg-teal-50 px-3 py-2 text-xs ring-1 ring-teal-200 focus:outline-none">
+              <select value={range} onChange={e=>setRange(e.target.value)} className="rounded-xl bg-teal-50 dark:bg-gray-700 px-3 py-2 text-xs dark:text-teal-100 ring-1 ring-teal-200 dark:ring-gray-600 focus:outline-none">
                 <option value="7">Last 7 days</option>
                 <option value="30">Last 30 days</option>
                 <option value="90">Last 90 days</option>
               </select>
-              <button className="rounded-xl bg-teal-500 px-3 py-2 text-xs sm:text-sm font-semibold text-white shadow-lg shadow-teal-500/30 hover:brightness-110">Export</button>
+              <button className="rounded-xl bg-teal-500 px-3 py-2 text-xs sm:text-sm font-semibold text-white shadow-lg shadow-teal-500/30 dark:shadow-teal-500/50 hover:brightness-110">Export</button>
             </div>
           </div>
 
@@ -365,29 +367,29 @@ export default function GymBlog() {
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
             <div className="lg:col-span-2 grid grid-cols-1 gap-6 sm:grid-cols-2">
               {posts.filter(p=>p.featured).slice(0,2).map(p => (
-                <article key={p.id} className="group relative overflow-hidden rounded-2xl border border-teal-200 bg-white shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                <article key={p.id} className="group relative overflow-hidden rounded-2xl border border-teal-200 bg-white dark:bg-gray-800 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
                   <div className="aspect-[16/9] w-full overflow-hidden">
                     {renderCover(p.cover)}
                   </div>
                   <div className="p-4">
                     <div className="mb-2 flex items-center gap-2 text-xs">
                       <span className="rounded-full bg-gradient-to-r from-teal-500 to-teal-400 px-3 py-1 text-white font-medium">Featured</span>
-                      <span className="rounded-full bg-teal-50 px-3 py-1 text-teal-700 font-medium">{p.category}</span>
-                      <span className="text-teal-500">{p.time}</span>
+                      <span className="rounded-full bg-teal-50 dark:bg-gray-700 px-3 py-1 text-teal-700 dark:text-teal-300 font-medium">{p.category}</span>
+                      <span className="text-teal-500 dark:text-teal-400">{p.time}</span>
                     </div>
-                    <h3 className="text-lg font-bold leading-tight text-teal-900">{p.title}</h3>
-                    <p className="mt-2 line-clamp-2 text-sm text-teal-700">{p.excerpt}</p>
-                    <div className="mt-4 flex items-center justify-between text-xs text-teal-600">
+                    <h3 className="text-lg font-bold leading-tight text-teal-900 dark:text-teal-100">{p.title}</h3>
+                    <p className="mt-2 line-clamp-2 text-sm text-teal-700 dark:text-teal-300">{p.excerpt}</p>
+                    <div className="mt-4 flex items-center justify-between text-xs text-teal-600 dark:text-teal-400">
                       <span className="font-medium">By {p.author}</span>
                       <div className="flex items-center gap-4">
                         <span className="flex items-center gap-1 cursor-pointer" onClick={() => updateStat(p.id, 'views')}>
-                          <span className="text-teal-400">👁</span> {p.stat.views}
+                          <span className="text-teal-400 dark:text-teal-500">👁</span> {p.stat.views}
                         </span>
                         <span className="flex items-center gap-1 cursor-pointer" onClick={() => updateStat(p.id, 'likes')}>
-                          <span className="text-teal-600">❤</span> {p.stat.likes}
+                          <span className="text-teal-600 dark:text-teal-500">❤</span> {p.stat.likes}
                         </span>
                         <span className="flex items-center gap-1 cursor-pointer" onClick={() => updateStat(p.id, 'comments')}>
-                          <span className="text-teal-700">💬</span> {p.stat.comments}
+                          <span className="text-teal-700 dark:text-teal-300">💬</span> {p.stat.comments}
                         </span>
                       </div>
                     </div>
@@ -396,56 +398,56 @@ export default function GymBlog() {
               ))}
             </div>
 
-            <div className="rounded-2xl border border-teal-200 bg-gradient-to-br from-teal-50 to-teal-100 shadow-lg p-6">
-              <h3 className="text-xl font-bold text-teal-900">Subscribe</h3>
-              <p className="mt-2 text-sm text-teal-700">One weekly email. New workouts, real food ideas, and member stories.</p>
+            <div className="rounded-2xl border border-teal-200 bg-gradient-to-br from-teal-50 to-teal-100 dark:from-gray-800 dark:to-gray-900 shadow-lg p-6">
+              <h3 className="text-xl font-bold text-teal-900 dark:text-teal-100">Subscribe</h3>
+              <p className="mt-2 text-sm text-teal-700 dark:text-teal-300">One weekly email. New workouts, real food ideas, and member stories.</p>
               <div className="mt-4 flex gap-2">
-                <input placeholder="Your email" className="w-full rounded-xl bg-white px-4 py-3 text-sm ring-2 ring-teal-100 focus:ring-teal-300 focus:outline-none shadow-sm" />
+                <input placeholder="Your email" className="w-full rounded-xl bg-white dark:bg-gray-700 px-4 py-3 text-sm ring-2 ring-teal-100 focus:ring-teal-300 focus:outline-none shadow-sm" />
                 <button className="rounded-xl bg-gradient-to-r from-teal-500 to-teal-400 px-6 py-3 text-sm font-semibold text-white shadow-lg hover:shadow-xl hover:from-teal-600 hover:to-teal-500 transition-all duration-200">Join</button>
               </div>
               <div className="mt-6 grid grid-cols-3 gap-4 text-center text-xs">
-                <div className="rounded-xl border border-teal-200 bg-white p-4 shadow-sm">
-                  <div className="text-2xl font-bold text-teal-900">48%</div>
-                  <div className="text-teal-700 font-medium">Open rate</div>
+                <div className="rounded-xl border border-teal-200 bg-white dark:bg-gray-800 p-4 shadow-sm">
+                  <div className="text-2xl font-bold text-teal-900 dark:text-teal-100">48%</div>
+                  <div className="text-teal-700 dark:text-teal-300 font-medium">Open rate</div>
                 </div>
-                <div className="rounded-xl border border-teal-200 bg-white p-4 shadow-sm">
-                  <div className="text-2xl font-bold text-teal-900">5.7k</div>
-                  <div className="text-teal-700 font-medium">Clicks</div>
+                <div className="rounded-xl border border-teal-200 bg-white dark:bg-gray-800 p-4 shadow-sm">
+                  <div className="text-2xl font-bold text-teal-900 dark:text-teal-100">5.7k</div>
+                  <div className="text-teal-700 dark:text-teal-300 font-medium">Clicks</div>
                 </div>
-                <div className="rounded-xl border border-teal-200 bg-white p-4 shadow-sm">
-                  <div className="text-2xl font-bold text-teal-900">0.3%</div>
-                  <div className="text-teal-700 font-medium">Unsubs</div>
+                <div className="rounded-xl border border-teal-200 bg-white dark:bg-gray-800 p-4 shadow-sm">
+                  <div className="text-2xl font-bold text-teal-900 dark:text-teal-100">0.3%</div>
+                  <div className="text-teal-700 dark:text-teal-300 font-medium">Unsubs</div>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Filters */}
-          <div className="mt-6 rounded-2xl border border-teal-200 bg-white shadow-lg p-6">
-            <h3 className="text-lg font-bold text-teal-900 mb-4">Filter Posts</h3>
+          <div className="mt-6 rounded-2xl border border-teal-200 bg-white dark:bg-gray-800 shadow-lg p-6">
+            <h3 className="text-lg font-bold text-teal-900 dark:text-teal-100 mb-4">Filter Posts</h3>
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               <div>
-                <label className="block text-sm font-semibold text-teal-800 mb-2">Categories</label>
+                <label className="block text-sm font-semibold text-teal-800 dark:text-teal-200 mb-2">Categories</label>
                 <div className="flex flex-wrap gap-2">
                   {categories.map(c => (
-                    <button key={c.key} onClick={()=>{ setCategory(c.key); setPage(1); }} className={`rounded-full px-4 py-2 text-sm font-medium transition-all duration-200 ${category===c.key ? "bg-gradient-to-r from-teal-500 to-teal-400 text-white shadow-lg hover:shadow-xl" : "bg-teal-50 text-teal-700 hover:bg-teal-100"}`}>{c.label}</button>
+                    <button key={c.key} onClick={()=>{ setCategory(c.key); setPage(1); }} className={`rounded-full px-4 py-2 text-sm font-medium transition-all duration-200 ${category===c.key ? "bg-gradient-to-r from-teal-500 to-teal-400 text-white shadow-lg hover:shadow-xl" : "bg-teal-50 dark:bg-gray-700 text-teal-700 dark:text-teal-300 hover:bg-teal-100 dark:hover:bg-gray-600"}`}>{c.label}</button>
                   ))}
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-semibold text-teal-800 mb-2">Tags</label>
+                <label className="block text-sm font-semibold text-teal-800 dark:text-teal-200 mb-2">Tags</label>
                 <div className="flex flex-wrap gap-2">
-                  <button onClick={()=>{ setTagFilter("all"); setPage(1); }} className={`rounded-full px-3 py-2 text-xs font-medium transition-all duration-200 ${tagFilter==="all" ? "bg-gradient-to-r from-teal-500 to-teal-400 text-white shadow-lg" : "bg-teal-50 text-teal-700 hover:bg-teal-100"}`}>All tags</button>
+                  <button onClick={()=>{ setTagFilter("all"); setPage(1); }} className={`rounded-full px-3 py-2 text-xs font-medium transition-all duration-200 ${tagFilter==="all" ? "bg-gradient-to-r from-teal-500 to-teal-400 text-white shadow-lg" : "bg-teal-50 dark:bg-gray-700 text-teal-700 dark:text-teal-300 hover:bg-teal-100 dark:hover:bg-gray-600"}`}>All tags</button>
                   {tags.map(t => (
-                    <button key={t} onClick={()=>{ setTagFilter(t); setPage(1); }} className={`rounded-full px-3 py-2 text-xs font-medium transition-all duration-200 ${tagFilter===t ? "bg-gradient-to-r from-teal-500 to-teal-400 text-white shadow-lg" : "bg-teal-50 text-teal-700 hover:bg-teal-100"}`}>#{t}</button>
+                    <button key={t} onClick={()=>{ setTagFilter(t); setPage(1); }} className={`rounded-full px-3 py-2 text-xs font-medium transition-all duration-200 ${tagFilter===t ? "bg-gradient-to-r from-teal-500 to-teal-400 text-white shadow-lg" : "bg-teal-50 dark:bg-gray-700 text-teal-700 dark:text-teal-300 hover:bg-teal-100 dark:hover:bg-gray-600"}`}>#{t}</button>
                   ))}
                 </div>
               </div>
               <div className="md:col-span-2 lg:col-span-1">
-                <label className="block text-sm font-semibold text-teal-800 mb-2">Search</label>
+                <label className="block text-sm font-semibold text-teal-800 dark:text-teal-200 mb-2">Search</label>
                 <div className="flex gap-3">
-                  <input value={query} onChange={e=>{ setQuery(e.target.value); setPage(1); }} placeholder="Search posts..." className="flex-1 rounded-xl bg-teal-50 px-4 py-3 text-sm ring-2 ring-teal-100 focus:ring-teal-300 focus:outline-none shadow-sm" />
-                  <button onClick={()=>{ setQuery(""); setPage(1); }} className="rounded-xl bg-teal-100 px-4 py-3 text-sm font-medium text-teal-700 hover:bg-teal-200 transition-colors duration-200">Clear</button>
+                  <input value={query} onChange={e=>{ setQuery(e.target.value); setPage(1); }} placeholder="Search posts..." className="flex-1 rounded-xl bg-teal-50 dark:bg-gray-700 px-4 py-3 text-sm ring-2 ring-teal-100 focus:ring-teal-300 focus:outline-none shadow-sm" />
+                  <button onClick={()=>{ setQuery(""); setPage(1); }} className="rounded-xl bg-teal-100 dark:bg-gray-600 px-4 py-3 text-sm font-medium text-teal-700 dark:text-teal-300 hover:bg-teal-200 dark:hover:bg-gray-500 transition-colors duration-200">Clear</button>
                 </div>
               </div>
             </div>
@@ -454,28 +456,28 @@ export default function GymBlog() {
           {/* Posts grid */}
           <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
             {paged.map(p => (
-              <article key={p.id} className="group relative overflow-hidden rounded-2xl border border-teal-200 bg-white shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+              <article key={p.id} className="group relative overflow-hidden rounded-2xl border border-teal-200 bg-white dark:bg-gray-800 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
                 <div className="aspect-[16/9] w-full overflow-hidden">
                   {renderCover(p.cover)}
                 </div>
                 <div className="p-4">
                   <div className="mb-2 flex items-center gap-2 text-xs">
-                    <span className="rounded-full bg-teal-50 px-3 py-1 text-teal-700 font-medium">{p.category}</span>
-                    <span className="text-teal-500">{p.time}</span>
+                    <span className="rounded-full bg-teal-50 dark:bg-gray-700 px-3 py-1 text-teal-700 dark:text-teal-300 font-medium">{p.category}</span>
+                    <span className="text-teal-500 dark:text-teal-400">{p.time}</span>
                   </div>
-                  <h3 className="text-lg font-bold leading-tight text-teal-900">{p.title}</h3>
-                  <p className="mt-2 line-clamp-2 text-sm text-teal-700">{p.excerpt}</p>
-                    <div className="mt-4 flex items-center justify-between text-xs text-teal-600">
+                  <h3 className="text-lg font-bold leading-tight text-teal-900 dark:text-teal-100">{p.title}</h3>
+                  <p className="mt-2 line-clamp-2 text-sm text-teal-700 dark:text-teal-300">{p.excerpt}</p>
+                    <div className="mt-4 flex items-center justify-between text-xs text-teal-600 dark:text-teal-400">
                       <span className="font-medium">By {p.author}</span>
                       <div className="flex items-center gap-4">
                         <span className="flex items-center gap-1 cursor-pointer" onClick={() => updateStat(p.id, 'views')}>
-                          <span className="text-teal-400">👁</span> {p.stat.views}
+                          <span className="text-teal-400 dark:text-teal-500">👁</span> {p.stat.views}
                         </span>
                         <span className="flex items-center gap-1 cursor-pointer" onClick={() => updateStat(p.id, 'likes')}>
-                          <span className="text-teal-600">❤</span> {p.stat.likes}
+                          <span className="text-teal-600 dark:text-teal-500">❤</span> {p.stat.likes}
                         </span>
                         <span className="flex items-center gap-1 cursor-pointer" onClick={() => updateStat(p.id, 'comments')}>
-                          <span className="text-teal-700">💬</span> {p.stat.comments}
+                          <span className="text-teal-700 dark:text-teal-300">💬</span> {p.stat.comments}
                         </span>
                       </div>
                     </div>
@@ -486,31 +488,31 @@ export default function GymBlog() {
 
           {/* Pagination */}
           <div className="mt-8 flex items-center justify-between">
-            <div className="text-sm text-teal-700 font-medium">Showing {(page-1)*pageSize+1}-{Math.min(page*pageSize, filtered.length)} of {filtered.length} posts</div>
+            <div className="text-sm text-teal-700 dark:text-teal-300 font-medium">Showing {(page-1)*pageSize+1}-{Math.min(page*pageSize, filtered.length)} of {filtered.length} posts</div>
             <div className="flex items-center gap-3">
-              <button onClick={()=>setPage(p=>Math.max(1, p-1))} className="rounded-xl bg-teal-100 px-4 py-2 text-sm font-medium text-teal-700 hover:bg-teal-200 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed" disabled={page===1}>Previous</button>
-              <div className="rounded-xl bg-teal-50 px-4 py-2 text-sm font-medium text-teal-900 shadow-sm border border-teal-200">Page {page} of {totalPages}</div>
-              <button onClick={()=>setPage(p=>Math.min(totalPages, p+1))} className="rounded-xl bg-teal-100 px-4 py-2 text-sm font-medium text-teal-700 hover:bg-teal-200 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed" disabled={page===totalPages}>Next</button>
+              <button onClick={()=>setPage(p=>Math.max(1, p-1))} className="rounded-xl bg-teal-100 dark:bg-gray-600 px-4 py-2 text-sm font-medium text-teal-700 dark:text-teal-300 hover:bg-teal-200 dark:hover:bg-gray-500 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed" disabled={page===1}>Previous</button>
+              <div className="rounded-xl bg-teal-50 dark:bg-gray-700 px-4 py-2 text-sm font-medium text-teal-900 dark:text-teal-100 shadow-sm border border-teal-200 dark:border-gray-600">Page {page} of {totalPages}</div>
+              <button onClick={()=>setPage(p=>Math.min(totalPages, p+1))} className="rounded-xl bg-teal-100 dark:bg-gray-600 px-4 py-2 text-sm font-medium text-teal-700 dark:text-teal-300 hover:bg-teal-200 dark:hover:bg-gray-500 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed" disabled={page===totalPages}>Next</button>
             </div>
           </div>
 
           {/* Editor picks grid */}
-          <div className="mt-12 rounded-2xl border border-teal-200 bg-white shadow-lg p-6">
+          <div className="mt-12 rounded-2xl border border-teal-200 bg-white dark:bg-gray-800 shadow-lg p-6">
             <div className="mb-6 flex items-center justify-between">
-              <h3 className="text-2xl font-bold text-teal-900">Editor picks</h3>
-              <button onClick={() => setShowAllPicks(!showAllPicks)} className="text-sm font-medium text-teal-600 hover:text-teal-700 transition-colors duration-200">
+              <h3 className="text-2xl font-bold text-teal-900 dark:text-teal-100">Editor picks</h3>
+              <button onClick={() => setShowAllPicks(!showAllPicks)} className="text-sm font-medium text-teal-600 dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 transition-colors duration-200">
                 {showAllPicks ? 'Show less' : 'View all →'}
               </button>
             </div>
             <div className={`grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 transition-all duration-500 ${showAllPicks ? 'animate-fade-in' : ''}`}>
               {(showAllPicks ? posts : posts.slice(0, 6)).map(p => (
-                <div key={p.id} className="group overflow-hidden rounded-2xl border border-teal-200 bg-white shadow-md hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+                <div key={p.id} className="group overflow-hidden rounded-2xl border border-teal-200 bg-white dark:bg-gray-700 shadow-md hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
                   <div className="aspect-[16/9] w-full overflow-hidden">
                     {renderCover(p.cover)}
                   </div>
                   <div className="p-4">
-                    <p className="line-clamp-2 text-sm font-bold text-teal-900">{p.title}</p>
-                    <p className="mt-2 line-clamp-2 text-xs text-teal-700">{p.excerpt}</p>
+                    <p className="line-clamp-2 text-sm font-bold text-teal-900 dark:text-teal-100">{p.title}</p>
+                    <p className="mt-2 line-clamp-2 text-xs text-teal-700 dark:text-teal-300">{p.excerpt}</p>
                   </div>
                 </div>
               ))}
@@ -519,33 +521,33 @@ export default function GymBlog() {
 
           {/* AI Plan Generator */}
           <div className="mt-12 grid grid-cols-1 gap-6 lg:grid-cols-3">
-            <div className="rounded-2xl border border-teal-200 bg-gradient-to-br from-teal-50 to-teal-100 shadow-lg p-8 lg:col-span-2">
-              <h3 className="text-2xl font-bold text-teal-900">AI Fitness Plan Generator</h3>
-              <p className="mt-2 text-sm text-teal-700">Get a personalized workout and diet plan based on your specifications. Fill in the details below.</p>
+            <div className="rounded-2xl border border-teal-200 bg-gradient-to-br from-teal-50 to-teal-100 dark:from-gray-800 dark:to-gray-900 shadow-lg p-8 lg:col-span-2">
+              <h3 className="text-2xl font-bold text-teal-900 dark:text-teal-100">AI Fitness Plan Generator</h3>
+              <p className="mt-2 text-sm text-teal-700 dark:text-teal-300">Get a personalized workout and diet plan based on your specifications. Fill in the details below.</p>
               <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2">
-                <input value={age} onChange={e => setAge(e.target.value)} placeholder="Age" type="number" className="rounded-xl bg-white px-4 py-3 text-sm ring-2 ring-teal-100 focus:ring-teal-500 focus:outline-none shadow-sm" />
-                <select value={gender} onChange={e => setGender(e.target.value)} className="rounded-xl bg-white px-4 py-3 text-sm ring-2 ring-teal-100 focus:ring-teal-500 focus:outline-none shadow-sm">
+                <input value={age} onChange={e => setAge(e.target.value)} placeholder="Age" type="number" className="rounded-xl bg-white dark:bg-gray-700 px-4 py-3 text-sm ring-2 ring-teal-100 focus:ring-teal-500 focus:outline-none shadow-sm" />
+                <select value={gender} onChange={e => setGender(e.target.value)} className="rounded-xl bg-white dark:bg-gray-700 px-4 py-3 text-sm ring-2 ring-teal-100 focus:ring-teal-500 focus:outline-none shadow-sm">
                   <option value="">Select Gender</option>
                   <option value="male">Male</option>
                   <option value="female">Female</option>
                   <option value="other">Other</option>
                 </select>
-                <input value={weight} onChange={e => setWeight(e.target.value)} placeholder="Weight (kg)" type="number" className="rounded-xl bg-white px-4 py-3 text-sm ring-2 ring-teal-100 focus:ring-teal-500 focus:outline-none shadow-sm" />
-                <input value={height} onChange={e => setHeight(e.target.value)} placeholder="Height (cm)" type="number" className="rounded-xl bg-white px-4 py-3 text-sm ring-2 ring-teal-100 focus:ring-teal-500 focus:outline-none shadow-sm" />
-                <select value={fitnessLevel} onChange={e => setFitnessLevel(e.target.value)} className="rounded-xl bg-white px-4 py-3 text-sm ring-2 ring-teal-100 focus:ring-teal-500 focus:outline-none shadow-sm">
+                <input value={weight} onChange={e => setWeight(e.target.value)} placeholder="Weight (kg)" type="number" className="rounded-xl bg-white dark:bg-gray-700 px-4 py-3 text-sm ring-2 ring-teal-100 focus:ring-teal-500 focus:outline-none shadow-sm" />
+                <input value={height} onChange={e => setHeight(e.target.value)} placeholder="Height (cm)" type="number" className="rounded-xl bg-white dark:bg-gray-700 px-4 py-3 text-sm ring-2 ring-teal-100 focus:ring-teal-500 focus:outline-none shadow-sm" />
+                <select value={fitnessLevel} onChange={e => setFitnessLevel(e.target.value)} className="rounded-xl bg-white dark:bg-gray-700 px-4 py-3 text-sm ring-2 ring-teal-100 focus:ring-teal-500 focus:outline-none shadow-sm">
                   <option value="">Fitness Level</option>
                   <option value="beginner">Beginner</option>
                   <option value="intermediate">Intermediate</option>
                   <option value="advanced">Advanced</option>
                 </select>
-                <select value={goal} onChange={e => setGoal(e.target.value)} className="rounded-xl bg-white px-4 py-3 text-sm ring-2 ring-teal-100 focus:ring-teal-500 focus:outline-none shadow-sm">
+                <select value={goal} onChange={e => setGoal(e.target.value)} className="rounded-xl bg-white dark:bg-gray-700 px-4 py-3 text-sm ring-2 ring-teal-100 focus:ring-teal-500 focus:outline-none shadow-sm">
                   <option value="">Goal</option>
                   <option value="weightloss">Weight Loss</option>
                   <option value="muscle">Muscle Gain</option>
                   <option value="endurance">Endurance</option>
                   <option value="general">General Fitness</option>
                 </select>
-                <select value={equipment} onChange={e => setEquipment(e.target.value)} className="rounded-xl bg-white px-4 py-3 text-sm ring-2 ring-teal-100 focus:ring-teal-500 focus:outline-none shadow-sm md:col-span-2">
+                <select value={equipment} onChange={e => setEquipment(e.target.value)} className="rounded-xl bg-white dark:bg-gray-700 px-4 py-3 text-sm ring-2 ring-teal-100 focus:ring-teal-500 focus:outline-none shadow-sm md:col-span-2">
                   <option value="">Equipment Access</option>
                   <option value="none">No Equipment</option>
                   <option value="basic">Basic (Dumbbells, Bands)</option>
@@ -556,17 +558,17 @@ export default function GymBlog() {
                 <button onClick={generatePlan} disabled={loading} className="rounded-xl bg-gradient-to-r from-teal-500 to-teal-400 px-6 py-3 text-sm font-semibold text-white shadow-lg hover:shadow-xl hover:from-teal-600 hover:to-teal-500 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
                   {loading ? "Generating..." : "Generate Plan"}
                 </button>
-                <button onClick={() => { setAge(""); setGender(""); setWeight(""); setHeight(""); setFitnessLevel(""); setGoal(""); setEquipment(""); setGeneratedPlan(null); setErrorMessage(""); }} className="rounded-xl bg-teal-100 px-6 py-3 text-sm font-medium text-teal-700 hover:bg-teal-200 transition-colors duration-200">Reset</button>
+                <button onClick={() => { setAge(""); setGender(""); setWeight(""); setHeight(""); setFitnessLevel(""); setGoal(""); setEquipment(""); setGeneratedPlan(null); setErrorMessage(""); }} className="rounded-xl bg-teal-100 dark:bg-gray-600 px-6 py-3 text-sm font-medium text-teal-700 dark:text-teal-300 hover:bg-teal-200 dark:hover:bg-gray-500 transition-colors duration-200">Reset</button>
               </div>
               {errorMessage && (
-                <div className="mt-4 rounded-xl bg-red-50 p-4 border border-red-200">
-                  <p className="text-sm text-red-700">{errorMessage}</p>
+                <div className="mt-4 rounded-xl bg-red-50 dark:bg-red-900 p-4 border border-red-200 dark:border-red-700">
+                  <p className="text-sm text-red-700 dark:text-red-300">{errorMessage}</p>
                 </div>
               )}
               {generatedPlan && (
-                <div className="mt-6 rounded-xl bg-white p-4 shadow-sm border border-teal-200">
-                  <h4 className="text-lg font-bold text-teal-900 mb-2">Your Personalized Plan</h4>
-                  <div className="space-y-2 text-sm text-teal-700">
+                <div className="mt-6 rounded-xl bg-white dark:bg-gray-700 p-4 shadow-sm border border-teal-200 dark:border-gray-600">
+                  <h4 className="text-lg font-bold text-teal-900 dark:text-teal-100 mb-2">Your Personalized Plan</h4>
+                  <div className="space-y-2 text-sm text-teal-700 dark:text-teal-300">
                     <p><strong>Workout Plan:</strong> {generatedPlan.workout}</p>
                     <p><strong>Diet Tips:</strong> {generatedPlan.diet}</p>
                   </div>
@@ -574,23 +576,23 @@ export default function GymBlog() {
               )}
             </div>
 
-            <div className="rounded-2xl border border-teal-200 bg-white shadow-lg p-6">
-              <h3 className="text-xl font-bold text-teal-900">Plan Guidelines</h3>
-              <ul className="mt-4 space-y-3 text-sm text-teal-700">
+            <div className="rounded-2xl border border-teal-200 bg-white dark:bg-gray-800 shadow-lg p-6">
+              <h3 className="text-xl font-bold text-teal-900 dark:text-teal-100">Plan Guidelines</h3>
+              <ul className="mt-4 space-y-3 text-sm text-teal-700 dark:text-teal-300">
                 <li className="flex items-start gap-2">
-                  <span className="text-teal-500 mt-1">✓</span>
+                  <span className="text-teal-500 dark:text-teal-400 mt-1">✓</span>
                   <span>Consult a doctor before starting.</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="text-teal-500 mt-1">✓</span>
+                  <span className="text-teal-500 dark:text-teal-400 mt-1">✓</span>
                   <span>Listen to your body and rest when needed.</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="text-teal-500 mt-1">✓</span>
+                  <span className="text-teal-500 dark:text-teal-400 mt-1">✓</span>
                   <span>Track progress and adjust as needed.</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="text-teal-500 mt-1">✓</span>
+                  <span className="text-teal-500 dark:text-teal-400 mt-1">✓</span>
                   <span>Stay hydrated and eat balanced meals.</span>
                 </li>
               </ul>

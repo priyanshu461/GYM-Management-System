@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import Layout from "../../components/Layout.jsx";
+import { useTheme } from "../../contexts/ThemeContext";
 
 const dietPlans = {
   weightLoss: [
@@ -23,20 +24,21 @@ const dietPlans = {
 };
 
 export default function DietPlan() {
+  const { theme } = useTheme();
   const [goal, setGoal] = useState("weightLoss");
 
   return (
     <Layout>
-      <div className="p-6 max-w-6xl mx-auto bg-gradient-to-br from-teal-50 via-slate-50 to-teal-100 min-h-screen">
+      <div className={`p-6 max-w-6xl mx-auto min-h-screen ${theme === 'dark' ? 'bg-gradient-to-br from-teal-900 via-teal-800 to-teal-900 text-teal-100' : 'bg-gradient-to-br from-teal-50 via-slate-50 to-teal-100'}`}>
         <header className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-2xl font-extrabold">Custom <span className="text-teal-500 font-extrabold">Diet Plan</span></h1>
-            <p className="text-lg text-slate-500">Personalized diet plans for your fitness goals</p>
+            <p className={`text-lg ${theme === 'dark' ? 'text-gray-300' : 'text-slate-500'}`}>Personalized diet plans for your fitness goals</p>
           </div>
 
           <div className="flex items-center gap-3">
             <select
-              className="px-3 py-2 rounded-lg border bg-teal-100 text-teal-900 shadow focus:outline-none"
+              className={`px-3 py-2 rounded-lg border shadow focus:outline-none ${theme === 'dark' ? 'bg-gray-700 text-teal-100 border-gray-600' : 'bg-teal-100 text-teal-900'}`}
               value={goal}
               onChange={(e) => setGoal(e.target.value)}
             >
@@ -51,7 +53,7 @@ export default function DietPlan() {
           {dietPlans[goal].map((plan, index) => (
             <div
               key={index}
-              className="bg-white rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 overflow-hidden border border-teal-200"
+              className={`rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 overflow-hidden border ${theme === 'dark' ? 'bg-gray-800 border-gray-600' : 'bg-white border-teal-200'}`}
             >
               <div className="relative">
                 <img
@@ -59,16 +61,16 @@ export default function DietPlan() {
                   alt={`${plan.meal} meal`}
                   className="w-full h-48 object-cover"
                 />
-                <div className="absolute top-4 left-4 bg-white bg-opacity-90 rounded-full p-2 shadow-md">
+                <div className={`absolute top-4 left-4 rounded-full p-2 shadow-md ${theme === 'dark' ? 'bg-gray-800 bg-opacity-90' : 'bg-white bg-opacity-90'}`}>
                   <span className="text-2xl">{plan.icon}</span>
                 </div>
               </div>
               <div className="p-6">
-                <h2 className="text-2xl font-bold text-teal-900 mb-2 flex items-center gap-2">
+                <h2 className={`text-2xl font-bold mb-2 flex items-center gap-2 ${theme === 'dark' ? 'text-teal-100' : 'text-teal-900'}`}>
                   <span>{plan.icon}</span>
                   {plan.meal}
                 </h2>
-                <p className="text-slate-700 leading-relaxed">{plan.items}</p>
+                <p className={`leading-relaxed ${theme === 'dark' ? 'text-gray-300' : 'text-slate-700'}`}>{plan.items}</p>
               </div>
             </div>
           ))}
