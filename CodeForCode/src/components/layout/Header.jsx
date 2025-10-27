@@ -44,7 +44,7 @@ const Header = ({ onMobileMenuToggle, sidebarCollapsed }) => {
             <div className="flex items-center gap-4">
               <button
                 onClick={toggleTheme}
-                className="p-2 rounded-lg hover:bg-slate-100 transition-colors duration-200"
+                className={`p-2 rounded-lg transition-colors shadow-lg ${theme === 'dark' ? 'bg-teal-700 text-teal-100 hover:bg-teal-600 hover:text-teal-200' : 'bg-teal-500 text-white hover:bg-teal-200 hover:text-teal-800'}`}
                 aria-label="Toggle theme"
               >
                 {theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}

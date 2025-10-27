@@ -1,7 +1,8 @@
- import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Eye, Home, X, Key, Mail, Lock, User } from 'lucide-react';
+import { Eye, Home, X, Key, Mail, Lock, User, Sun, Moon } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { useTheme } from '../contexts/ThemeContext';
 import Sidebar from '../components/layout/Sidebar';
 
 const Login = () => {
@@ -20,6 +21,7 @@ const Login = () => {
   const [signupMessage, setSignupMessage] = useState('');
   const navigate = useNavigate();
   const { login, signup } = useAuth();
+  const { theme, toggleTheme } = useTheme();
 
   const handleLogin = (e) => {
     e.preventDefault();
@@ -51,39 +53,45 @@ const Login = () => {
 
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-teal-200 via-teal-200 to-teal-100 flex flex-col relative">
+    <div className={`min-h-screen flex flex-col relative ${theme === 'dark' ? 'bg-gradient-to-br from-teal-900 via-teal-800 to-teal-900' : 'bg-gradient-to-br from-teal-200 via-teal-200 to-teal-100'}`}>
       {/* Header */}
-      <header className="absolute top-0 left-0 right-0 z-10 flex  items-center p-4">
-        <div className="text-3xl font-extrabold text-white drop-shadow-lg">GMS</div>
-        <button
-          onClick={() => setShowDemo(true)}
-          className="bg-teal-500 justify-end text-white px-4 py-2 rounded-lg hover:bg-teal-200  hover:text-teal-800 transition-colors flex items-center gap-2 shadow-lg justify-self-end ml-auto mr-4"
-        >
-          <Eye size={20} /> View Demo
-        </button>
-
-        <button 
-        
-          onClick={() => navigate('/')}
-          className="bg-teal-500 text-white px-4 py-2 rounded-lg hover:bg-teal-200  hover:text-teal-800 transition-colors flex items-center gap-2 shadow-lg"
-        >
-          <Home size={20} /> Home
-
-        </button>
+      <header className="absolute top-0 left-0 right-0 z-10 flex items-center p-4">
+        <div className={`text-3xl font-extrabold drop-shadow-lg ${theme === 'dark' ? 'text-white' : 'text-white'}`}>GMS</div>
+        <div className="ml-auto flex items-center gap-2">
+          <button
+            onClick={toggleTheme}
+            className={`p-2 rounded-lg transition-colors shadow-lg ${theme === 'dark' ? 'bg-teal-700 text-teal-100 hover:bg-teal-600 hover:text-teal-200' : 'bg-teal-500 text-white hover:bg-teal-200 hover:text-teal-800'}`}
+            aria-label="Toggle theme"
+          >
+            {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
+          </button>
+          <button
+            onClick={() => setShowDemo(true)}
+            className={`px-4 py-2 rounded-lg transition-colors flex items-center gap-2 shadow-lg ${theme === 'dark' ? 'bg-teal-700 text-teal-100 hover:bg-teal-600 hover:text-teal-200' : 'bg-teal-500 text-white hover:bg-teal-200 hover:text-teal-800'}`}
+          >
+            <Eye size={20} /> View Demo
+          </button>
+          <button
+            onClick={() => navigate('/')}
+            className={`px-4 py-2 rounded-lg transition-colors flex items-center gap-2 shadow-lg ${theme === 'dark' ? 'bg-teal-700 text-teal-100 hover:bg-teal-600 hover:text-teal-200' : 'bg-teal-500 text-white hover:bg-teal-200 hover:text-teal-800'}`}
+          >
+            <Home size={20} /> Home
+          </button>
+        </div>
       </header>
 
       {/* Centered Login Form */}
       <div className="flex-1 flex items-center justify-center px-4">
-        <div className="max-w-md w-full bg-teal-50 rounded-2xl shadow-2xl p-8 animate-fade-in">
+        <div className={`max-w-md w-full rounded-2xl shadow-2xl p-8 animate-fade-in backdrop-blur-sm ${theme === 'dark' ? 'bg-teal-800/90' : 'bg-teal-50/90'}`}>
           {/* Form Header */}
           <div className="text-center mb-8">
             <div className="flex justify-center mb-4">
-              <div className="bg-teal-100 p-4 rounded-full shadow-lg">
-                <Lock className="text-teal-600" size={32} />
+              <div className={`p-4 rounded-full shadow-lg ${theme === 'dark' ? 'bg-teal-700' : 'bg-teal-100'}`}>
+                <Lock className={`text-teal-600 ${theme === 'dark' ? 'text-teal-200' : ''}`} size={32} />
               </div>
             </div>
-            <h1 className="text-3xl font-bold text-teal-800 mb-2">Welcome Back</h1>
-            <p className="text-gray-600">Sign in to your account</p>
+            <h1 className={`text-3xl font-bold mb-2 ${theme === 'dark' ? 'text-white' : 'text-teal-800'}`}>Welcome Back</h1>
+            <p className={`text-gray-600 ${theme === 'dark' ? 'text-teal-200' : ''}`}>Sign in to your account</p>
             {resetMessage && (
               <p className="text-green-600 mt-4">{resetMessage}</p>
             )}
@@ -93,11 +101,11 @@ const Login = () => {
           <form onSubmit={handleLogin} className="space-y-6">
             {/* Email Field */}
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-teal-800 mb-2">
+              <label htmlFor="email" className={`block text-sm font-medium mb-2 ${theme === 'dark' ? 'text-teal-100' : 'text-teal-800'}`}>
                 Email Address
               </label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-teal-500" size={20} />
+                <Mail className={`absolute left-3 top-1/2 transform -translate-y-1/2 text-teal-500 ${theme === 'dark' ? 'text-teal-300' : ''}`} size={20} />
                 <input
                   type="email"
                   id="email"
@@ -106,7 +114,7 @@ const Login = () => {
                     setEmail(e.target.value);
                     setErrorMessage('');
                   }}
-                  className="w-full pl-10 pr-4 py-3 bg-white border border-teal-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-200 shadow-sm"
+                  className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-200 shadow-sm ${theme === 'dark' ? 'bg-teal-700 border-teal-600 text-teal-100' : 'bg-white border-teal-300'}`}
                   placeholder="Enter your email"
                   required
                 />
@@ -115,17 +123,17 @@ const Login = () => {
 
             {/* Password Field */}
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-teal-800 mb-2">
+              <label htmlFor="password" className={`block text-sm font-medium mb-2 ${theme === 'dark' ? 'text-teal-100' : 'text-teal-800'}`}>
                 Password
               </label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-teal-500" size={20} />
+                <Lock className={`absolute left-3 top-1/2 transform -translate-y-1/2 text-teal-500 ${theme === 'dark' ? 'text-teal-300' : ''}`} size={20} />
                 <input
                   type="password"
                   id="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 bg-white border border-teal-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-200 shadow-sm"
+                  className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-200 shadow-sm ${theme === 'dark' ? 'bg-teal-700 border-teal-600 text-teal-100' : 'bg-white border-teal-300'}`}
                   placeholder="Enter your password"
                   required
                 />
@@ -136,15 +144,15 @@ const Login = () => {
             <div className="space-y-4">
               <button
                 type="submit"
-                className="w-full bg-gradient-to-r from-teal-400 via-teal-800 to-teal-400 hover:from-teal-200 hover:to-teal-600 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 shadow-lg"
+                className={`w-full bg-gradient-to-r from-teal-400 via-teal-800 to-teal-400 hover:from-teal-200 hover:to-teal-600 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 shadow-lg ${theme === 'dark' ? 'from-teal-600 via-teal-900 to-teal-600 hover:from-teal-500 hover:to-teal-700' : ''}`}
               >
                 Login
               </button>
 
-              <button 
+              <button
                 type="button"
                 onClick={handleForgotPassword}
-                className="w-full bg-teal-50 hover:bg-gray-200 text-gray-700 font-medium py-3 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+                className={`w-full font-medium py-3 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 ${theme === 'dark' ? 'bg-teal-700 hover:bg-teal-600 text-teal-100' : 'bg-teal-50 hover:bg-gray-200 text-gray-700'}`}
               >
                 Forgot Password?
               </button>
@@ -153,11 +161,11 @@ const Login = () => {
 
           {/* Footer */}
           <div className="mt-8 text-center">
-            <p className="text-sm text-gray-600">
+            <p className={`text-sm ${theme === 'dark' ? 'text-teal-300' : 'text-gray-600'}`}>
               Don't have an account?{' '}
           <button
             onClick={() => setShowSignup(true)}
-            className="text-teal-500 hover:text-teal-300 font-medium focus:outline-none"
+            className={`font-medium focus:outline-none ${theme === 'dark' ? 'text-teal-300 hover:text-teal-100' : 'text-teal-500 hover:text-teal-300'}`}
           >
             Sign up
           </button>
@@ -173,12 +181,18 @@ const Login = () => {
           onContextMenu={(e) => e.preventDefault()}
         >
           <div className="bg-white rounded-lg shadow-2xl w-11/12 h-5/6 flex overflow-hidden relative">
-            <div className="absolute top-2 left-2 text-red-500 font-bold text-sm bg-yellow-200 px-2 py-1 rounded">
-
-            </div>
             <Sidebar demo={true} />
             <div className="flex-1 p-6 bg-gray-50">
-              <h2 className="text-2xl font-bold mb-6 text-teal-800">Dashboard Preview</h2>
+              <div className="flex items-center gap-4 mb-6">
+                <button
+                  onClick={toggleTheme}
+                  className="p-2 rounded-lg bg-gray-200 hover:bg-gray-300 transition-colors duration-200"
+                  aria-label="Toggle theme"
+                >
+                  {theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
+                </button>
+                <h2 className="text-2xl font-bold text-teal-800">Dashboard Preview</h2>
+              </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <div onClick={() => alert('This is a demo. Please login to access.')} className="bg-blue-100 p-6 rounded-lg shadow-md cursor-pointer">
                   <h3 className="font-semibold text-blue-800">Total Members</h3>
@@ -218,15 +232,16 @@ const Login = () => {
       {/* Signup Modal */}
       {showSignup && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 animate-fade-in">
-          <div className="bg-gradient-to-br from-teal-400 via-teal-200 to-teal-50 rounded-3xl shadow-2xl p-6 w-full max-w-md border border-teal-300 relative overflow-hidden">
+          <div className={`max-w-md w-full rounded-2xl shadow-2xl p-8 animate-fade-in backdrop-blur-sm ${theme === 'dark' ? 'bg-teal-800/90' : 'bg-teal-50/90'}`}>
+            <div className="relative z-10">
             <div className="text-center mb-4">
               <div className="flex justify-center mb-4">
-                <div className="bg-teal-100 p-4 rounded-full">
-                  <User className="text-teal-600" size={32} />
+                <div className={`p-4 rounded-full ${theme === 'dark' ? 'bg-teal-700' : 'bg-teal-100'}`}>
+                  <User className={`text-teal-600 ${theme === 'dark' ? 'text-teal-200' : ''}`} size={32} />
                 </div>
               </div>
-              <h2 className="text-3xl font-bold text-teal-800 mb-2">Create Account</h2>
-              <p className="text-gray-600">Fill in the details to create your account.</p>
+              <h2 className={`text-3xl font-bold mb-2 ${theme === 'dark' ? 'text-teal-100' : 'text-teal-800'}`}>Create Account</h2>
+              <p className={`text-gray-600 ${theme === 'dark' ? 'text-teal-300' : ''}`}>Fill in the details to create your account.</p>
               {errorMessage && (
                 <p className="text-red-600 mt-4">{errorMessage}</p>
               )}
@@ -253,7 +268,7 @@ const Login = () => {
               className="space-y-4"
             >
               <div>
-                <label htmlFor="signupName" className="block text-sm font-medium text-teal-800 mb-2">
+                <label htmlFor="signupName" className={`block text-sm font-medium mb-2 ${theme === 'dark' ? 'text-teal-100' : 'text-teal-800'}`}>
                   Full Name
                 </label>
                 <input
@@ -261,13 +276,13 @@ const Login = () => {
                   id="signupName"
                   value={signupName}
                   onChange={(e) => setSignupName(e.target.value)}
-                  className="w-full px-4 py-3 bg-white border border-teal-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-200 shadow-sm"
+                  className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-200 shadow-sm ${theme === 'dark' ? 'bg-teal-700 border-teal-600 text-teal-100' : 'bg-white border-teal-300'}`}
                   placeholder="Enter your full name"
                   required
                 />
               </div>
               <div>
-                <label htmlFor="signupEmail" className="block text-sm font-medium text-teal-800 mb-2">
+                <label htmlFor="signupEmail" className={`block text-sm font-medium mb-2 ${theme === 'dark' ? 'text-teal-100' : 'text-teal-800'}`}>
                   Email Address
                 </label>
                 <input
@@ -275,13 +290,13 @@ const Login = () => {
                   id="signupEmail"
                   value={signupEmail}
                   onChange={(e) => setSignupEmail(e.target.value)}
-                  className="w-full px-4 py-3 bg-white border border-teal-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-200 shadow-sm"
+                  className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-200 shadow-sm ${theme === 'dark' ? 'bg-teal-700 border-teal-600 text-teal-100' : 'bg-white border-teal-300'}`}
                   placeholder="Enter your email"
                   required
                 />
               </div>
               <div>
-                <label htmlFor="signupPassword" className="block text-sm font-medium text-teal-800 mb-2">
+                <label htmlFor="signupPassword" className={`block text-sm font-medium mb-2 ${theme === 'dark' ? 'text-teal-100' : 'text-teal-800'}`}>
                   Create Password
                 </label>
                 <input
@@ -289,13 +304,13 @@ const Login = () => {
                   id="signupPassword"
                   value={signupPassword}
                   onChange={(e) => setSignupPassword(e.target.value)}
-                  className="w-full px-4 py-3 bg-white border border-teal-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-200 shadow-sm"
+                  className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-200 shadow-sm ${theme === 'dark' ? 'bg-teal-700 border-teal-600 text-teal-100' : 'bg-white border-teal-300'}`}
                   placeholder="Create a password"
                   required
                 />
               </div>
               <div>
-                <label htmlFor="confirmPassword" className="block text-sm font-medium text-teal-800 mb-2">
+                <label htmlFor="confirmPassword" className={`block text-sm font-medium mb-2 ${theme === 'dark' ? 'text-teal-100' : 'text-teal-800'}`}>
                   Confirm Password
                 </label>
                 <input
@@ -303,14 +318,14 @@ const Login = () => {
                   id="confirmPassword"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="w-full px-4 py-3 bg-white border border-teal-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-200 shadow-sm"
+                  className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-200 shadow-sm ${theme === 'dark' ? 'bg-teal-700 border-teal-600 text-teal-100' : 'bg-white border-teal-300'}`}
                   placeholder="Confirm your password"
                   required
                 />
               </div>
               <button
                 type="submit"
-                className="w-full bg-gradient-to-r from-teal-500 to-teal-700 hover:from-teal-600 hover:to-teal-800 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 shadow-lg transform hover:scale-105"
+                className={`w-full bg-gradient-to-r hover:from-teal-600 hover:to-teal-800 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 shadow-lg transform hover:scale-105 ${theme === 'dark' ? 'from-teal-700 to-teal-900' : 'from-teal-500 to-teal-700'}`}
               >
                 Create Account
               </button>
@@ -318,10 +333,11 @@ const Login = () => {
             <div className="mt-6 text-center">
               <button
                 onClick={() => setShowSignup(false)}
-                className="text-teal-600 hover:text-teal-800 font-medium transition-colors"
+                className={`font-medium transition-colors ${theme === 'dark' ? 'text-teal-300 hover:text-teal-100' : 'text-teal-600 hover:text-teal-800'}`}
               >
                 Back to Login
               </button>
+            </div>
             </div>
           </div>
         </div>
@@ -330,19 +346,20 @@ const Login = () => {
       {/* Forgot Password Modal */}
       {showForgotPassword && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 animate-fade-in">
-          <div className="bg-gradient-to-br from-teal-400 via-teal-200 to-teal-50 rounded-3xl shadow-2xl p-8 w-full max-w-md border border-teal-300 relative overflow-hidden">
+          <div className={`max-w-md w-full rounded-2xl shadow-2xl p-8 animate-fade-in backdrop-blur-sm ${theme === 'dark' ? 'bg-teal-800/90' : 'bg-teal-50/90'}`}>
+            <div className="relative z-10">
             <div className="text-center mb-6">
               <div className="flex justify-center mb-4">
-                <div className="bg-teal-100 p-4 rounded-full">
-                  <Key className="text-teal-600" size={32} />
+                <div className={`p-4 rounded-full ${theme === 'dark' ? 'bg-teal-700' : 'bg-teal-100'}`}>
+                  <Key className={`text-teal-600 ${theme === 'dark' ? 'text-teal-200' : ''}`} size={32} />
                 </div>
               </div>
-              <h2 className="text-3xl font-bold text-teal-800 mb-2">Forgot Your Password?</h2>
-              <p className="text-gray-600">No worries! Enter your email and we'll send you a reset link.</p>
+              <h2 className={`text-3xl font-bold mb-2 ${theme === 'dark' ? 'text-teal-100' : 'text-teal-800'}`}>Forgot Your Password?</h2>
+              <p className={`text-gray-600 ${theme === 'dark' ? 'text-teal-300' : ''}`}>No worries! Enter your email and we'll send you a reset link.</p>
             </div>
             <form onSubmit={handleResetPassword} className="space-y-6">
               <div>
-                <label htmlFor="resetEmail" className="block text-sm font-medium text-teal-800 mb-2">
+                <label htmlFor="resetEmail" className={`block text-sm font-medium mb-2 ${theme === 'dark' ? 'text-teal-100' : 'text-teal-800'}`}>
                   Email Address
                 </label>
                 <input
@@ -350,14 +367,14 @@ const Login = () => {
                   id="resetEmail"
                   value={resetEmail}
                   onChange={(e) => setResetEmail(e.target.value)}
-                  className="w-full px-4 py-3 bg-white border border-teal-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-200 shadow-sm"
+                  className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-200 shadow-sm ${theme === 'dark' ? 'bg-teal-700 border-teal-600 text-teal-100' : 'bg-white border-teal-300'}`}
                   placeholder="Enter your email address"
                   required
                 />
               </div>
               <button
                 type="submit"
-                className="w-full bg-gradient-to-r from-teal-500 to-teal-700 hover:from-teal-600 hover:to-teal-800 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 shadow-lg transform hover:scale-105"
+                className={`w-full bg-gradient-to-r hover:from-teal-600 hover:to-teal-800 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 shadow-lg transform hover:scale-105 ${theme === 'dark' ? 'from-teal-700 to-teal-900' : 'from-teal-500 to-teal-700'}`}
               >
                 Send Reset Email
               </button>
@@ -365,10 +382,11 @@ const Login = () => {
             <div className="mt-6 text-center">
               <button
                 onClick={() => setShowForgotPassword(false)}
-                className="text-teal-600 hover:text-teal-800 font-medium transition-colors"
+                className={`font-medium transition-colors ${theme === 'dark' ? 'text-teal-300 hover:text-teal-100' : 'text-teal-600 hover:text-teal-800'}`}
               >
                 Back to Login
               </button>
+            </div>
             </div>
           </div>
         </div>

@@ -63,11 +63,11 @@ const Dashboard = () => {
             className="flex justify-between items-center mb-8"
           >
             <div>
-              <h1 className="text-4xl font-extrabold mb-3 text-foreground tracking-tight">
+              <h1 className={`text-4xl font-extrabold mb-3 tracking-tight ${theme === 'dark' ? 'bg-gradient-to-r from-teal-300 via-teal-200 to-teal-100 bg-clip-text text-transparent' : 'text-foreground'}`}>
                 <Home className="inline-block w-10 h-10 mr-3 text-teal-500 dark:text-teal-400" />
                 Dashboard<span className="text-teal-500 dark:text-teal-400"> Overview</span>
               </h1>
-              <p className="text-muted-foreground text-lg">Welcome back! Here's what's happening with your business today.</p>
+              <p className={`text-lg ${theme === 'dark' ? 'text-teal-200' : 'text-muted-foreground'}`}>Welcome back! Here's what's happening with your business today.</p>
             </div>
           </motion.div>
 
@@ -98,7 +98,7 @@ const Dashboard = () => {
                 </div>
                 <div>
                   <div className="text-sm text-muted-foreground font-medium">{s.title}</div>
-                  <div className="text-3xl font-bold mt-2 text-foreground">{s.value}</div>
+                  <div className={`text-3xl font-bold mt-2 ${theme === 'dark' ? 'bg-gradient-to-r from-teal-300 via-teal-200 to-teal-100 bg-clip-text text-transparent' : 'text-foreground'}`}>{s.value}</div>
                 </div>
               </motion.div>
             ))}
@@ -113,7 +113,7 @@ const Dashboard = () => {
               className="lg:col-span-2 bg-gradient-to-br from-teal-900/10 to-teal-800/5 dark:from-teal-900/20 dark:to-teal-800/10 border border-teal-700/20 dark:border-teal-600/30 p-6 rounded-2xl shadow-xl"
             >
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-semibold text-foreground flex items-center gap-2">
+                <h3 className={`text-xl font-semibold flex items-center gap-2 ${theme === 'dark' ? 'bg-gradient-to-r from-teal-300 via-teal-200 to-teal-100 bg-clip-text text-transparent' : 'text-foreground'}`}>
                   <BarChart className="w-5 h-5 text-teal-500 dark:text-teal-400" />
                   Sales Overview
                 </h3>
@@ -136,7 +136,7 @@ const Dashboard = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <h4 className="text-lg font-semibold mb-4 text-foreground flex items-center gap-2">
+                  <h4 className={`text-lg font-semibold mb-4 flex items-center gap-2 ${theme === 'dark' ? 'bg-gradient-to-r from-teal-300 via-teal-200 to-teal-100 bg-clip-text text-transparent' : 'text-foreground'}`}>
                     <Box className="w-5 h-5 text-teal-500 dark:text-teal-400" />
                     Recent Orders
                   </h4>
@@ -169,7 +169,7 @@ const Dashboard = () => {
                 </div>
 
                 <div>
-                  <h4 className="text-lg font-semibold mb-4 text-foreground flex items-center gap-2">
+                  <h4 className={`text-lg font-semibold mb-4 flex items-center gap-2 ${theme === 'dark' ? 'bg-gradient-to-r from-teal-300 via-teal-200 to-teal-100 bg-clip-text text-transparent' : 'text-foreground'}`}>
                     <TrendingUp className="w-5 h-5 text-teal-500 dark:text-teal-400" />
                     Top Products
                   </h4>
@@ -204,7 +204,7 @@ const Dashboard = () => {
               transition={{ delay: 0.6 }}
               className="bg-gradient-to-br from-teal-900/10 to-teal-800/5 dark:from-teal-900/20 dark:to-teal-800/10 border border-teal-700/20 dark:border-teal-600/30 p-6 rounded-2xl shadow-xl"
             >
-              <h3 className="text-xl font-semibold mb-6 text-foreground flex items-center gap-2">
+              <h3 className={`text-xl font-semibold mb-6 flex items-center gap-2 ${theme === 'dark' ? 'bg-gradient-to-r from-teal-300 via-teal-200 to-teal-100 bg-clip-text text-transparent' : 'text-foreground'}`}>
                 <Package className="w-5 h-5 text-teal-500 dark:text-teal-400" />
                 Quick Actions
               </h3>
@@ -245,7 +245,7 @@ const Dashboard = () => {
             className="mt-8 bg-gradient-to-br from-teal-900/10 to-teal-800/5 dark:from-teal-900/20 dark:to-teal-800/10 border border-teal-700/20 dark:border-teal-600/30 p-6 rounded-2xl shadow-xl"
           >
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl font-semibold text-foreground flex items-center gap-2">
+              <h3 className={`text-xl font-semibold flex items-center gap-2 ${theme === 'dark' ? 'bg-gradient-to-r from-teal-300 via-teal-200 to-teal-100 bg-clip-text text-transparent' : 'text-foreground'}`}>
                 <Box className="w-5 h-5 text-teal-500 dark:text-teal-400" />
                 All Orders
               </h3>
