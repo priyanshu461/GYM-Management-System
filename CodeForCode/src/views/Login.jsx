@@ -23,12 +23,13 @@ const Login = () => {
   const { login, signup } = useAuth();
   const { theme, toggleTheme } = useTheme();
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
+    setErrorMessage('');
     // Basic validation - you can add more complex validation here
     if (email && password) {
       // Use the login function from AuthContext
-      const success = login(email, password);
+      const success = await login(email, password);
       if (success) {
         navigate('/dashboard');
       } else {
@@ -250,20 +251,21 @@ const Login = () => {
               )}
             </div>
             <form
-              onSubmit={(e) => {
+              onSubmit={async (e) => {
                 e.preventDefault();
                 setErrorMessage('');
                 setSignupMessage('');
-          if (signupPassword !== confirmPassword) {
-            setErrorMessage('Passwords do not match');
-            return;
-          }
-          const success = signup(signupName, signupEmail, signupPassword);
-          if (success) {
-            setSignupMessage('You have signed up successfully. Please log in.');
-          } else {
-            setErrorMessage('Signup failed. Please try again.');
-          }
+                if (signupPassword !== confirmPassword) {
+                  setErrorMessage('Passwords do not match');
+                  return;
+                }
+                const success = await signup(signupName, signupEmail, signupPassword);
+                if (success) {
+                  setSignupMessage('You have signed up successfully. Please log in.');
+                  setShowSignup(false);
+                } else {
+                  setErrorMessage('Signup failed. Please try again.');
+                }
               }}
               className="space-y-4"
             >

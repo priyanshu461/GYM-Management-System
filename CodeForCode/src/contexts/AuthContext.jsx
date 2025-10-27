@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
+import { BASE_API_URL } from "../Utils/data";
 
 // Create Auth Context
 const AuthContext = createContext();
@@ -7,34 +8,71 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  // Check for existing token on app load
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      // Optionally verify token with backend
+      setIsAuthenticated(true);
+      // You might want to decode token to get user info
+    }
+    setLoading(false);
+  }, []);
 
   // Login function
   const login = async (email, password) => {
-    if (email && password) {
-      const statsResponse = await fetch(`${BASE_API_URL}auth/login`, {
-        email,
-        password,
+    try {
+      const response = await fetch(`${BASE_API_URL}auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
       });
-      if (!statsResponse.ok) throw new Error("Failed to fetch stats");
-      const res = await statsResponse.json();
-      console.log(res);
-      
-      setUser();
-      localStorage.setItem('token', res.token);
-      setIsAuthenticated(true);
-      return true;
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setUser(data.user);
+        localStorage.setItem('token', data.token);
+        setIsAuthenticated(true);
+        return true;
+      } else {
+        throw new Error(data.message || 'Login failed');
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      return false;
     }
-    return false;
   };
 
   // Signup function
-  const signup = (name, email, password) => {
-    if (name && email && password) {
-      setUser({ name, email });
-      setIsAuthenticated(true);
-      return true;
+  const signup = async (name, email, password) => {
+    try {
+      const response = await fetch(`${BASE_API_URL}auth/signup`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ name, email, password }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setUser(data.user);
+        localStorage.setItem('token', data.token);
+        setIsAuthenticated(true);
+        return true;
+      } else {
+        throw new Error(data.message || 'Signup failed');
+      }
+    } catch (error) {
+      console.error('Signup error:', error);
+      return false;
     }
-    return false;
   };
 
   // Update user function
@@ -46,11 +84,12 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     setIsAuthenticated(false);
     setUser(null);
+    localStorage.removeItem('token');
   };
 
   return (
     <AuthContext.Provider
-      value={{ isAuthenticated, user, login, signup, logout, updateUser }}
+      value={{ isAuthenticated, user, login, signup, logout, updateUser, loading }}
     >
       {children}
     </AuthContext.Provider>

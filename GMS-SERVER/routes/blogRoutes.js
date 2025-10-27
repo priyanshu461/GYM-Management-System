@@ -10,6 +10,7 @@ const {
   getFeaturedBlogPosts,
   getCategories,
   getTags,
+  generatePlan,
 } = require("../http/controllers/BlogController");
 
 // GET /api/blog - Get all blog posts

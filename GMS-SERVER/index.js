@@ -28,6 +28,9 @@ app.use('/api/management/finance', financeRoutes);
 const blogRoutes = require('./routes/blogRoutes');
 app.use('/api/blog', blogRoutes);
 
+const authRoutes = require('./routes/authRoutes');
+app.use('/api/auth', authRoutes);
+
 // Sample route
 app.get("/", (req, res) => {
   res.send("Hello World!");
