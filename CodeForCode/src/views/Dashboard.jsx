@@ -1,11 +1,12 @@
-import React from 'react'
-import { motion } from "framer-motion";
-import { Box, ShoppingCart, Users, BarChart, TrendingUp, Package, Eye, Send, Home } from "lucide-react";
+import React, { useState } from 'react'
+import { motion, AnimatePresence } from "framer-motion";
+import { Box, ShoppingCart, Users, BarChart, TrendingUp, Package, Eye, Send, Home, X } from "lucide-react";
 import Layout from '../components/Layout';
 import { useTheme } from '../contexts/ThemeContext';
 
 const Dashboard = () => {
   const { theme } = useTheme();
+  const [selectedOrder, setSelectedOrder] = useState(null);
   const stats = [
     { id: 1, title: "Total Sales", value: "₹1,24,560", icon: ShoppingCart, change: "+12.5%", changeType: "positive" },
     { id: 2, title: "Orders", value: "1,240", icon: Box, change: "+8.2%", changeType: "positive" },
@@ -288,6 +289,7 @@ const Dashboard = () => {
                       <td className="px-6 py-4 text-muted-foreground">{o.date}</td>
                       <td className="px-6 py-4 text-center">
                         <motion.button
+                          onClick={() => setSelectedOrder(o)}
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
                           className="px-4 py-2 bg-gradient-to-r from-teal-600 to-teal-500 text-white rounded-xl shadow-lg hover:from-teal-700 hover:to-teal-600 transition-all font-medium flex items-center gap-2"
@@ -304,6 +306,75 @@ const Dashboard = () => {
           </motion.section>
         </div>
       </div>
+
+      {/* Order Details Modal */}
+      {selectedOrder && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          onClick={() => setSelectedOrder(null)}
+        >
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.9, opacity: 0 }}
+            className="bg-gradient-to-br from-teal-900/10 to-teal-800/5 dark:from-teal-900/20 dark:to-teal-800/10 border border-teal-700/20 dark:border-teal-600/30 rounded-2xl shadow-2xl max-w-md w-full p-6"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-semibold text-foreground flex items-center gap-2">
+                <Eye className="w-5 h-5 text-teal-500 dark:text-teal-400" />
+                Order Details
+              </h3>
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={() => setSelectedOrder(null)}
+                className="p-2 rounded-xl bg-muted hover:bg-muted/80 transition-colors"
+              >
+                <X className="w-4 h-4 text-muted-foreground" />
+              </motion.button>
+            </div>
+
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <span className="text-muted-foreground">Order ID:</span>
+                <span className="font-semibold text-foreground">#{selectedOrder.id}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-muted-foreground">Customer:</span>
+                <span className="font-semibold text-foreground">{selectedOrder.customer}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-muted-foreground">Amount:</span>
+                <span className="font-bold text-teal-600 dark:text-teal-400">₹{selectedOrder.amount.toLocaleString()}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-muted-foreground">Status:</span>
+                <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                  selectedOrder.status === 'Delivered' ? 'bg-green-100 text-green-800 border border-green-300 dark:bg-green-900/20 dark:text-green-400 dark:border-green-600' :
+                  selectedOrder.status === 'Returned' ? 'bg-red-100 text-red-800 border border-red-300 dark:bg-red-900/20 dark:text-red-400 dark:border-red-600' :
+                  'bg-yellow-100 text-yellow-800 border border-yellow-300 dark:bg-yellow-900/20 dark:text-yellow-400 dark:border-yellow-600'
+                }`}>
+                  {selectedOrder.status}
+                </span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-muted-foreground">Date:</span>
+                <span className="font-semibold text-foreground">{selectedOrder.date}</span>
+              </div>
+            </div>
+
+            <div className="mt-6 pt-4 border-t border-border">
+              <div className="text-sm text-muted-foreground">
+                <p>This is a sample order detail view. In a real application, this would show more detailed information about the order, including items purchased, shipping details, and order history.</p>
+              </div>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
     </Layout>
   )
 }
