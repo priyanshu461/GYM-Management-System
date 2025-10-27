@@ -106,11 +106,11 @@ const Dashboard = () => {
             className="flex justify-between items-center mb-8"
           >
             <div>
-              <h1 className={`text-4xl font-extrabold mb-3 tracking-tight ${theme === 'dark' ? 'bg-gradient-to-r from-teal-300 via-teal-200 to-teal-100 bg-clip-text text-transparent' : 'text-foreground'}`}>
+              <h1 className={`text-4xl font-extrabold mb-3 tracking-tight bg-gradient-to-r from-teal-300 via-teal-200 to-teal-100 bg-clip-text text-transparent`}>
                 <Home className="inline-block w-10 h-10 mr-3 text-teal-500 dark:text-teal-400" />
                 Dashboard<span className="text-teal-500 dark:text-teal-400"> Overview</span>
               </h1>
-              <p className={`text-lg ${theme === 'dark' ? 'text-teal-200' : 'text-muted-foreground'}`}>Welcome back! Here's what's happening with your business today.</p>
+              <p className={`text-lg text-teal-600 dark:text-teal-400`}>Welcome back! Here's what's happening with your business today.</p>
             </div>
           </motion.div>
 
@@ -141,7 +141,7 @@ const Dashboard = () => {
                 </div>
                 <div>
                   <div className="text-sm text-muted-foreground font-medium">{s.title}</div>
-                  <div className={`text-3xl font-bold mt-2 ${theme === 'dark' ? 'bg-gradient-to-r from-teal-300 via-teal-200 to-teal-100 bg-clip-text text-transparent' : 'text-foreground'}`}>{s.value}</div>
+                  <div className={`text-3xl font-bold mt-2 bg-gradient-to-r from-teal-300 via-teal-200 to-teal-100 bg-clip-text text-transparent`}>{s.value}</div>
                 </div>
               </motion.div>
             ))}
@@ -156,7 +156,7 @@ const Dashboard = () => {
               className="lg:col-span-2 bg-gradient-to-br from-teal-900/10 to-teal-800/5 dark:from-teal-900/20 dark:to-teal-800/10 border border-teal-700/20 dark:border-teal-600/30 p-6 rounded-2xl shadow-xl"
             >
               <div className="flex items-center justify-between mb-6">
-                <h3 className={`text-xl font-semibold flex items-center gap-2 ${theme === 'dark' ? 'bg-gradient-to-r from-teal-300 via-teal-200 to-teal-100 bg-clip-text text-transparent' : 'text-foreground'}`}>
+                <h3 className={`text-xl font-semibold flex items-center gap-2 bg-gradient-to-r from-teal-300 via-teal-200 to-teal-100 bg-clip-text text-transparent`}>
                   <BarChart className="w-5 h-5 text-teal-500 dark:text-teal-400" />
                   Sales Overview
                 </h3>
@@ -179,7 +179,7 @@ const Dashboard = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <h4 className={`text-lg font-semibold mb-4 flex items-center gap-2 ${theme === 'dark' ? 'bg-gradient-to-r from-teal-300 via-teal-200 to-teal-100 bg-clip-text text-transparent' : 'text-foreground'}`}>
+                  <h4 className={`text-lg font-semibold mb-4 flex items-center gap-2 bg-gradient-to-r from-teal-300 via-teal-200 to-teal-100 bg-clip-text text-transparent`}>
                     <Box className="w-5 h-5 text-teal-500 dark:text-teal-400" />
                     Recent Orders
                   </h4>
@@ -212,7 +212,7 @@ const Dashboard = () => {
                 </div>
 
                 <div>
-                  <h4 className={`text-lg font-semibold mb-4 flex items-center gap-2 ${theme === 'dark' ? 'bg-gradient-to-r from-teal-300 via-teal-200 to-teal-100 bg-clip-text text-transparent' : 'text-foreground'}`}>
+                  <h4 className={`text-lg font-semibold mb-4 flex items-center gap-2 bg-gradient-to-r from-teal-300 via-teal-200 to-teal-100 bg-clip-text text-transparent`}>
                     <TrendingUp className="w-5 h-5 text-teal-500 dark:text-teal-400" />
                     Top Products
                   </h4>
@@ -247,7 +247,7 @@ const Dashboard = () => {
               transition={{ delay: 0.6 }}
               className="bg-gradient-to-br from-teal-900/10 to-teal-800/5 dark:from-teal-900/20 dark:to-teal-800/10 border border-teal-700/20 dark:border-teal-600/30 p-6 rounded-2xl shadow-xl"
             >
-              <h3 className={`text-xl font-semibold mb-6 flex items-center gap-2 ${theme === 'dark' ? 'bg-gradient-to-r from-teal-300 via-teal-200 to-teal-100 bg-clip-text text-transparent' : 'text-foreground'}`}>
+              <h3 className={`text-xl font-semibold mb-6 flex items-center gap-2 bg-gradient-to-r from-teal-300 via-teal-200 to-teal-100 bg-clip-text text-transparent`}>
                 <Package className="w-5 h-5 text-teal-500 dark:text-teal-400" />
                 Quick Actions
               </h3>
@@ -288,7 +288,7 @@ const Dashboard = () => {
             className="mt-8 bg-gradient-to-br from-teal-900/10 to-teal-800/5 dark:from-teal-900/20 dark:to-teal-800/10 border border-teal-700/20 dark:border-teal-600/30 p-6 rounded-2xl shadow-xl"
           >
             <div className="flex items-center justify-between mb-6">
-              <h3 className={`text-xl font-semibold flex items-center gap-2 ${theme === 'dark' ? 'bg-gradient-to-r from-teal-300 via-teal-200 to-teal-100 bg-clip-text text-transparent' : 'text-foreground'}`}>
+              <h3 className={`text-xl font-semibold flex items-center gap-2 bg-gradient-to-r from-teal-300 via-teal-200 to-teal-100 bg-clip-text text-transparent`}>
                 <Box className="w-5 h-5 text-teal-500 dark:text-teal-400" />
                 All Orders
               </h3>
@@ -299,12 +299,12 @@ const Dashboard = () => {
               <table className="w-full text-left border-collapse">
                 <thead className="bg-gradient-to-r from-teal-600 to-teal-500">
                   <tr>
-                    <th className="px-6 py-4 text-white font-semibold">Order</th>
-                    <th className="px-6 py-4 text-white font-semibold">Customer</th>
-                    <th className="px-6 py-4 text-white font-semibold">Amount</th>
-                    <th className="px-6 py-4 text-white font-semibold">Status</th>
-                    <th className="px-6 py-4 text-white font-semibold">Date</th>
-                    <th className="px-6 py-4 text-white font-semibold text-center">Action</th>
+                    <th className="px-6 py-4 text-white font-semibold dark:text-gray-100">Order</th>
+                    <th className="px-6 py-4 text-white font-semibold dark:text-gray-100">Customer</th>
+                    <th className="px-6 py-4 text-white font-semibold dark:text-gray-100">Amount</th>
+                    <th className="px-6 py-4 text-white font-semibold dark:text-gray-100">Status</th>
+                    <th className="px-6 py-4 text-white font-semibold dark:text-gray-100">Date</th>
+                    <th className="px-6 py-4 text-white font-semibold text-center dark:text-gray-100">Action</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -316,9 +316,9 @@ const Dashboard = () => {
                       transition={{ delay: 1.2 + index * 0.05 }}
                       className="border-b border-border hover:bg-gradient-to-r hover:from-teal-900/5 hover:to-teal-800/5 dark:hover:from-teal-900/10 dark:hover:to-teal-800/10 transition-all duration-200"
                     >
-                      <td className="px-6 py-4 font-semibold text-foreground">#{o.id}</td>
-                      <td className="px-6 py-4 text-foreground">{o.customer}</td>
-                      <td className="px-6 py-4 font-bold text-foreground">₹{o.amount.toLocaleString()}</td>
+                      <td className="px-6 py-4 font-semibold text-foreground dark:text-gray-200">#{o.id}</td>
+                      <td className="px-6 py-4 text-foreground dark:text-gray-200">{o.customer}</td>
+                      <td className="px-6 py-4 font-bold text-foreground dark:text-gray-200">₹{o.amount.toLocaleString()}</td>
                       <td className="px-6 py-4">
                         <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
                           o.status === 'Delivered' ? 'bg-green-100 text-green-800 border border-green-300 dark:bg-green-900/20 dark:text-green-400 dark:border-green-600' :
@@ -328,7 +328,7 @@ const Dashboard = () => {
                           {o.status}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-muted-foreground">{o.date}</td>
+                      <td className="px-6 py-4 text-muted-foreground dark:text-gray-300">{o.date}</td>
                       <td className="px-6 py-4 text-center">
                         <motion.button
                           onClick={() => setSelectedOrder(o)}

@@ -1,4 +1,5 @@
 const express = require("express");
+const cors = require("cors");
 const app = express();
 require("dotenv").config();
 console.log(process.env.PORT);
@@ -6,6 +7,10 @@ const port = process.env.PORT || 8080;
 require("./lib/db"); // Database connection
 
 // Middleware
+app.use(cors({
+  origin: 'http://localhost:5173', // Allow requests from the frontend
+  credentials: true
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
