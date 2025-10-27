@@ -25,7 +25,7 @@ const notificationSchema = new Schema(
     },
     type: {
       type: String,
-      enum: ["Info", "Warning", "Error", "Success"],default: "Info",
+      enum: ["Info", "Warning", "Error", "Success", "Activity"],default: "Info",
     },
     read: {
       type: Boolean,
@@ -36,15 +36,44 @@ const notificationSchema = new Schema(
     },
     priority: {
       type: String,
-      enum: ["Low", "Medium", "High"],default: "Low",
+      enum: ["normal", "high", "urgent"],default: "normal",
     },
     link: {
       type: String,default: "",trim: true,
     },
+    channels: [{
+      type: String,
+      enum: ["email", "sms", "push", "inapp"],
+    }],
+    segment: {
+      type: String,
+      enum: ["all", "new", "inactive", "trial", "vip"],default: "all",
+    },
+    schedule: {
+      type: Date,
+    },
+    template: {
+      type: String,default: "",trim: true,
+    },
+    campaign: {
+      type: String,default: "",trim: true,
+    },
+    sentAt: {
+      type: Date,
+    },
+    openedAt: {
+      type: Date,
+    },
+    clickedAt: {
+      type: Date,
+    },
+    unsubscribedAt: {
+      type: Date,
+    },
   },
   {
-    timestamps: true, 
-    versionKey: false, 
+    timestamps: true,
+    versionKey: false,
   }
 );
 
