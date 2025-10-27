@@ -9,6 +9,22 @@ require("./lib/db"); // Database connection
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Routes
+const dashboardRoutes = require('./routes/dashboardRoutes');
+app.use('/api/dashboard', dashboardRoutes);
+
+const memberRoutes = require('./routes/memberRoutes');
+app.use('/api/management/members', memberRoutes);
+
+const facilitiesRoutes = require('./routes/facilitiesRoutes');
+app.use('/api/management/facilities', facilitiesRoutes);
+
+const trainersRoutes = require('./routes/trainersRoutes');
+app.use('/api/management/trainers', trainersRoutes);
+
+const financeRoutes = require('./routes/financeRoutes');
+app.use('/api/management/finance', financeRoutes);
+
 // Sample route
 app.get("/", (req, res) => {
   res.send("Hello World!");

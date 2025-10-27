@@ -2,8 +2,10 @@ import React from 'react'
 import { motion } from "framer-motion";
 import { Box, ShoppingCart, Users, BarChart, TrendingUp, Package, Eye, Send, Home } from "lucide-react";
 import Layout from '../components/Layout';
+import { useTheme } from '../contexts/ThemeContext';
 
 const Dashboard = () => {
+  const { theme } = useTheme();
   const stats = [
     { id: 1, title: "Total Sales", value: "₹1,24,560", icon: ShoppingCart, change: "+12.5%", changeType: "positive" },
     { id: 2, title: "Orders", value: "1,240", icon: Box, change: "+8.2%", changeType: "positive" },
@@ -20,7 +22,7 @@ const Dashboard = () => {
 
   const orders = Array.from({ length: 6 }).map((_, i) => ({
     id: 1000 + i,
-    customer: ["Asha", "Ravi", "Deepa", "Karan", "Maya", "Ishan"][i % 6],
+    customer: ["Asha", "Ravi", "Shivani", "Karan", "Maya", "Ishan"][i % 6],
     amount: [2599, 499, 1299, 7499, 899, 199][i % 6],
     status: ["Delivered", "Processing", "Returned", "Shipped", "Processing", "Delivered"][i % 6],
     date: ["2025-09-28", "2025-09-29", "2025-09-25", "2025-09-27", "2025-09-30", "2025-09-24"][i % 6]
@@ -52,7 +54,7 @@ const Dashboard = () => {
 
   return (
     <Layout>
-      <div className="min-h-screen bg-gradient-to-br from-teal-900 via-teal-800 to-teal-900 text-white py-10 px-4">
+      <div className={`min-h-screen py-10 px-4 ${theme === 'light' ? 'bg-gradient-to-br from-teal-100 via-teal-50 to-white text-black' : 'bg-gradient-to-br from-teal-900 via-teal-800 to-teal-900 text-white'}`}>
         <div className="max-w-7xl mx-auto">
           {/* Title */}
           <motion.div
