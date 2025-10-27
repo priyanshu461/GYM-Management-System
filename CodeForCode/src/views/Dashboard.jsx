@@ -1,33 +1,75 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from "framer-motion";
 import { Box, ShoppingCart, Users, BarChart, TrendingUp, Package, Eye, Send, Home, X } from "lucide-react";
 import Layout from '../components/Layout';
 import { useTheme } from '../contexts/ThemeContext';
+import { BASE_API_URL, TOKEN } from '@/Utils/data';
 
 const Dashboard = () => {
+ // Sample token for demonstration
   const { theme } = useTheme();
   const [selectedOrder, setSelectedOrder] = useState(null);
-  const stats = [
-    { id: 1, title: "Total Sales", value: "₹1,24,560", icon: ShoppingCart, change: "+12.5%", changeType: "positive" },
-    { id: 2, title: "Orders", value: "1,240", icon: Box, change: "+8.2%", changeType: "positive" },
-    { id: 3, title: "Customers", value: "3,420", icon: Users, change: "+15.3%", changeType: "positive" },
-    { id: 4, title: "Traffic", value: "18,400", icon: BarChart, change: "-2.1%", changeType: "negative" },
-  ];
+  const [stats, setStats] = useState([]);
+  const [topProducts, setTopProducts] = useState([]);
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const topProducts = [
-    { id: 1, title: "Leather Jacket", price: "₹4,499", sold: 140, image: "🧥" },
-    { id: 2, title: "Running Shoes", price: "₹2,299", sold: 120, image: "👟" },
-    { id: 3, title: "Smart Watch", price: "₹6,999", sold: 95, image: "⌚" },
-    { id: 4, title: "Backpack", price: "₹1,299", sold: 88, image: "🎒" },
-  ];
+  // Fetch dashboard data on component mount
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
 
-  const orders = Array.from({ length: 6 }).map((_, i) => ({
-    id: 1000 + i,
-    customer: ["Asha", "Ravi", "Shivani", "Karan", "Maya", "Ishan"][i % 6],
-    amount: [2599, 499, 1299, 7499, 899, 199][i % 6],
-    status: ["Delivered", "Processing", "Returned", "Shipped", "Processing", "Delivered"][i % 6],
-    date: ["2025-09-28", "2025-09-29", "2025-09-25", "2025-09-27", "2025-09-30", "2025-09-24"][i % 6]
-  }));
+        // Fetch stats
+        const statsResponse = await fetch(`${BASE_API_URL}dashboard/stats`, {headers: {'Authorization': `Bearer ${TOKEN}`}});
+        if (!statsResponse.ok) throw new Error('Failed to fetch stats');
+        const statsData = await statsResponse.json();
+        setStats(statsData);
+
+        // Fetch top products
+        const productsResponse = await fetch(`${BASE_API_URL}dashboard/top-products`);
+        if (!productsResponse.ok) throw new Error('Failed to fetch top products');
+        const productsData = await productsResponse.json();
+        setTopProducts(productsData);
+
+        // Fetch recent orders
+        const ordersResponse = await fetch(`${BASE_API_URL}dashboard/recent-orders`);
+        if (!ordersResponse.ok) throw new Error('Failed to fetch recent orders');
+        const ordersData = await ordersResponse.json();
+        setOrders(ordersData);
+
+      } catch (err) {
+        console.error('Error fetching dashboard data:', err);
+        setError(err.message);
+        // Fallback to sample data if API fails
+        setStats([
+          { id: 1, title: "Total Sales", value: "₹1,24,560", icon: ShoppingCart, change: "+12.5%", changeType: "positive" },
+          { id: 2, title: "Orders", value: "1,240", icon: Box, change: "+8.2%", changeType: "positive" },
+          { id: 3, title: "Customers", value: "3,420", icon: Users, change: "+15.3%", changeType: "positive" },
+          { id: 4, title: "Traffic", value: "18,400", icon: BarChart, change: "-2.1%", changeType: "negative" },
+        ]);
+        setTopProducts([
+          { id: 1, title: "Leather Jacket", price: "₹4,499", sold: 140, image: "🧥" },
+          { id: 2, title: "Running Shoes", price: "₹2,299", sold: 120, image: "👟" },
+          { id: 3, title: "Smart Watch", price: "₹6,999", sold: 95, image: "⌚" },
+          { id: 4, title: "Backpack", price: "₹1,299", sold: 88, image: "🎒" },
+        ]);
+        setOrders(Array.from({ length: 6 }).map((_, i) => ({
+          id: 1000 + i,
+          customer: ["Asha", "Ravi", "Shivani", "Karan", "Maya", "Ishan"][i % 6],
+          amount: [2599, 499, 1299, 7499, 899, 199][i % 6],
+          status: ["Delivered", "Processing", "Returned", "Shipped", "Processing", "Delivered"][i % 6],
+          date: ["2025-09-28", "2025-09-29", "2025-09-25", "2025-09-27", "2025-09-30", "2025-09-24"][i % 6]
+        })));
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
 
   const quickActions = [
     {
@@ -308,73 +350,75 @@ const Dashboard = () => {
       </div>
 
       {/* Order Details Modal */}
-      {selectedOrder && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-          onClick={() => setSelectedOrder(null)}
-        >
+      <AnimatePresence>
+        {selectedOrder && (
           <motion.div
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.9, opacity: 0 }}
-            className="bg-gradient-to-br from-teal-900/10 to-teal-800/5 dark:from-teal-900/20 dark:to-teal-800/10 border border-teal-700/20 dark:border-teal-600/30 rounded-2xl shadow-2xl max-w-md w-full p-6"
-            onClick={(e) => e.stopPropagation()}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            onClick={() => setSelectedOrder(null)}
           >
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl font-semibold text-foreground flex items-center gap-2">
-                <Eye className="w-5 h-5 text-teal-500 dark:text-teal-400" />
-                Order Details
-              </h3>
-              <motion.button
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-                onClick={() => setSelectedOrder(null)}
-                className="p-2 rounded-xl bg-muted hover:bg-muted/80 transition-colors"
-              >
-                <X className="w-4 h-4 text-muted-foreground" />
-              </motion.button>
-            </div>
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-gradient-to-br from-teal-900/10 to-teal-800/5 dark:from-teal-900/20 dark:to-teal-800/10 border border-teal-700/20 dark:border-teal-600/30 rounded-2xl shadow-2xl max-w-md w-full p-6"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-semibold text-foreground flex items-center gap-2">
+                  <Eye className="w-5 h-5 text-teal-500 dark:text-teal-400" />
+                  Order Details
+                </h3>
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  onClick={() => setSelectedOrder(null)}
+                  className="p-2 rounded-xl bg-muted hover:bg-muted/80 transition-colors"
+                >
+                  <X className="w-4 h-4 text-muted-foreground" />
+                </motion.button>
+              </div>
 
-            <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <span className="text-muted-foreground">Order ID:</span>
-                <span className="font-semibold text-foreground">#{selectedOrder.id}</span>
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <span className="text-muted-foreground">Order ID:</span>
+                  <span className="font-semibold text-foreground">#{selectedOrder.id}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-muted-foreground">Customer:</span>
+                  <span className="font-semibold text-foreground">{selectedOrder.customer}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-muted-foreground">Amount:</span>
+                  <span className="font-bold text-teal-600 dark:text-teal-400">₹{selectedOrder.amount.toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-muted-foreground">Status:</span>
+                  <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                    selectedOrder.status === 'Delivered' ? 'bg-green-100 text-green-800 border border-green-300 dark:bg-green-900/20 dark:text-green-400 dark:border-green-600' :
+                    selectedOrder.status === 'Returned' ? 'bg-red-100 text-red-800 border border-red-300 dark:bg-red-900/20 dark:text-red-400 dark:border-red-600' :
+                    'bg-yellow-100 text-yellow-800 border border-yellow-300 dark:bg-yellow-900/20 dark:text-yellow-400 dark:border-yellow-600'
+                  }`}>
+                    {selectedOrder.status}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-muted-foreground">Date:</span>
+                  <span className="font-semibold text-foreground">{selectedOrder.date}</span>
+                </div>
               </div>
-              <div className="flex justify-between items-center">
-                <span className="text-muted-foreground">Customer:</span>
-                <span className="font-semibold text-foreground">{selectedOrder.customer}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-muted-foreground">Amount:</span>
-                <span className="font-bold text-teal-600 dark:text-teal-400">₹{selectedOrder.amount.toLocaleString()}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-muted-foreground">Status:</span>
-                <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                  selectedOrder.status === 'Delivered' ? 'bg-green-100 text-green-800 border border-green-300 dark:bg-green-900/20 dark:text-green-400 dark:border-green-600' :
-                  selectedOrder.status === 'Returned' ? 'bg-red-100 text-red-800 border border-red-300 dark:bg-red-900/20 dark:text-red-400 dark:border-red-600' :
-                  'bg-yellow-100 text-yellow-800 border border-yellow-300 dark:bg-yellow-900/20 dark:text-yellow-400 dark:border-yellow-600'
-                }`}>
-                  {selectedOrder.status}
-                </span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-muted-foreground">Date:</span>
-                <span className="font-semibold text-foreground">{selectedOrder.date}</span>
-              </div>
-            </div>
 
-            <div className="mt-6 pt-4 border-t border-border">
-              <div className="text-sm text-muted-foreground">
-                <p>This is a sample order detail view. In a real application, this would show more detailed information about the order, including items purchased, shipping details, and order history.</p>
+              <div className="mt-6 pt-4 border-t border-border">
+                <div className="text-sm text-muted-foreground">
+                  <p>This is a sample order detail view. In a real application, this would show more detailed information about the order, including items purchased, shipping details, and order history.</p>
+                </div>
               </div>
-            </div>
+            </motion.div>
           </motion.div>
-        </motion.div>
-      )}
+        )}
+      </AnimatePresence>
     </Layout>
   )
 }

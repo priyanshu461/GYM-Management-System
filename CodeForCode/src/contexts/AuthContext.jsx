@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState } from "react";
 
 // Create Auth Context
 const AuthContext = createContext();
@@ -9,9 +9,18 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
 
   // Login function
-  const login = (email, password) => {
+  const login = async (email, password) => {
     if (email && password) {
-      setUser({ name: "Priyanshu Gautam", email });
+      const statsResponse = await fetch(`${BASE_API_URL}auth/login`, {
+        email,
+        password,
+      });
+      if (!statsResponse.ok) throw new Error("Failed to fetch stats");
+      const res = await statsResponse.json();
+      console.log(res);
+      
+      setUser();
+      localStorage.setItem('token', res.token);
       setIsAuthenticated(true);
       return true;
     }
@@ -30,7 +39,7 @@ export const AuthProvider = ({ children }) => {
 
   // Update user function
   const updateUser = (updatedData) => {
-    setUser(prevUser => ({ ...prevUser, ...updatedData }));
+    setUser((prevUser) => ({ ...prevUser, ...updatedData }));
   };
 
   // Logout function
@@ -40,7 +49,9 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, user, login, signup, logout, updateUser }}>
+    <AuthContext.Provider
+      value={{ isAuthenticated, user, login, signup, logout, updateUser }}
+    >
       {children}
     </AuthContext.Provider>
   );
@@ -50,7 +61,7 @@ export const AuthProvider = ({ children }) => {
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 };
