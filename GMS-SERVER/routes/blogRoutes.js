@@ -39,4 +39,7 @@ router.get("/categories", getCategories);
 // GET /api/blog/tags - Get unique tags
 router.get("/tags", getTags);
 
+// POST /api/blog/generate-plan - Generate AI fitness plan
+router.post("/generate-plan", generatePlan);
+
 module.exports = router;

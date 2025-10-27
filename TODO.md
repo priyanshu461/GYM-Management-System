@@ -15,6 +15,7 @@
 - [x] Create Blog API (filtered posts, featured, categories, tags)
 - [x] Create Settings API (profile, security, notifications, appearance, branches, integrations, billing, advanced)
 - [x] Create Support Tickets API (CRUD, filtering, bulk operations, replies, stats)
+- [x] Create AI Fitness Plan Generator API endpoint
 
 ## Pending
 - [ ] Test APIs with Postman or frontend
