@@ -12,7 +12,7 @@ export const AuthProvider = ({ children }) => {
 
   // Check for existing token on app load
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
     if (token) {
       // Optionally verify token with backend
       setIsAuthenticated(true);
@@ -25,9 +25,9 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       const response = await fetch(`${BASE_API_URL}auth/login`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ email, password }),
       });
@@ -36,14 +36,14 @@ export const AuthProvider = ({ children }) => {
 
       if (response.ok) {
         setUser(data.user);
-        localStorage.setItem('token', data.token);
+        localStorage.setItem("token", data.token);
         setIsAuthenticated(true);
         return true;
       } else {
-        throw new Error(data.message || 'Login failed');
+        throw new Error(data.message || "Login failed");
       }
     } catch (error) {
-      console.error('Login error:', error);
+      console.error("Login error:", error);
       return false;
     }
   };
@@ -52,25 +52,25 @@ export const AuthProvider = ({ children }) => {
   const signup = async (name, email, password) => {
     try {
       const response = await fetch(`${BASE_API_URL}auth/signup`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ name, email, password }),
       });
 
       const data = await response.json();
 
-      if (response.ok) {
+      if (data.token) {
         setUser(data.user);
-        localStorage.setItem('token', data.token);
+        localStorage.setItem("token", data.token);
         setIsAuthenticated(true);
         return true;
       } else {
-        throw new Error(data.message || 'Signup failed');
+        throw new Error(data.message || "Signup failed");
       }
     } catch (error) {
-      console.error('Signup error:', error);
+      console.error("Signup error:", error);
       return false;
     }
   };
@@ -84,12 +84,20 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     setIsAuthenticated(false);
     setUser(null);
-    localStorage.removeItem('token');
+    localStorage.removeItem("token");
   };
 
   return (
     <AuthContext.Provider
-      value={{ isAuthenticated, user, login, signup, logout, updateUser, loading }}
+      value={{
+        isAuthenticated,
+        user,
+        login,
+        signup,
+        logout,
+        updateUser,
+        loading,
+      }}
     >
       {children}
     </AuthContext.Provider>

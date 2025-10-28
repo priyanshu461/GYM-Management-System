@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const app = express();
-require("dotenv").config();
+require('dotenv').config();
 console.log(process.env.PORT);
 const port = process.env.PORT || 8080;
 require("./lib/db"); // Database connection
