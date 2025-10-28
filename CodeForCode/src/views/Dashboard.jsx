@@ -22,23 +22,23 @@ const Dashboard = () => {
         setLoading(true);
         setError(null);
 
-        // Fetch stats
-        const statsResponse = await fetch(`${BASE_API_URL}dashboard/stats`, {headers: {'Authorization': `Bearer ${TOKEN}`}});
-        if (!statsResponse.ok) throw new Error('Failed to fetch stats');
-        const statsData = await statsResponse.json();
-        setStats(statsData);
+        // // Fetch stats
+        // const statsResponse = await fetch(`${BASE_API_URL}dashboard/stats`, {headers: {'Authorization': `Bearer ${TOKEN}`}});
+        // if (!statsResponse.ok) throw new Error('Failed to fetch stats');
+        // const statsData = await statsResponse.json();
+        // setStats(statsData);
 
-        // Fetch top products
-        const productsResponse = await fetch(`${BASE_API_URL}dashboard/top-products`);
-        if (!productsResponse.ok) throw new Error('Failed to fetch top products');
-        const productsData = await productsResponse.json();
-        setTopProducts(productsData);
+        // // Fetch top products
+        // const productsResponse = await fetch(`${BASE_API_URL}dashboard/top-products`);
+        // if (!productsResponse.ok) throw new Error('Failed to fetch top products');
+        // const productsData = await productsResponse.json();
+        // setTopProducts(productsData);
 
-        // Fetch recent orders
-        const ordersResponse = await fetch(`${BASE_API_URL}dashboard/recent-orders`);
-        if (!ordersResponse.ok) throw new Error('Failed to fetch recent orders');
-        const ordersData = await ordersResponse.json();
-        setOrders(ordersData);
+        // // Fetch recent orders
+        // const ordersResponse = await fetch(`${BASE_API_URL}dashboard/recent-orders`);
+        // if (!ordersResponse.ok) throw new Error('Failed to fetch recent orders');
+        // const ordersData = await ordersResponse.json();
+        // setOrders(ordersData);
 
       } catch (err) {
         console.error('Error fetching dashboard data:', err);
@@ -63,9 +63,10 @@ const Dashboard = () => {
           status: ["Delivered", "Processing", "Returned", "Shipped", "Processing", "Delivered"][i % 6],
           date: ["2025-09-28", "2025-09-29", "2025-09-25", "2025-09-27", "2025-09-30", "2025-09-24"][i % 6]
         })));
-      } finally {
-        setLoading(false);
-      }
+      } 
+      // finally {
+      //   setLoading(false);
+      // }
     };
 
     fetchDashboardData();
