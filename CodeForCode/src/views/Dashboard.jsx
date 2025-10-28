@@ -19,26 +19,16 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
+>>>>>>> Stashed changes
+
+      } catch (err) {
+=======
         setLoading(true);
         setError(null);
 
-        // // Fetch stats
-        // const statsResponse = await fetch(`${BASE_API_URL}dashboard/stats`, {headers: {'Authorization': `Bearer ${TOKEN}`}});
-        // if (!statsResponse.ok) throw new Error('Failed to fetch stats');
-        // const statsData = await statsResponse.json();
-        // setStats(statsData);
-
-        // // Fetch top products
-        // const productsResponse = await fetch(`${BASE_API_URL}dashboard/top-products`);
-        // if (!productsResponse.ok) throw new Error('Failed to fetch top products');
-        // const productsData = await productsResponse.json();
-        // setTopProducts(productsData);
-
-        // // Fetch recent orders
-        // const ordersResponse = await fetch(`${BASE_API_URL}dashboard/recent-orders`);
-        // if (!ordersResponse.ok) throw new Error('Failed to fetch recent orders');
-        // const ordersData = await ordersResponse.json();
-        // setOrders(ordersData);
+      } catch (err) {
+=======
+>>>>>>> Stashed changes
 
       } catch (err) {
         console.error('Error fetching dashboard data:', err);

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Eye, Home, X, Key, Mail, Lock, User, Sun, Moon } from 'lucide-react';
+import { Eye, Home, X, Key, Mail, Lock, Sun, Moon } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import Sidebar from '../components/layout/Sidebar';
@@ -13,10 +13,17 @@ const Login = () => {
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [resetEmail, setResetEmail] = useState('');
   const [showSignup, setShowSignup] = useState(false);
+<<<<<<< Updated upstream
   const [errorMessage, setErrorMessage] = useState('');
   const [resetMessage, setResetMessage] = useState('');
   const navigate = useNavigate();
   const { login } = useAuth();
+=======
+  const [setErrorMessage] = useState('');
+  const [resetMessage, setResetMessage] = useState('');
+  const navigate = useNavigate();
+  const { login} = useAuth();
+>>>>>>> Stashed changes
   const { theme, toggleTheme } = useTheme();
 
   const handleLogin = async (e) => {
@@ -88,6 +95,9 @@ const Login = () => {
             </div>
             <h1 className={`text-3xl font-bold mb-2 ${theme === 'dark' ? 'text-white' : 'text-teal-800'}`}>Welcome Back</h1>
             <p className={`text-gray-600 ${theme === 'dark' ? 'text-teal-200' : ''}`}>Sign in to your account</p>
+            {errorMessage && (
+              <p className="text-red-600 mt-4">{errorMessage}</p>
+            )}
             {resetMessage && (
               <p className="text-green-600 mt-4">{resetMessage}</p>
             )}
