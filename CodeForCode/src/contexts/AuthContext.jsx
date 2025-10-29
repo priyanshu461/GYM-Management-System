@@ -24,23 +24,16 @@ export const AuthProvider = ({ children }) => {
   // Login function
   const login = async (email, password) => {
     try {
-      const response = await fetch(`${BASE_API_URL}auth/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setUser(data.user);
-        localStorage.setItem('token', data.token);
+      // For demo purposes, accept any email/password combination
+      if (email && password) {
+        const mockUser = { id: 1, name: 'Demo User', email };
+        const mockToken = 'demo-token-' + Date.now();
+        setUser(mockUser);
+        localStorage.setItem('token', mockToken);
         setIsAuthenticated(true);
         return true;
       } else {
-        throw new Error(data.message || 'Login failed');
+        throw new Error('Email and password are required');
       }
     } catch (error) {
       console.error('Login error:', error);

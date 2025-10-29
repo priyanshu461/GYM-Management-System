@@ -19,17 +19,13 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
->>>>>>> Stashed changes
-
-      } catch (err) {
-=======
-        setLoading(true);
-        setError(null);
-
-      } catch (err) {
-=======
->>>>>>> Stashed changes
-
+        // TODO: Implement API call to fetch dashboard data
+        // Example: const response = await fetch(`${BASE_API_URL}/dashboard/stats`, { headers: { Authorization: `Bearer ${TOKEN}` } });
+        // const data = await response.json();
+        // setStats(data.stats);
+        // setTopProducts(data.topProducts);
+        // setOrders(data.orders);
+        throw new Error('API not implemented'); // Temporary to trigger fallback
       } catch (err) {
         console.error('Error fetching dashboard data:', err);
         setError(err.message);
@@ -53,10 +49,9 @@ const Dashboard = () => {
           status: ["Delivered", "Processing", "Returned", "Shipped", "Processing", "Delivered"][i % 6],
           date: ["2025-09-28", "2025-09-29", "2025-09-25", "2025-09-27", "2025-09-30", "2025-09-24"][i % 6]
         })));
-      } 
-      // finally {
-      //   setLoading(false);
-      // }
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchDashboardData();
