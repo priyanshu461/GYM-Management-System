@@ -7,16 +7,15 @@ const port = process.env.PORT || 8080;
 require("./lib/db"); // Database connection
 
 // Middleware
-app.use(cors({
-  origin: 'http://localhost:5173', // Allow requests from the frontend
-  credentials: true
-}));
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Routes
 const dashboardRoutes = require('./routes/dashboardRoutes');
 app.use('/api/dashboard', dashboardRoutes);
+
+app.use('/api/dashboard/product', require('./routes/productRoutes'));
 
 const memberRoutes = require('./routes/memberRoutes');
 app.use('/api/management/members', memberRoutes);

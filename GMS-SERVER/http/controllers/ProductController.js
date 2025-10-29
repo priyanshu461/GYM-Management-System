@@ -12,7 +12,7 @@ const getAllProducts = async (req, res) => {
       sortOrder = "desc",
       minPrice,
       maxPrice,
-      inStock
+      inStock,
     } = req.query;
 
     const query = { isActive: true };
@@ -27,7 +27,7 @@ const getAllProducts = async (req, res) => {
       query.$or = [
         { name: { $regex: search, $options: "i" } },
         { brand: { $regex: search, $options: "i" } },
-        { flavor: { $regex: search, $options: "i" } }
+        { flavor: { $regex: search, $options: "i" } },
       ];
     }
 
@@ -62,12 +62,12 @@ const getAllProducts = async (req, res) => {
       total,
       page: parseInt(page),
       pages: Math.ceil(total / parseInt(limit)),
-      limit: parseInt(limit)
+      limit: parseInt(limit),
     });
   } catch (error) {
     res.status(500).json({
       message: "Error fetching products",
-      error: error.message
+      error: error.message,
     });
   }
 };
@@ -85,7 +85,7 @@ const getProductById = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       message: "Error fetching product",
-      error: error.message
+      error: error.message,
     });
   }
 };
@@ -97,11 +97,11 @@ const createProduct = async (req, res) => {
 
     // Validate required fields
     const requiredFields = ["name", "category", "price"];
-    const missingFields = requiredFields.filter(field => !productData[field]);
+    const missingFields = requiredFields.filter((field) => !productData[field]);
 
     if (missingFields.length > 0) {
       return res.status(400).json({
-        message: `Missing required fields: ${missingFields.join(", ")}`
+        message: `Missing required fields: ${missingFields.join(", ")}`,
       });
     }
 
@@ -110,20 +110,20 @@ const createProduct = async (req, res) => {
 
     res.status(201).json({
       message: "Product created successfully",
-      product: savedProduct
+      product: savedProduct,
     });
   } catch (error) {
     if (error.name === "ValidationError") {
-      const errors = Object.values(error.errors).map(err => err.message);
+      const errors = Object.values(error.errors).map((err) => err.message);
       return res.status(400).json({
         message: "Validation error",
-        errors
+        errors,
       });
     }
 
     res.status(500).json({
       message: "Error creating product",
-      error: error.message
+      error: error.message,
     });
   }
 };
@@ -132,14 +132,10 @@ const createProduct = async (req, res) => {
 const updateProduct = async (req, res) => {
   try {
     const updateData = req.body;
-    const product = await Product.findByIdAndUpdate(
-      req.params.id,
-      updateData,
-      {
-        new: true,
-        runValidators: true
-      }
-    );
+    const product = await Product.findByIdAndUpdate(req.params.id, updateData, {
+      new: true,
+      runValidators: true,
+    });
 
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
@@ -147,20 +143,20 @@ const updateProduct = async (req, res) => {
 
     res.status(200).json({
       message: "Product updated successfully",
-      product
+      product,
     });
   } catch (error) {
     if (error.name === "ValidationError") {
-      const errors = Object.values(error.errors).map(err => err.message);
+      const errors = Object.values(error.errors).map((err) => err.message);
       return res.status(400).json({
         message: "Validation error",
-        errors
+        errors,
       });
     }
 
     res.status(500).json({
       message: "Error updating product",
-      error: error.message
+      error: error.message,
     });
   }
 };
@@ -179,12 +175,12 @@ const deleteProduct = async (req, res) => {
     }
 
     res.status(200).json({
-      message: "Product deleted successfully"
+      message: "Product deleted successfully",
     });
   } catch (error) {
     res.status(500).json({
       message: "Error deleting product",
-      error: error.message
+      error: error.message,
     });
   }
 };
@@ -209,12 +205,12 @@ const getProductsByCategory = async (req, res) => {
       products,
       total,
       page: parseInt(page),
-      pages: Math.ceil(total / parseInt(limit))
+      pages: Math.ceil(total / parseInt(limit)),
     });
   } catch (error) {
     res.status(500).json({
       message: "Error fetching products by category",
-      error: error.message
+      error: error.message,
     });
   }
 };
@@ -232,7 +228,7 @@ const getTopRatedProducts = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       message: "Error fetching top rated products",
-      error: error.message
+      error: error.message,
     });
   }
 };
@@ -252,17 +248,17 @@ const searchProducts = async (req, res) => {
         { name: { $regex: q, $options: "i" } },
         { brand: { $regex: q, $options: "i" } },
         { flavor: { $regex: q, $options: "i" } },
-        { description: { $regex: q, $options: "i" } }
-      ]
+        { description: { $regex: q, $options: "i" } },
+      ],
     })
-    .sort({ rating: -1 })
-    .limit(parseInt(limit));
+      .sort({ rating: -1 })
+      .limit(parseInt(limit));
 
     res.status(200).json(products);
   } catch (error) {
     res.status(500).json({
       message: "Error searching products",
-      error: error.message
+      error: error.message,
     });
   }
 };
@@ -275,5 +271,5 @@ module.exports = {
   deleteProduct,
   getProductsByCategory,
   getTopRatedProducts,
-  searchProducts
+  searchProducts,
 };

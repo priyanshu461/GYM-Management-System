@@ -12,7 +12,7 @@ const {
 } = require('../http/controllers/ProductController');
 
 // GET /api/products - Get all products with filtering and pagination
-router.get('/', getAllProducts);
+router.get('/all', getAllProducts);
 
 // GET /api/products/search - Search products
 router.get('/search', searchProducts);
@@ -27,7 +27,7 @@ router.get('/category/:category', getProductsByCategory);
 router.get('/:id', getProductById);
 
 // POST /api/products - Create new product
-router.post('/', createProduct);
+router.post('/create', createProduct);
 
 // PUT /api/products/:id - Update product
 router.put('/:id', updateProduct);

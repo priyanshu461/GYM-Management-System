@@ -238,7 +238,7 @@ const Login = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 animate-fade-in">
           <div className={`max-w-md w-full rounded-2xl shadow-2xl p-8 animate-fade-in backdrop-blur-sm ${theme === 'dark' ? 'bg-teal-800/90' : 'bg-teal-50/90'}`}>
             <div className="relative z-10">
-m            <div className="text-center mb-6">
+            <div className="text-center mb-6">
               <div className="flex justify-center mb-4">
                 <div className={`p-4 rounded-full ${theme === 'dark' ? 'bg-teal-700' : 'bg-teal-100'}`}>
                   <Key className={`text-teal-600 ${theme === 'dark' ? 'text-teal-200' : ''}`} size={32} />

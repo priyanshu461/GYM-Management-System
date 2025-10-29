@@ -26,6 +26,7 @@ import GymBlog from './views/GymBlog'
 import NotificationsCommunication from './views/NotificationCommunication'
 import Dashboard from './views/Dashboard'
 import Profile from './views/Profile'
+import ProductCreate from './views/Products/ProductCreate'
 
 function ProtectedRoute({ children }) {
   const { isAuthenticated } = useAuth();
