@@ -25,7 +25,26 @@ const Dashboard = () => {
         // setStats(data.stats);
         // setTopProducts(data.topProducts);
         // setOrders(data.orders);
-        throw new Error('API not implemented'); // Temporary to trigger fallback
+        // For demo purposes, directly use sample data without throwing error
+        setStats([
+          { id: 1, title: "Total Sales", value: "₹1,24,560", icon: ShoppingCart, change: "+12.5%", changeType: "positive" },
+          { id: 2, title: "Orders", value: "1,240", icon: Box, change: "+8.2%", changeType: "positive" },
+          { id: 3, title: "Customers", value: "3,420", icon: Users, change: "+15.3%", changeType: "positive" },
+          { id: 4, title: "Traffic", value: "18,400", icon: BarChart, change: "-2.1%", changeType: "negative" },
+        ]);
+        setTopProducts([
+          { id: 1, title: "Leather Jacket", price: "₹4,499", sold: 140, image: "🧥" },
+          { id: 2, title: "Running Shoes", price: "₹2,299", sold: 120, image: "👟" },
+          { id: 3, title: "Smart Watch", price: "₹6,999", sold: 95, image: "⌚" },
+          { id: 4, title: "Backpack", price: "₹1,299", sold: 88, image: "🎒" },
+        ]);
+        setOrders(Array.from({ length: 6 }).map((_, i) => ({
+          id: 1000 + i,
+          customer: ["Asha", "Ravi", "Shivani", "Karan", "Maya", "Ishan"][i % 6],
+          amount: [2599, 499, 1299, 7499, 899, 199][i % 6],
+          status: ["Delivered", "Processing", "Returned", "Shipped", "Processing", "Delivered"][i % 6],
+          date: ["2025-09-28", "2025-09-29", "2025-09-25", "2025-09-27", "2025-09-30", "2025-09-24"][i % 6]
+        })));
       } catch (err) {
         console.error('Error fetching dashboard data:', err);
         setError(err.message);
