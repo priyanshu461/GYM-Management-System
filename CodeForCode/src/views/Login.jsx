@@ -13,17 +13,10 @@ const Login = () => {
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [resetEmail, setResetEmail] = useState('');
   const [showSignup, setShowSignup] = useState(false);
-<<<<<<< Updated upstream
   const [errorMessage, setErrorMessage] = useState('');
   const [resetMessage, setResetMessage] = useState('');
   const navigate = useNavigate();
   const { login } = useAuth();
-=======
-  const [setErrorMessage] = useState('');
-  const [resetMessage, setResetMessage] = useState('');
-  const navigate = useNavigate();
-  const { login} = useAuth();
->>>>>>> Stashed changes
   const { theme, toggleTheme } = useTheme();
 
   const handleLogin = async (e) => {
