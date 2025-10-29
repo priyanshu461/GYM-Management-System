@@ -101,13 +101,13 @@ const Dashboard = () => {
 
   return (
     <Layout>
-      <div
-        className={`min-h-screen py-10 px-4 ${
-          theme === "light"
-            ? "bg-gradient-to-br from-teal-100 via-teal-50 to-white text-black"
-            : "bg-gradient-to-br from-teal-900 via-teal-800 to-teal-900 text-white"
-        }`}
-      >
+      <div className={`min-h-screen py-10 px-4 ${theme === 'light' ? 'bg-gradient-to-br from-slate-50 via-teal-50 to-slate-100 text-slate-900' : 'bg-gradient-to-br from-teal-900 via-teal-800 to-teal-900 text-white'}`}>
+>>>>>>> Stashed changes
+=======
+      <div className={`min-h-screen py-10 px-4 ${theme === 'light' ? 'bg-gradient-to-br from-slate-50 via-teal-50 to-slate-100 text-slate-900' : 'bg-gradient-to-br from-teal-900 via-teal-800 to-teal-900 text-white'}`}>
+=======
+      <div className={`min-h-screen py-10 px-4 ${theme === 'light' ? 'bg-gradient-to-br from-slate-50 via-teal-50 to-slate-100 text-slate-900' : 'bg-gradient-to-br from-teal-900 via-teal-800 to-teal-900 text-white'}`}>
+>>>>>>> Stashed changes
         <div className="max-w-7xl mx-auto">
           {/* Title */}
           <motion.div
