@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import Layout from '../components/Layout';
 import { useAuth } from '../contexts/AuthContext';
 import { User, Mail, Phone, MapPin, Calendar, Award, Target, Edit3, Save, X, Dumbbell, Heart, TrendingUp, Star, BookOpen, Users, Bell, Settings, Activity, Zap } from 'lucide-react';
-import { motion } from "framer-motion";
+import { motion } from 'framer-motion';
 
 const Profile = () => {
   const { user, updateUser } = useAuth();
@@ -66,16 +66,16 @@ const Profile = () => {
 
   return (
     <Layout>
-      <div className="max-w-6xl mx-auto p-6 space-y-8 bg-white dark:bg-teal-900 font-inter">
+      <div className="max-w-6xl mx-auto p-6 space-y-8">
         {/* Header */}
-        <div className="bg-white dark:bg-teal-900 rounded-2xl shadow-lg border-t-4 border-teal-400 p-8">
+        <div className="bg-white rounded-2xl shadow-lg border-t-4 border-teal-400 p-8">
           <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
             <div className="w-24 h-24 rounded-full bg-gradient-to-br from-teal-400 to-teal-600 flex items-center justify-center text-white text-3xl font-bold shadow-lg">
               {profileData.name.split(' ').map(n => n[0]).join('')}
             </div>
             <div className="flex-1 text-center md:text-left">
-              <h1 className="text-4xl font-extrabold bg-gradient-to-r from-teal-400 to-cyan-400 bg-clip-text text-transparent dark:from-teal-300 dark:to-cyan-300 mb-3 tracking-wide drop-shadow-sm">{profileData.name}</h1>
-              <p className="text-teal-600 dark:text-teal-300 text-xl font-semibold mb-4 leading-relaxed">{profileData.role}</p>
+              <h1 className="text-3xl font-bold text-teal-900 mb-2">{profileData.name}</h1>
+              <p className="text-teal-600 text-lg mb-4">{profileData.role}</p>
               <div className="flex flex-wrap justify-center md:justify-start gap-4 text-sm text-teal-700">
                 <div className="flex items-center gap-2">
                   <Calendar size={16} />
@@ -121,9 +121,9 @@ const Profile = () => {
         </div>
 
         {/* Personal Information */}
-        <div className="bg-white dark:bg-teal-900 rounded-2xl shadow-lg border-t-4 border-teal-400 p-8">
-          <h2 className="text-3xl font-extrabold bg-gradient-to-r from-teal-400 to-cyan-400 bg-clip-text text-transparent dark:from-teal-300 dark:to-cyan-300 mb-8 flex items-center gap-3 tracking-wide drop-shadow-sm">
-            <User size={28} className="text-teal-500" />
+        <div className="bg-white rounded-2xl shadow-lg border-t-4 border-teal-400 p-8">
+          <h2 className="text-2xl font-bold text-teal-900 mb-6 flex items-center gap-3">
+            <User size={24} className="text-teal-500" />
             Personal Information
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -199,9 +199,9 @@ const Profile = () => {
         </div>
 
         {/* Account Details */}
-        <div className="bg-white dark:bg-teal-900 rounded-2xl shadow-lg border-t-4 border-teal-400 p-8">
-          <h2 className="text-3xl font-extrabold bg-gradient-to-r from-teal-400 to-cyan-400 bg-clip-text text-transparent dark:from-teal-300 dark:to-cyan-300 mb-8 flex items-center gap-3 tracking-wide drop-shadow-sm">
-            <Award size={28} className="text-teal-500" />
+        <div className="bg-white rounded-2xl shadow-lg border-t-4 border-teal-400 p-8">
+          <h2 className="text-2xl font-bold text-teal-900 mb-6 flex items-center gap-3">
+            <Award size={24} className="text-teal-500" />
             Account Details
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -242,9 +242,9 @@ const Profile = () => {
         </div>
 
         {/* Membership Details */}
-        <div className="bg-white dark:bg-teal-900 rounded-2xl shadow-lg border-t-4 border-teal-400 p-8">
-          <h2 className="text-3xl font-extrabold bg-gradient-to-r from-teal-400 to-cyan-400 bg-clip-text text-transparent dark:from-teal-300 dark:to-cyan-300 mb-8 flex items-center gap-3 tracking-wide drop-shadow-sm">
-            <Award size={28} className="text-teal-500" />
+        <div className="bg-white rounded-2xl shadow-lg border-t-4 border-teal-400 p-8">
+          <h2 className="text-2xl font-bold text-teal-900 mb-6 flex items-center gap-3">
+            <Award size={24} className="text-teal-500" />
             Membership Details
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -291,9 +291,9 @@ const Profile = () => {
         </div>
 
         {/* Fitness Stats */}
-        <div className="bg-white dark:bg-teal-900 rounded-2xl shadow-lg border-t-4 border-teal-400 p-8">
-          <h2 className="text-3xl font-extrabold bg-gradient-to-r from-teal-400 to-cyan-400 bg-clip-text text-transparent dark:from-teal-300 dark:to-cyan-300 mb-8 flex items-center gap-3 tracking-wide drop-shadow-sm">
-            <Target size={28} className="text-teal-500" />
+        <div className="bg-white rounded-2xl shadow-lg border-t-4 border-teal-400 p-8">
+          <h2 className="text-2xl font-bold text-teal-900 mb-6 flex items-center gap-3">
+            <Target size={24} className="text-teal-500" />
             Fitness Statistics
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -337,9 +337,9 @@ const Profile = () => {
         </div>
 
         {/* Quick Actions */}
-        <div className="bg-white dark:bg-teal-900 rounded-2xl shadow-lg border-t-4 border-teal-400 p-8">
-          <h2 className="text-3xl font-extrabold bg-gradient-to-r from-teal-400 to-cyan-400 bg-clip-text text-transparent dark:from-teal-300 dark:to-cyan-300 mb-8 flex items-center gap-3 tracking-wide drop-shadow-sm">
-            <Zap size={28} className="text-teal-500" />
+        <div className="bg-white rounded-2xl shadow-lg border-t-4 border-teal-400 p-8">
+          <h2 className="text-2xl font-bold text-teal-900 mb-6 flex items-center gap-3">
+            <Zap size={24} className="text-teal-500" />
             Quick Actions
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -391,9 +391,9 @@ const Profile = () => {
         </div>
 
         {/* Recent Activities */}
-        <div className="bg-white dark:bg-teal-900 rounded-2xl shadow-lg border-t-4 border-teal-400 p-8">
-          <h2 className="text-3xl font-extrabold bg-gradient-to-r from-teal-400 to-cyan-400 bg-clip-text text-transparent dark:from-teal-300 dark:to-cyan-300 mb-8 flex items-center gap-3 tracking-wide drop-shadow-sm">
-            <Activity size={28} className="text-teal-500" />
+        <div className="bg-white rounded-2xl shadow-lg border-t-4 border-teal-400 p-8">
+          <h2 className="text-2xl font-bold text-teal-900 mb-6 flex items-center gap-3">
+            <Activity size={24} className="text-teal-500" />
             Recent Activities
           </h2>
           <div className="space-y-4">
@@ -446,9 +446,9 @@ const Profile = () => {
         </div>
 
         {/* Fitness Preferences */}
-        <div className="bg-white dark:bg-teal-900 rounded-2xl shadow-lg border-t-4 border-teal-400 p-8">
-          <h2 className="text-3xl font-extrabold bg-gradient-to-r from-teal-400 to-cyan-400 bg-clip-text text-transparent dark:from-teal-300 dark:to-cyan-300 mb-8 flex items-center gap-3 tracking-wide drop-shadow-sm">
-            <Settings size={28} className="text-teal-500" />
+        <div className="bg-white rounded-2xl shadow-lg border-t-4 border-teal-400 p-8">
+          <h2 className="text-2xl font-bold text-teal-900 mb-6 flex items-center gap-3">
+            <Settings size={24} className="text-teal-500" />
             Fitness Preferences
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

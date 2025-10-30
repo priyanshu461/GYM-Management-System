@@ -7,8 +7,8 @@ const {
   deleteTrainer,
 } = require('../http/controllers/TrainersController');
 
-router.get('/', getAllTrainers);
-router.post('/', addTrainer);
+router.get('/all', getAllTrainers);
+router.post('/add', addTrainer);
 router.put('/:id', updateTrainer);
 router.delete('/:id', deleteTrainer);
 

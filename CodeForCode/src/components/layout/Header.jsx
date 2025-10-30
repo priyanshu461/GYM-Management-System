@@ -57,11 +57,11 @@ const Header = ({ onMobileMenuToggle, sidebarCollapsed }) => {
                 <DropdownMenuTrigger asChild>
                   <div className="flex items-center gap-3 cursor-pointer p-2 rounded-md hover:bg-slate-100 transition-colors duration-200">
                     <div className="text-right">
-                      <div className="text-sm font-medium">{user?.name || 'Priyanshu Gautam'}</div>
+                      <div className="text-sm font-medium">{user?.name || ''}</div>
                       <div className="text-xs text-slate-500">{user?.role || 'Admin'}</div>
                     </div>
                     <div className="w-9 h-9 rounded-full bg-gradient-to-br from-rose-400 to-orange-900 flex items-center justify-center text-white font-semibold">
-                      {(user?.name || 'Priyanshu Gautam').split(' ').map(n => n[0]).join('')}
+                      {(user?.name || '').split(' ').map(n => n[0]).join('')}
                     </div>
                   </div>
                 </DropdownMenuTrigger>

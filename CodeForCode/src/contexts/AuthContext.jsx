@@ -12,51 +12,46 @@ export const AuthProvider = ({ children }) => {
 
   // Check for existing token on app load
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
     if (token) {
-      // Directly set authenticated if token exists, skipping verification
+      // Optionally verify token with backend
       setIsAuthenticated(true);
+      const storedUser = localStorage.getItem("user");
+      if (storedUser) {
+        try {
+          const user = JSON.parse(storedUser);
+          if (user && user.name) {
+            updateUser({
+              name: user.name,
+              email: user.email,
+              phone: user.phone || "",
+              address: user.address || "",
+              roleId: user.roleId,
+              role: "",
+              membershipStatus: user.membershipStatus || false,
+            });
+          } else {
+            // Invalid user data, clear it
+            localStorage.removeItem("user");
+            setIsAuthenticated(false);
+          }
+        } catch (error) {
+          // Parsing error, clear invalid data
+          localStorage.removeItem("user");
+          setIsAuthenticated(false);
+        }
+      }
     }
     setLoading(false);
   }, []);
-
-  // Verify token function
-  const verifyToken = async (token) => {
-    try {
-      const response = await fetch(`${BASE_API_URL}auth/verify`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setUser(data.user);
-        setIsAuthenticated(true);
-      } else {
-        // Token invalid, remove it
-        localStorage.removeItem('token');
-        setIsAuthenticated(false);
-        setUser(null);
-      }
-    } catch (error) {
-      console.error('Token verification error:', error);
-      localStorage.removeItem('token');
-      setIsAuthenticated(false);
-      setUser(null);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   // Login function
   const login = async (email, password) => {
     try {
       const response = await fetch(`${BASE_API_URL}auth/login`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ email, password }),
       });
@@ -65,14 +60,15 @@ export const AuthProvider = ({ children }) => {
 
       if (response.ok) {
         setUser(data.user);
-        localStorage.setItem('token', data.token);
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("user", JSON.stringify(data.user));
         setIsAuthenticated(true);
         return true;
       } else {
-        throw new Error(data.message || 'Login failed');
+        throw new Error(data.message || "Login failed");
       }
     } catch (error) {
-      console.error('Login error:', error);
+      console.error("Login error:", error);
       return false;
     }
   };
@@ -81,9 +77,9 @@ export const AuthProvider = ({ children }) => {
   const signup = async (name, email, password) => {
     try {
       const response = await fetch(`${BASE_API_URL}auth/signup`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ name, email, password }),
       });
@@ -92,14 +88,14 @@ export const AuthProvider = ({ children }) => {
 
       if (response.ok) {
         setUser(data.user);
-        localStorage.setItem('token', data.token);
+        localStorage.setItem("token", data.token);
         setIsAuthenticated(true);
         return true;
       } else {
-        throw new Error(data.message || 'Signup failed');
+        throw new Error(data.message || "Signup failed");
       }
     } catch (error) {
-      console.error('Signup error:', error);
+      console.error("Signup error:", error);
       return false;
     }
   };
@@ -113,12 +109,20 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     setIsAuthenticated(false);
     setUser(null);
-    localStorage.removeItem('token');
+    localStorage.removeItem("token");
   };
 
   return (
     <AuthContext.Provider
-      value={{ isAuthenticated, user, login, signup, logout, updateUser, loading }}
+      value={{
+        isAuthenticated,
+        user,
+        login,
+        signup,
+        logout,
+        updateUser,
+        loading,
+      }}
     >
       {children}
     </AuthContext.Provider>

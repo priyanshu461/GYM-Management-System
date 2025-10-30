@@ -1,20 +1,22 @@
+const { MongoMemoryServer } = require('mongodb-memory-server');
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const User = require("./models/UserModel");
 const Role = require("./models/RoleModel");
 require("dotenv").config();
-require("./lib/db"); // Ensure database connection
 
 async function seedDatabase() {
+  let mongoServer;
+
   try {
-    // Wait for database connection
-    if (mongoose.connection.readyState !== 1) {
-      console.log("Waiting for database connection...");
-      await new Promise(resolve => {
-        mongoose.connection.once('open', resolve);
-      });
-    }
-    console.log("Connected to database");
+    // Start in-memory MongoDB server
+    mongoServer = await MongoMemoryServer.create();
+    const mongoUri = mongoServer.getUri();
+    console.log("In-memory MongoDB started at:", mongoUri);
+
+    // Connect to the in-memory database
+    await mongoose.connect(mongoUri);
+    console.log("Connected to in-memory MongoDB");
 
     // Create roles if they don't exist
     const adminRole = await Role.findOneAndUpdate(
@@ -84,8 +86,13 @@ async function seedDatabase() {
     console.log("Database seeded successfully!");
     console.log("In-memory database is running. Press Ctrl+C to stop.");
 
-    // Exit after seeding
-    process.exit(0);
+    // Keep the server running for testing
+    process.on('SIGINT', async () => {
+      console.log("Shutting down...");
+      await mongoose.connection.close();
+      await mongoServer.stop();
+      process.exit(0);
+    });
 
   } catch (error) {
     console.error("Error seeding database:", error);

@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Box,
@@ -15,7 +14,6 @@ import {
   DollarSign,
   Calendar,
 } from "lucide-react";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from "recharts";
 import Layout from "../components/Layout";
 import { useTheme } from "../contexts/ThemeContext";
 import gymServices from "@/services/gymServices";
@@ -23,7 +21,6 @@ import gymServices from "@/services/gymServices";
 const Dashboard = () => {
   // Sample token for demonstration
   const { theme } = useTheme();
-  const navigate = useNavigate();
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [stats, setStats] = useState([]);
   const [topProducts, setTopProducts] = useState([]);
@@ -31,17 +28,6 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [statsIcons, setStatsIcons] = useState({});
-
-  // Sample dynamic data for charts
-  const salesData = [
-    { name: 'Jan', sales: 4000, revenue: 2400 },
-    { name: 'Feb', sales: 3000, revenue: 1398 },
-    { name: 'Mar', sales: 2000, revenue: 9800 },
-    { name: 'Apr', sales: 2780, revenue: 3908 },
-    { name: 'May', sales: 1890, revenue: 4800 },
-    { name: 'Jun', sales: 2390, revenue: 3800 },
-    { name: 'Jul', sales: 3490, revenue: 4300 },
-  ];
 
   // Fetch dashboard data on component mount
 
@@ -96,7 +82,6 @@ const Dashboard = () => {
       icon: Package,
       shortcut: "Ctrl + P",
       color: "from-blue-600 to-blue-500",
-      action: () => navigate('/productcreate'),
     },
     {
       title: "View reports",
@@ -104,7 +89,6 @@ const Dashboard = () => {
       icon: BarChart,
       shortcut: "Enter",
       color: "from-green-600 to-green-500",
-      action: () => navigate('/reportsAnalytics'),
     },
     {
       title: "Send promo",
@@ -112,14 +96,18 @@ const Dashboard = () => {
       icon: Send,
       shortcut: "/",
       color: "from-purple-600 to-purple-500",
-      action: () => navigate('/notificationcommunication'),
     },
   ];
 
   return (
     <Layout>
-      <div className={`min-h-screen py-10 px-4 ${theme === 'light' ? 'bg-gradient-to-br from-slate-50 via-teal-50 to-slate-100 text-slate-900' : 'bg-gradient-to-br from-teal-900 via-teal-800 to-teal-900 text-white'}`}>
-
+      <div
+        className={`min-h-screen py-10 px-4 ${
+          theme === "light"
+            ? "bg-gradient-to-br from-teal-100 via-teal-50 to-white text-black"
+            : "bg-gradient-to-br from-teal-900 via-teal-800 to-teal-900 text-white"
+        }`}
+      >
         <div className="max-w-7xl mx-auto">
           {/* Title */}
           <motion.div
@@ -129,11 +117,11 @@ const Dashboard = () => {
           >
             <div>
               <h1
-                className={`text-4xl font-extrabold mb-3 tracking-tight bg-gradient-to-r from-green-400 via-blue-400 to-green-500 bg-clip-text text-transparent`}
+                className={`text-4xl font-extrabold mb-3 tracking-tight bg-gradient-to-r from-teal-300 via-teal-200 to-teal-100 bg-clip-text text-transparent`}
               >
-                <Home className="inline-block w-10 h-10 mr-3 text-green-500 dark:text-blue-400" />
+                <Home className="inline-block w-10 h-10 mr-3 text-teal-500 dark:text-teal-400" />
                 Dashboard
-                <span className="text-green-500 dark:text-blue-400">
+                <span className="text-teal-500 dark:text-teal-400">
                   {" "}
                   Overview
                 </span>
@@ -202,9 +190,9 @@ const Dashboard = () => {
             >
               <div className="flex items-center justify-between mb-6">
                 <h3
-                  className={`text-xl font-semibold flex items-center gap-2 bg-gradient-to-r from-green-400 via-blue-400 to-green-500 bg-clip-text text-transparent`}
+                  className={`text-xl font-semibold flex items-center gap-2 bg-gradient-to-r from-teal-300 via-teal-200 to-teal-100 bg-clip-text text-transparent`}
                 >
-                  <BarChart className="w-5 h-5 text-green-500 dark:text-blue-400" />
+                  <BarChart className="w-5 h-5 text-teal-500 dark:text-teal-400" />
                   Sales Overview
                 </h3>
                 <div className="text-sm text-muted-foreground bg-muted px-3 py-1 rounded-full">
@@ -212,56 +200,41 @@ const Dashboard = () => {
                 </div>
               </div>
 
-              {/* Dynamic Recharts Chart */}
-              <div className="w-full h-64 mb-6 bg-gradient-to-r from-teal-900/5 to-teal-800/5 dark:from-teal-900/10 dark:to-teal-800/10 rounded-xl p-4 border border-teal-700/10 dark:border-teal-600/20 shadow-lg">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={salesData}>
-                    <defs>
-                      <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#10b981" stopOpacity={0.8}/>
-                        <stop offset="95%" stopColor="#10b981" stopOpacity={0.1}/>
-                      </linearGradient>
-                      <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8}/>
-                        <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.1}/>
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke={theme === 'dark' ? '#374151' : '#e5e7eb'} />
-                    <XAxis
-                      dataKey="name"
-                      stroke={theme === 'dark' ? '#9ca3af' : '#6b7280'}
-                      fontSize={12}
-                    />
-                    <YAxis
-                      stroke={theme === 'dark' ? '#9ca3af' : '#6b7280'}
-                      fontSize={12}
-                    />
-                    <Tooltip
-                      contentStyle={{
-                        backgroundColor: theme === 'dark' ? '#1f2937' : '#ffffff',
-                        border: `1px solid ${theme === 'dark' ? '#374151' : '#e5e7eb'}`,
-                        borderRadius: '8px',
-                        color: theme === 'dark' ? '#f9fafb' : '#111827'
-                      }}
-                    />
-                    <Area
-                      type="monotone"
-                      dataKey="revenue"
-                      stroke="#10b981"
-                      fillOpacity={1}
-                      fill="url(#colorRevenue)"
-                      strokeWidth={3}
-                    />
-                    <Area
-                      type="monotone"
-                      dataKey="sales"
-                      stroke="#3b82f6"
-                      fillOpacity={1}
-                      fill="url(#colorSales)"
-                      strokeWidth={2}
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
+              {/* Enhanced SVG chart */}
+              <div className="w-full h-48 mb-6 bg-gradient-to-r from-teal-900/5 to-teal-800/5 dark:from-teal-900/10 dark:to-teal-800/10 rounded-xl p-4 border border-teal-700/10 dark:border-teal-600/20">
+                <svg
+                  className="w-full h-full"
+                  viewBox="0 0 600 160"
+                  preserveAspectRatio="none"
+                >
+                  <defs>
+                    <linearGradient
+                      id="chartGradient"
+                      x1="0%"
+                      y1="0%"
+                      x2="100%"
+                      y2="0%"
+                    >
+                      <stop offset="0%" stopColor="#14b8a6" stopOpacity="0.3" />
+                      <stop
+                        offset="100%"
+                        stopColor="#14b8a6"
+                        stopOpacity="0.8"
+                      />
+                    </linearGradient>
+                  </defs>
+                  <polyline
+                    fill="none"
+                    stroke="#14b8a6"
+                    strokeWidth="4"
+                    points="0,120 80,100 160,80 240,95 320,60 400,72 480,40 560,55 600,30"
+                  />
+                  <polyline
+                    fill="url(#chartGradient)"
+                    stroke="none"
+                    points="0,120 80,100 160,80 240,95 320,60 400,72 480,40 560,55 600,30 600,160 0,160"
+                  />
+                </svg>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -369,7 +342,6 @@ const Dashboard = () => {
                     transition={{ delay: 0.8 + index * 0.1 }}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    onClick={action.action}
                     className="flex items-center justify-between p-4 rounded-xl bg-background border border-border hover:bg-gradient-to-r hover:from-teal-900/5 hover:to-teal-800/5 dark:hover:from-teal-900/10 dark:hover:to-teal-800/10 transition-all duration-200 group"
                   >
                     <div className="flex items-center gap-3">
