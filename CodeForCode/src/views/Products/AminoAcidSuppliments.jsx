@@ -368,7 +368,6 @@ export default function AminoAcidSuppliments() {
   }, [tab, search, sortBy])
 
   return (
-  <Layout>
     <div className={`min-h-screen ${theme === 'dark' ? 'bg-gradient-to-br from-teal-900 via-teal-800 to-teal-900 text-white' : 'bg-gradient-to-br from-teal-50 via-slate-50 to-teal-100 text-slate-900'}`}>
       <div className="mx-auto max-w-7xl px-4 md:px-8 py-6 md:py-10">
         {/* Header */}
@@ -598,6 +597,5 @@ export default function AminoAcidSuppliments() {
         </div>
       </div>
     </div>
-    </Layout>
   );
   }

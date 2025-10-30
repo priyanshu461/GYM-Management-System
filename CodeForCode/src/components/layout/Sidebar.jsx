@@ -379,11 +379,22 @@ const Sidebar = ({ demo = false, isOpen, onClose, collapsed, onToggleCollapse, c
               <div className="ml-8 flex flex-col gap-2 mt-1">
                 {demo ? (
                   <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 dark:hover:bg-teal-800 cursor-pointer text-sm text-teal-900 dark:text-white transition-colors duration-200">
+                    <FaCartPlus size={18} className="text-teal-900 dark:text-white" />
+                    <span>All Products</span>
+                  </div>
+                ) : (
+                  <Link to="/products" className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 dark:hover:bg-teal-800 cursor-pointer text-sm text-teal-900 dark:text-white transition-colors duration-200">
+                    <FaCartPlus size={18} className="text-teal-900 dark:text-white" />
+                    <span>All Products</span>
+                  </Link>
+                )}
+                {demo ? (
+                  <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 dark:hover:bg-teal-800 cursor-pointer text-sm text-teal-900 dark:text-white transition-colors duration-200">
                     <GiFruitBowl size={18} className="text-teal-900 dark:text-white" />
                     <span>Protein</span>
                   </div>
                 ) : (
-                  <Link to="/Protein" className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 dark:hover:bg-teal-800 cursor-pointer text-sm text-teal-900 dark:text-white transition-colors duration-200">
+                  <Link to="/protein" className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 dark:hover:bg-teal-800 cursor-pointer text-sm text-teal-900 dark:text-white transition-colors duration-200">
                     <GiFruitBowl size={18} className="text-teal-900 dark:text-white" />
                     <span>Protein</span>
                   </Link>
