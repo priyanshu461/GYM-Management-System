@@ -1,80 +1,22 @@
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Layout from "@/components/Layout";
-// import { Layout } from "../../components/Layout";
-
-// DynamicWorkoutRoutine.react.jsx
-// Default export: React component ready to drop into a Vite/CRA/Next project.
-// Tailwind classes used for styling. No external data required (sample data included).
+import gymServices from "@/services/gymServices";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function WorkoutRoutine() {
-  // sample data to simulate fetched routines
-  const sampleRoutines = [
-    {
-      id: 1,
-      name: "Full Body Blast",
-      goal: "Strength",
-      difficulty: "Intermediate",
-      days: [
-        {
-          day: "Monday",
-          exercises: [
-            { name: "Squat", sets: 4, reps: "6-8", rest: "120s" },
-            { name: "Bench Press", sets: 4, reps: "6-8", rest: "90s" },
-            { name: "Bent-over Row", sets: 3, reps: "8-10", rest: "90s" },
-          ],
-        },
-        {
-          day: "Wednesday",
-          exercises: [
-            { name: "Deadlift", sets: 3, reps: "4-6", rest: "150s" },
-            { name: "Overhead Press", sets: 4, reps: "6-8", rest: "90s" },
-            { name: "Pull-Up", sets: 3, reps: "AMRAP", rest: "90s" },
-          ],
-        },
-        {
-          day: "Friday",
-          exercises: [
-            { name: "Lunges", sets: 3, reps: "10/leg", rest: "60s" },
-            { name: "Incline Dumbbell Press", sets: 3, reps: "8-10", rest: "90s" },
-            { name: "Face Pulls", sets: 3, reps: "12-15", rest: "45s" },
-          ],
-        },
-      ],
-    },
-    {
-      id: 2,
-      name: "Hypertrophy Split",
-      goal: "Muscle",
-      difficulty: "Advanced",
-      days: [
-        {
-          day: "Monday - Chest/Triceps",
-          exercises: [
-            { name: "Barbell Bench Press", sets: 5, reps: "6-10", rest: "90s" },
-            { name: "Cable Fly", sets: 3, reps: "10-12", rest: "60s" },
-            { name: "Skull Crushers", sets: 3, reps: "8-12", rest: "60s" },
-          ],
-        },
-        {
-          day: "Tuesday - Back/Biceps",
-          exercises: [
-            { name: "Lat Pulldown", sets: 4, reps: "8-12", rest: "90s" },
-            { name: "Seated Row", sets: 4, reps: "8-12", rest: "90s" },
-            { name: "Hammer Curls", sets: 3, reps: "10-12", rest: "60s" },
-          ],
-        },
-      ],
-    },
-  ];
-
+  const { user } = useAuth();
   const [routines, setRoutines] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [query, setQuery] = useState("");
   const [goalFilter, setGoalFilter] = useState("All");
   const [difficultyFilter, setDifficultyFilter] = useState("All");
   const [selectedRoutine, setSelectedRoutine] = useState(null);
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
 
   // form state
   const [form, setForm] = useState({
@@ -84,11 +26,22 @@ export default function WorkoutRoutine() {
     days: [],
   });
 
-  // simulate fetch
   useEffect(() => {
-    // pretend we fetched the data from server
-    setTimeout(() => setRoutines(sampleRoutines), 300);
+    fetchRoutines();
   }, []);
+
+  const fetchRoutines = async () => {
+    try {
+      setLoading(true);
+      const data = await gymServices.getAllRoutines();
+      setRoutines(data);
+    } catch (err) {
+      setError("Failed to fetch routines");
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // derived list
   const filtered = routines.filter((r) => {
@@ -112,22 +65,75 @@ export default function WorkoutRoutine() {
     setFormOpen(true);
   }
 
-  function saveRoutine(e) {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (editing) {
-      setRoutines((rs) => rs.map((r) => (r.id === form.id ? { ...form } : r)));
-    } else {
-      const id = Math.max(0, ...routines.map((r) => r.id)) + 1;
-      setRoutines((rs) => [{ ...form, id }, ...rs]);
+    if (!form.name.trim()) {
+      setError("Routine name is required");
+      return;
     }
-    setFormOpen(false);
-  }
+    if (form.days.length === 0) {
+      setError("At least one day is required");
+      return;
+    }
+    for (const day of form.days) {
+      if (!day.day.trim()) {
+        setError("Day name is required for each day");
+        return;
+      }
+      if (day.exercises.length === 0) {
+        setError("At least one exercise is required per day");
+        return;
+      }
+      for (const ex of day.exercises) {
+        if (!ex.name.trim() || !ex.reps.trim() || !ex.rest.trim()) {
+          setError("All exercise fields are required");
+          return;
+        }
+      }
+    }
 
-  function deleteRoutine(id) {
+    const routineData = { ...form, createdBy: user?._id };
+
+    try {
+      setSubmitting(true);
+      setError(null);
+      if (editing) {
+        await gymServices.updateRoutine(form._id, routineData);
+        setSuccessMessage("Routine updated successfully!");
+      } else {
+        await gymServices.addRoutine(routineData);
+        setSuccessMessage("Routine added successfully!");
+      }
+      setForm({
+        name: "",
+        goal: "General",
+        difficulty: "Beginner",
+        days: [],
+      });
+      setFormOpen(false);
+      fetchRoutines(); // Refresh the list
+      setTimeout(() => setSuccessMessage(""), 3000);
+    } catch (err) {
+      setError(editing ? "Failed to update routine" : "Failed to add routine");
+      console.error(err);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const deleteRoutine = async (id) => {
     if (!confirm("Delete this routine?")) return;
-    setRoutines((rs) => rs.filter((r) => r.id !== id));
-    if (selectedRoutine?.id === id) setSelectedRoutine(null);
-  }
+    try {
+      await gymServices.deleteRoutine(id);
+      setRoutines((rs) => rs.filter((r) => r.id !== id));
+      if (selectedRoutine?.id === id) setSelectedRoutine(null);
+      setSuccessMessage("Routine deleted successfully!");
+      setTimeout(() => setSuccessMessage(""), 3000);
+    } catch (err) {
+      setError("Failed to delete routine");
+      console.error(err);
+    }
+  };
 
   function addDay() {
     setForm((f) => ({ ...f, days: [...(f.days || []), { day: "New Day", exercises: [] }] }));
@@ -167,7 +173,7 @@ export default function WorkoutRoutine() {
      <div className="p-6 max-w-6xl mx-auto">
       <header className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-extrabold">Workout <spam className="text-teal-500 font-extrabold">Routines</spam></h1>
+          <h1 className="text-2xl font-extrabold">Workout <span className="text-teal-500 font-extrabold">Routines</span></h1>
           <p className="text-lg text-slate-500">Dynamic, filterable routines for your gym members</p>
         </div>
 
@@ -325,7 +331,7 @@ export default function WorkoutRoutine() {
               initial={{ y: 20 }}
               animate={{ y: 0 }}
               exit={{ y: 20 }}
-              onSubmit={saveRoutine}
+              onSubmit={handleSubmit}
               className="w-full max-w-2xl bg-white rounded-2xl p-6 shadow-lg"
             >
               <div className="flex justify-between items-center">

@@ -74,4 +74,75 @@ gymServices.getOrders = async (data) => {
   }
 };
 
+gymServices.getAllRoutines = async () => {
+  try {
+    const res = await fetch(`${BASE_API_URL}workout`, {
+      headers: { Authorization: `Bearer ${TOKEN}` },
+    });
+    if (!res.ok) {
+      throw new Error('Failed to fetch routines');
+    }
+    return await res.json();
+  } catch (error) {
+    console.error('Error fetching routines:', error);
+    throw error;
+  }
+};
+
+gymServices.addRoutine = async (routineData) => {
+  try {
+    const res = await fetch(`${BASE_API_URL}workout`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${TOKEN}`,
+      },
+      body: JSON.stringify(routineData),
+    });
+    if (!res.ok) {
+      throw new Error('Failed to add routine');
+    }
+    return await res.json();
+  } catch (error) {
+    console.error('Error adding routine:', error);
+    throw error;
+  }
+};
+
+gymServices.updateRoutine = async (id, routineData) => {
+  try {
+    const res = await fetch(`${BASE_API_URL}workout/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${TOKEN}`,
+      },
+      body: JSON.stringify(routineData),
+    });
+    if (!res.ok) {
+      throw new Error('Failed to update routine');
+    }
+    return await res.json();
+  } catch (error) {
+    console.error('Error updating routine:', error);
+    throw error;
+  }
+};
+
+gymServices.deleteRoutine = async (id) => {
+  try {
+    const res = await fetch(`${BASE_API_URL}workout/${id}`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${TOKEN}` },
+    });
+    if (!res.ok) {
+      throw new Error('Failed to delete routine');
+    }
+    return await res.json();
+  } catch (error) {
+    console.error('Error deleting routine:', error);
+    throw error;
+  }
+};
+
 export default gymServices;

@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import Layout from '../components/Layout';
 import { useAuth } from '../contexts/AuthContext';
 import { User, Mail, Phone, MapPin, Calendar, Award, Target, Edit3, Save, X, Dumbbell, Heart, TrendingUp, Star, BookOpen, Users, Bell, Settings, Activity, Zap } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion } from "framer-motion";
 
 const Profile = () => {
   const { user, updateUser } = useAuth();
@@ -66,7 +66,7 @@ const Profile = () => {
 
   return (
     <Layout>
-      <div className="max-w-6xl mx-auto p-6 space-y-8 bg-white dark:bg-teal-900">
+      <div className="max-w-6xl mx-auto p-6 space-y-8 bg-white dark:bg-teal-900 font-inter">
         {/* Header */}
         <div className="bg-white dark:bg-teal-900 rounded-2xl shadow-lg border-t-4 border-teal-400 p-8">
           <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
