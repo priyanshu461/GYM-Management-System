@@ -14,12 +14,41 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
-      // Optionally verify token with backend
+      // Directly set authenticated if token exists, skipping verification
       setIsAuthenticated(true);
-      // You might want to decode token to get user info
     }
     setLoading(false);
   }, []);
+
+  // Verify token function
+  const verifyToken = async (token) => {
+    try {
+      const response = await fetch(`${BASE_API_URL}auth/verify`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setUser(data.user);
+        setIsAuthenticated(true);
+      } else {
+        // Token invalid, remove it
+        localStorage.removeItem('token');
+        setIsAuthenticated(false);
+        setUser(null);
+      }
+    } catch (error) {
+      console.error('Token verification error:', error);
+      localStorage.removeItem('token');
+      setIsAuthenticated(false);
+      setUser(null);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Login function
   const login = async (email, password) => {

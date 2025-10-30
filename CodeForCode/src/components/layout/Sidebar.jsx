@@ -424,14 +424,9 @@ const Sidebar = ({ demo = false, isOpen, onClose, collapsed, onToggleCollapse, c
               </div>
             )}
           </div>
-          <Link to="/NotificationCommunication">
-            <a
-            className="flex items-center gap-3 p-3 rounded-lg hover:teal-100 dark:hover:bg-teal-800 cursor-pointer text-sm text-teal-900 dark:text-white transition-colors duration-200"
-            href="#"
-          >
+          <Link to="/NotificationCommunication" className="flex items-center gap-3 p-3 rounded-lg hover:teal-100 dark:hover:bg-teal-800 cursor-pointer text-sm text-teal-900 dark:text-white transition-colors duration-200">
             <MdNotificationAdd size={18} className="text-teal-900 dark:text-white" />
             {(isOpen || !collapsed) && <span className="font-semibold">Notifications</span>}
-          </a>
           </Link>
           {demo ? (
             <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-3 rounded-lg hover:teal-100 dark:hover:bg-teal-800 cursor-pointer text-sm text-teal-900 dark:text-white transition-colors duration-200">

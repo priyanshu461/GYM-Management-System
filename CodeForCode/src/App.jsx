@@ -29,7 +29,17 @@ import Profile from './views/Profile'
 import ProductCreate from './views/Products/ProductCreate'
 
 function ProtectedRoute({ children }) {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, loading } = useAuth();
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-teal-200 via-teal-200 to-teal-100">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600 mx-auto"></div>
+          <p className="mt-4 text-teal-800">Verifying authentication...</p>
+        </div>
+      </div>
+    );
+  }
   return isAuthenticated ? children : <Navigate to="/login" />;
 }
 

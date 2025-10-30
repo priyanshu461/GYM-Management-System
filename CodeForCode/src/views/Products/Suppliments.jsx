@@ -94,20 +94,20 @@ export default function Suppliments() {
 
   return (
    <Layout>
-     <div className="min-h-screen bg-white text-gray-900">
+     <div className="min-h-screen bg-white dark:bg-teal-900 text-gray-900 dark:text-white">
       <div className="mx-auto max-w-7xl px-4 py-8">
         {/* Header */}
         <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Products</h1>
-            <p className="text-gray-600 text-sm mt-1">Pre, Intra, and Post workout supplements</p>
+            <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent dark:from-teal-400 dark:to-cyan-400">Products</h1>
+            <p className="text-gray-600 dark:text-gray-300 text-sm mt-1 font-medium">Pre, Intra, and Post workout supplements</p>
           </div>
           <div className="flex gap-2">
-            <button className="px-3 py-2 rounded-lg bg-gray-100 border border-gray-300 text-sm hover:bg-gray-200">High contrast</button>
+            <button className="px-3 py-2 rounded-lg bg-gray-100 dark:bg-teal-900 border border-gray-300 text-sm hover:bg-gray-200 dark:text-white">High contrast</button>
             <select
               value={sort}
               onChange={(e)=>setSort(e.target.value)}
-              className="px-3 py-2 rounded-lg bg-gray-100 border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              className="px-3 py-2 rounded-lg bg-gray-100 dark:bg-teal-900 border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:text-white"
             >
               <option value="featured">Sort: Featured</option>
               <option value="price-asc">Price: Low to High</option>
@@ -115,27 +115,27 @@ export default function Suppliments() {
               <option value="rating">Top Rated</option>
               <option value="stock">Stock: High to Low</option>
             </select>
-            <button onClick={()=>window.print()} className="px-3 py-2 rounded-lg bg-emerald-100 border border-emerald-300 text-emerald-800 text-sm hover:bg-emerald-200">Export</button>
+            <button onClick={()=>window.print()} className="px-3 py-2 rounded-lg bg-emerald-100 dark:bg-teal-900 border border-emerald-300 text-emerald-800 dark:text-white text-sm hover:bg-emerald-200">Export</button>
           </div>
         </div>
 
         {/* Stats */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-          <div className="rounded-2xl bg-gray-50 border border-gray-200 p-4">
-            <p className="text-gray-600 text-sm">Total products</p>
-            <p className="text-2xl font-semibold mt-1">{counts.total}</p>
+          <div className="rounded-2xl bg-gray-50 dark:bg-teal-900 border border-gray-200 p-4">
+            <p className="text-gray-600 dark:text-gray-300 text-sm font-medium">Total products</p>
+            <p className="text-2xl font-bold mt-1 text-gray-900 dark:text-white">{counts.total}</p>
           </div>
-          <div className="rounded-2xl bg-gray-50 border border-gray-200 p-4">
-            <p className="text-gray-600 text-sm">Pre workout</p>
-            <p className="text-2xl font-semibold mt-1">{counts.pre}</p>
+          <div className="rounded-2xl bg-gray-50 dark:bg-teal-900 border border-gray-200 p-4">
+            <p className="text-gray-600 dark:text-gray-300 text-sm font-medium">Pre workout</p>
+            <p className="text-2xl font-bold mt-1 text-gray-900 dark:text-white">{counts.pre}</p>
           </div>
-          <div className="rounded-2xl bg-gray-50 border border-gray-200 p-4">
-            <p className="text-gray-600 text-sm">Intra workout</p>
-            <p className="text-2xl font-semibold mt-1">{counts.intra}</p>
+          <div className="rounded-2xl bg-gray-50 dark:bg-teal-900 border border-gray-200 p-4">
+            <p className="text-gray-600 dark:text-gray-300 text-sm font-medium">Intra workout</p>
+            <p className="text-2xl font-bold mt-1 text-gray-900 dark:text-white">{counts.intra}</p>
           </div>
-          <div className="rounded-2xl bg-gray-50 border border-gray-200 p-4">
-            <p className="text-gray-600 text-sm">Out of stock</p>
-            <p className="text-2xl font-semibold mt-1">{counts.oos}</p>
+          <div className="rounded-2xl bg-gray-50 dark:bg-teal-900 border border-gray-200 p-4">
+            <p className="text-gray-600 dark:text-gray-300 text-sm font-medium">Out of stock</p>
+            <p className="text-2xl font-bold mt-1 text-gray-900 dark:text-white">{counts.oos}</p>
           </div>
         </div>
 
@@ -151,7 +151,7 @@ export default function Suppliments() {
               value={query}
               onChange={(e)=>setQuery(e.target.value)}
               placeholder="Search name, brand, flavor"
-              className="w-full md:w-96 px-4 py-2 rounded-xl bg-gray-50 border border-gray-300 text-sm placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              className="w-full md:w-96 px-4 py-2 rounded-xl bg-gray-50 dark:bg-teal-900 border border-gray-300 text-sm placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:text-white"
             />
           </div>
         </div>
@@ -160,7 +160,7 @@ export default function Suppliments() {
         <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {list.map(p => (
             <li key={p.id} className="group">
-              <div className="rounded-2xl overflow-hidden bg-gray-50 border border-gray-200 shadow-lg">
+              <div className="rounded-2xl overflow-hidden bg-gray-50 dark:bg-teal-900 border border-gray-200 shadow-lg">
                 <div className="relative">
                   <img src={p.image} alt={p.name} className="h-48 w-full object-cover" loading="lazy" />
                   <div className="absolute top-2 left-2 text-xs px-2 py-1 rounded-full bg-gray-800 text-white border border-gray-600">{p.category}</div>
@@ -169,18 +169,18 @@ export default function Suppliments() {
                   )}
                 </div>
                 <div className="p-4">
-                  <h3 className="font-semibold leading-tight text-gray-900">{p.name}</h3>
-                  <p className="text-xs text-gray-600 mt-0.5">{p.brand} • {p.flavor}</p>
+                  <h3 className="font-semibold leading-tight text-gray-900 dark:text-white">{p.name}</h3>
+                  <p className="text-xs text-gray-600 dark:text-gray-300 mt-0.5">{p.brand} • {p.flavor}</p>
                   <div className="mt-2 flex items-center justify-between">
                     <Rating value={p.rating} />
-                    <span className="text-xs text-gray-600">{p.servings} servings</span>
+                    <span className="text-xs text-gray-600 dark:text-gray-300">{p.servings} servings</span>
                   </div>
                   <div className="mt-3 flex items-center justify-between">
-                    <span className="text-lg font-semibold text-gray-900">${p.price.toFixed(2)}</span>
+                    <span className="text-lg font-semibold text-gray-900 dark:text-white">${p.price.toFixed(2)}</span>
                     <button
                       disabled={p.stock===0}
                       onClick={()=>alert(`Added ${p.name} to cart`)}
-                      className="px-3 py-2 text-sm rounded-lg bg-emerald-100 border border-emerald-300 text-emerald-800 hover:bg-emerald-200 disabled:opacity-50"
+                      className="px-3 py-2 text-sm rounded-lg bg-emerald-100 dark:bg-teal-900 border border-emerald-300 text-emerald-800 dark:text-white hover:bg-emerald-200 dark:hover:bg-teal-800 disabled:opacity-50"
                     >
                       Add to cart
                     </button>

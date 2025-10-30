@@ -1,6 +1,6 @@
-# TODO: Fix Error Message Display in Login.jsx
+# TODO: Add Dark Mode to Suppliments.jsx and Profile.jsx
 
-- [x] Correct the useState declaration for errorMessage to [errorMessage, setErrorMessage]
-- [x] Add display of errorMessage in the UI below the form header
-- [x] Add setErrorMessage('') on password change for consistency
-- [x] Fix syntax errors and ensure proper JSX structure
+## Tasks
+- [ ] Update Suppliments.jsx with dark mode variants
+- [ ] Update Profile.jsx with dark mode variants
+- [ ] Test dark mode toggle after changes

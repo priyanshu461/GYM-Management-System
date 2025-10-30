@@ -3,6 +3,7 @@ const bcrypt = require("bcrypt");
 const User = require("./models/UserModel");
 const Role = require("./models/RoleModel");
 require("dotenv").config();
+require("./lib/db"); // Ensure database connection
 
 async function seedDatabase() {
   try {

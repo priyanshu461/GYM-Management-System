@@ -12,7 +12,7 @@ const Layout = ({children}) => {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground relative">
+    <div className="min-h-screen bg-background dark:bg-teal-900 text-foreground relative">
       {/* Mobile Sidebar Overlay */}
       {isMobileSidebarOpen && (
         <div
