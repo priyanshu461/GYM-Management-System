@@ -9,13 +9,13 @@ import { useTheme } from "../contexts/ThemeContext";
 // Tailwind only. No TypeScript.
 
 const seedTickets = [
-  { id: "GB-1042", subject: "App not logging workouts", member: "Aarav S.", club: "Hyderabad", priority: "High", status: "Open", created: "2025-10-01 09:34", updated: "2025-10-03 14:12", assignee: "Vikram", category: "App", replies: 2 },
-  { id: "GB-1041", subject: "Refund for canceled class", member: "Nisha K.", club: "Agra", priority: "Medium", status: "Pending", created: "2025-10-01 08:02", updated: "2025-10-02 11:51", assignee: "Maya", category: "Billing", replies: 3 },
-  { id: "GB-1039", subject: "Door access not working", member: "Rahul P.", club: "Delhi", priority: "Urgent", status: "Open", created: "2025-09-30 18:11", updated: "2025-10-01 07:41", assignee: "Aisha", category: "Facilities", replies: 1 },
-  { id: "GB-1038", subject: "PT session reschedule", member: "Sanya R.", club: "Hyderabad", priority: "Low", status: "Resolved", created: "2025-09-29 10:19", updated: "2025-09-29 13:44", assignee: "Vikram", category: "Training", replies: 2 },
-  { id: "GB-1035", subject: "Unable to renew membership", member: "Zara A.", club: "Agra", priority: "High", status: "Open", created: "2025-09-28 15:03", updated: "2025-09-30 12:15", assignee: "—", category: "Billing", replies: 0 },
-  { id: "GB-1032", subject: "Steam room temperature", member: "Club: Delhi", club: "Delhi", priority: "Medium", status: "Pending", created: "2025-09-26 12:33", updated: "2025-09-27 09:10", assignee: "Ops", category: "Facilities", replies: 5 },
-  { id: "GB-1027", subject: "Diet plan not syncing", member: "Ritika", club: "Online", priority: "Low", status: "Resolved", created: "2025-09-23 16:45", updated: "2025-09-24 08:55", assignee: "Maya", category: "App", replies: 4 },
+  { id: "GB-1042", subject: "App not logging workouts", member: "Aarav S.", club: "Hyderabad", priority: "High", status: "Open", created: "2025-10-01 09:34", updated: "2025-10-03 14:12", assignee: "Vikram", category: "App", replies: [{author: "Vikram", time: "2025-10-03 14:12", message: "We're looking into this issue. Please provide more details about your device."}, {author: "Aarav S.", time: "2025-10-03 13:45", message: "I'm using an iPhone 12 with the latest app version."}] },
+  { id: "GB-1041", subject: "Refund for canceled class", member: "Nisha K.", club: "Agra", priority: "Medium", status: "Pending", created: "2025-10-01 08:02", updated: "2025-10-02 11:51", assignee: "Maya", category: "Billing", replies: [{author: "Maya", time: "2025-10-02 11:51", message: "Refund processed."}, {author: "Nisha K.", time: "2025-10-02 10:30", message: "Thank you."}, {author: "Maya", time: "2025-10-01 09:00", message: "Checking your request."}] },
+  { id: "GB-1039", subject: "Door access not working", member: "Rahul P.", club: "Delhi", priority: "Urgent", status: "Open", created: "2025-09-30 18:11", updated: "2025-10-01 07:41", assignee: "Aisha", category: "Facilities", replies: [{author: "Aisha", time: "2025-10-01 07:41", message: "Access card reset."}] },
+  { id: "GB-1038", subject: "PT session reschedule", member: "Sanya R.", club: "Hyderabad", priority: "Low", status: "Resolved", created: "2025-09-29 10:19", updated: "2025-09-29 13:44", assignee: "Vikram", category: "Training", replies: [{author: "Vikram", time: "2025-09-29 13:44", message: "Session rescheduled."}, {author: "Sanya R.", time: "2025-09-29 11:00", message: "Thanks."}] },
+  { id: "GB-1035", subject: "Unable to renew membership", member: "Zara A.", club: "Agra", priority: "High", status: "Open", created: "2025-09-28 15:03", updated: "2025-09-30 12:15", assignee: "—", category: "Billing", replies: [] },
+  { id: "GB-1032", subject: "Steam room temperature", member: "Club: Delhi", club: "Delhi", priority: "Medium", status: "Pending", created: "2025-09-26 12:33", updated: "2025-09-27 09:10", assignee: "Ops", category: "Facilities", replies: [{author: "Ops", time: "2025-09-27 09:10", message: "Temperature adjusted."}, {author: "Member", time: "2025-09-27 08:00", message: "Too hot."}, {author: "Ops", time: "2025-09-26 13:00", message: "Checking."}, {author: "Member", time: "2025-09-26 12:45", message: "Issue persists."}, {author: "Ops", time: "2025-09-26 12:40", message: "Noted."}] },
+  { id: "GB-1027", subject: "Diet plan not syncing", member: "Ritika", club: "Online", priority: "Low", status: "Resolved", created: "2025-09-23 16:45", updated: "2025-09-24 08:55", assignee: "Maya", category: "App", replies: [{author: "Maya", time: "2025-09-24 08:55", message: "Sync fixed."}, {author: "Ritika", time: "2025-09-24 08:00", message: "Working now."}, {author: "Maya", time: "2025-09-23 17:00", message: "Restart app."}, {author: "Ritika", time: "2025-09-23 16:50", message: "Tried."}] },
 ];
 
 export default function SupportTickets() {
@@ -30,6 +30,7 @@ export default function SupportTickets() {
   const [selected, setSelected] = useState([]);
   const [drawer, setDrawer] = useState(null); // ticket id or null
   const [composeOpen, setComposeOpen] = useState(false);
+  const [automationOpen, setAutomationOpen] = useState(false);
   const [highContrast, setHighContrast] = useState(false);
 
   const stats = useMemo(() => {
@@ -73,10 +74,24 @@ export default function SupportTickets() {
   function createTicket(data) {
     const id = `GB-${(1000 + Math.floor(Math.random()*9000))}`;
     const now = new Date().toISOString().slice(0,16).replace('T',' ');
-    const t = { id, subject: data.subject, member: data.member || "—", club: data.club || "Online", priority: data.priority || "Medium", status: "Open", created: now, updated: now, assignee: data.assignee || "—", category: data.category || "App", replies: 0 };
+    const t = { id, subject: data.subject, member: data.member || "—", club: data.club || "Online", priority: data.priority || "Medium", status: "Open", created: now, updated: now, assignee: data.assignee || "—", category: data.category || "App", replies: [] };
     setTickets([t, ...tickets]);
     setComposeOpen(false);
     setDrawer(id);
+  }
+
+  function exportTickets() {
+    const csv = [
+      ["ID", "Subject", "Member", "Club", "Priority", "Status", "Created", "Updated", "Assignee", "Category"],
+      ...filtered.map(t => [t.id, t.subject, t.member, t.club, t.priority, t.status, t.created, t.updated, t.assignee, t.category])
+    ].map(row => row.join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "support-tickets.csv";
+    a.click();
+    URL.revokeObjectURL(url);
   }
 
   return (
@@ -189,7 +204,7 @@ export default function SupportTickets() {
         <motion.div className={`mt-6 flex items-center justify-between text-sm ${theme === 'dark' ? 'text-teal-300' : 'text-gray-600'}`} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.8 }}>
           <div>{filtered.length} tickets</div>
           <div className="flex items-center gap-2">
-            <motion.button className={`rounded-xl px-3 py-2 hover:bg-opacity-80 ${theme === 'dark' ? 'bg-teal-700 text-teal-100 hover:bg-teal-600' : 'bg-gray-200 text-gray-900 hover:bg-gray-300'}`} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>Export</motion.button>
+            <motion.button onClick={exportTickets} className={`rounded-xl px-3 py-2 hover:bg-opacity-80 ${theme === 'dark' ? 'bg-teal-700 text-teal-100 hover:bg-teal-600' : 'bg-gray-200 text-gray-900 hover:bg-gray-300'}`} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>Export</motion.button>
             <motion.button className={`rounded-xl px-3 py-2 hover:bg-opacity-80 ${theme === 'dark' ? 'bg-teal-700 text-teal-100 hover:bg-teal-600' : 'bg-gray-200 text-gray-900 hover:bg-gray-300'}`} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>Automation</motion.button>
           </div>
         </motion.div>
@@ -236,17 +251,14 @@ function TicketDrawer({ ticket, onClose, onUpdate }) {
           <Info label="Updated" value={ticket.updated} />
         </div>
         <div className="mb-4">
-          <h4 className="text-sm font-semibold mb-2">Replies ({ticket.replies})</h4>
+          <h4 className="text-sm font-semibold mb-2">Replies ({ticket.replies.length})</h4>
           <div className="space-y-3 max-h-64 overflow-y-auto">
-            {/* Mock replies */}
-            <div className="rounded-xl border border-white/10 bg-teal-100/60 p-3">
-              <div className="text-xs text-slate-400">Vikram • 2025-10-03 14:12</div>
-              <div className="text-sm mt-1">We're looking into this issue. Please provide more details about your device.</div>
-            </div>
-            <div className="rounded-xl border border-white/10 bg-teal-100/60 p-3">
-              <div className="text-xs text-slate-400">Aarav S. • 2025-10-03 13:45</div>
-              <div className="text-sm mt-1">I'm using an iPhone 12 with the latest app version.</div>
-            </div>
+            {ticket.replies.map((reply, index) => (
+              <div key={index} className="rounded-xl border border-white/10 bg-teal-100/60 p-3">
+                <div className="text-xs text-slate-400">{reply.author} • {reply.time}</div>
+                <div className="text-sm mt-1">{reply.message}</div>
+              </div>
+            ))}
           </div>
         </div>
         <div className="grid grid-cols-2 gap-3 mb-4">
@@ -289,22 +301,22 @@ function ComposeModal({ onClose, onCreate }) {
 
   return (
     <div className="fixed inset-0 z-50 grid place-items-center bg-teal-50/70 p-4">
-      <div className="w-full max-w-2xl rounded-2xl border border-white/10 bg-teal-200 p-5">
+      <div className="w-full max-w-2xl rounded-2xl border border-white/10 bg-teal-100 p-5">
         <div className="mb-3 flex items-center justify-between">
-          <h3 className="text-lg font-semibold">Create ticket</h3>
-          <button onClick={onClose} className="rounded-lg bg-slate-700 px-3 py-1 text-xs">Close</button>
+          <h3 className="text-lg font-semibold text-teal-900">Create ticket</h3>
+          <button onClick={onClose} className="rounded-lg bg-teal-200 px-3 py-1 text-xs text-teal-900 hover:bg-teal-300">Close</button>
         </div>
         <div className="grid grid-cols-2 gap-3">
-          <input value={subject} onChange={e=>setSubject(e.target.value)} placeholder="Subject" className="col-span-2 rounded-xl bg-teal-100 px-3 py-2 text-sm ring-1 ring-white/10" />
-          <input value={member} onChange={e=>setMember(e.target.value)} placeholder="Member name" className="rounded-xl bg-teal-100 px-3 py-2 text-sm ring-1 ring-white/10" />
-          <input value={club} onChange={e=>setClub(e.target.value)} placeholder="Club or location" className="rounded-xl bg-teal-100 px-3 py-2 text-sm ring-1 ring-white/10" />
-          <select value={priority} onChange={e=>setPriority(e.target.value)} className="rounded-xl bg-teal-100 px-3 py-2 text-sm ring-1 ring-white/10"><option>Urgent</option><option>High</option><option>Medium</option><option>Low</option></select>
-          <select value={category} onChange={e=>setCategory(e.target.value)} className="rounded-xl bg-teal-100 px-3 py-2 text-sm ring-1 ring-white/10"><option>Billing</option><option>App</option><option>Facilities</option><option>Training</option></select>
-          <input value={assignee} onChange={e=>setAssignee(e.target.value)} placeholder="Assign to" className="rounded-xl bg-teal-100 px-3 py-2 text-sm ring-1 ring-white/10" />
+          <input value={subject} onChange={e=>setSubject(e.target.value)} placeholder="Subject" className="col-span-2 rounded-xl bg-teal-100 px-3 py-2 text-sm text-gray-900 ring-1 ring-white/10" />
+          <input value={member} onChange={e=>setMember(e.target.value)} placeholder="Member name" className="rounded-xl bg-teal-100 px-3 py-2 text-sm text-gray-900 ring-1 ring-white/10" />
+          <input value={club} onChange={e=>setClub(e.target.value)} placeholder="Club or location" className="rounded-xl bg-teal-100 px-3 py-2 text-sm text-gray-900 ring-1 ring-white/10" />
+          <select value={priority} onChange={e=>setPriority(e.target.value)} className="rounded-xl bg-teal-100 px-3 py-2 text-sm text-gray-900 ring-1 ring-white/10"><option>Urgent</option><option>High</option><option>Medium</option><option>Low</option></select>
+          <select value={category} onChange={e=>setCategory(e.target.value)} className="rounded-xl bg-teal-100 px-3 py-2 text-sm text-gray-900 ring-1 ring-white/10"><option>Billing</option><option>App</option><option>Facilities</option><option>Training</option></select>
+          <input value={assignee} onChange={e=>setAssignee(e.target.value)} placeholder="Assign to" className="rounded-xl bg-teal-100 px-3 py-2 text-sm text-gray-900 ring-1 ring-white/10" />
         </div>
         <div className="mt-4 flex items-center justify-end gap-2">
-          <button onClick={onClose} className="rounded-xl bg-slate-700 px-4 py-2 text-sm">Cancel</button>
-          <button onClick={submit} className="rounded-xl bg-emerald-500 px-4 py-2 text-sm font-semibold text-emerald-950 shadow-lg shadow-emerald-500/30">Create</button>
+          <button onClick={onClose} className="rounded-xl bg-teal-200 px-4 py-2 text-sm text-teal-900 hover:bg-teal-300">Cancel</button>
+          <button onClick={submit} className="rounded-xl bg-teal-600 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-teal-600/30 hover:bg-teal-700">Create</button>
         </div>
       </div>
     </div>

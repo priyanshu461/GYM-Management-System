@@ -14,17 +14,21 @@ import {
   DollarSign,
   Calendar,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import Layout from "../components/Layout";
 import { useTheme } from "../contexts/ThemeContext";
 import gymServices from "@/services/gymServices";
+import { BASE_API_URL } from "@/Utils/data";
 
 const Dashboard = () => {
   // Sample token for demonstration
   const { theme } = useTheme();
+  const navigate = useNavigate();
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [stats, setStats] = useState([]);
   const [topProducts, setTopProducts] = useState([]);
   const [orders, setOrders] = useState([]);
+  const [salesData, setSalesData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [statsIcons, setStatsIcons] = useState({});
@@ -33,8 +37,7 @@ const Dashboard = () => {
 
   const fetchStates = async () => {
     try {
-      const parms = {};
-      const res = await gymServices.getStats(parms);
+      const res = await gymServices.getStats();
       setStats(res.stats || []);
     } catch (err) {
       setError(err.message);
@@ -46,8 +49,7 @@ const Dashboard = () => {
 
   const fetchTopProducts = async () => {
     try {
-      const parms = { isTop: true };
-      const res = await gymServices.getProducts(parms);
+      const res = await gymServices.getProducts();
       setTopProducts(res.stats || []);
     } catch (err) {
       setError(err.message);
@@ -69,10 +71,32 @@ const Dashboard = () => {
     }
   };
 
+  const fetchSalesOverview = async () => {
+    try {
+      const res = await fetch(`${BASE_API_URL}dashboard/sales-overview`, {
+        headers: { Authorization: localStorage.getItem('token') },
+      });
+      if (!res.ok) {
+        throw new Error('Failed to fetch sales overview');
+      }
+      const data = await res.json();
+      setSalesData(data);
+    } catch (err) {
+      console.error('Error fetching sales overview:', err);
+      // Fallback to sample data
+      setSalesData([
+        { date: "2025-09-01", sales: 12000 },
+        { date: "2025-09-02", sales: 15000 },
+        { date: "2025-09-03", sales: 18000 },
+      ]);
+    }
+  };
+
   useEffect(() => {
     fetchStates();
     fetchTopProducts();
     fetchOrders();
+    fetchSalesOverview();
   }, []);
 
   const quickActions = [
@@ -150,10 +174,10 @@ const Dashboard = () => {
               >
                 <div className="flex items-center justify-between mb-4">
                   <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-teal-600 to-teal-500 flex items-center justify-center shadow-lg">
-                    {s.title === 'Total Members' && <Users size={20} className="text-white" />}
-                    {s.title === 'Active Trainers' && <UserCheck size={20} className="text-white" />}
-                    {s.title === 'Revenue This Month' && <DollarSign size={20} className="text-white" />}
-                    {s.title === 'Classes Today' && <Calendar size={20} className="text-white" />}
+                    {s.icon === 'DollarSign' && <DollarSign size={20} className="text-white" />}
+                    {s.icon === 'Box' && <Box size={20} className="text-white" />}
+                    {s.icon === 'Users' && <Users size={20} className="text-white" />}
+                    {s.icon === 'TrendingUp' && <TrendingUp size={20} className="text-white" />}
                   </div>
                   <div
                     className={`flex items-center gap-1 text-sm font-medium ${
@@ -200,41 +224,61 @@ const Dashboard = () => {
                 </div>
               </div>
 
-              {/* Enhanced SVG chart */}
+              {/* Dynamic Chart */}
               <div className="w-full h-48 mb-6 bg-gradient-to-r from-teal-900/5 to-teal-800/5 dark:from-teal-900/10 dark:to-teal-800/10 rounded-xl p-4 border border-teal-700/10 dark:border-teal-600/20">
-                <svg
-                  className="w-full h-full"
-                  viewBox="0 0 600 160"
-                  preserveAspectRatio="none"
-                >
-                  <defs>
-                    <linearGradient
-                      id="chartGradient"
-                      x1="0%"
-                      y1="0%"
-                      x2="100%"
-                      y2="0%"
-                    >
-                      <stop offset="0%" stopColor="#14b8a6" stopOpacity="0.3" />
-                      <stop
-                        offset="100%"
-                        stopColor="#14b8a6"
-                        stopOpacity="0.8"
-                      />
-                    </linearGradient>
-                  </defs>
-                  <polyline
-                    fill="none"
-                    stroke="#14b8a6"
-                    strokeWidth="4"
-                    points="0,120 80,100 160,80 240,95 320,60 400,72 480,40 560,55 600,30"
-                  />
-                  <polyline
-                    fill="url(#chartGradient)"
-                    stroke="none"
-                    points="0,120 80,100 160,80 240,95 320,60 400,72 480,40 560,55 600,30 600,160 0,160"
-                  />
-                </svg>
+                {salesData.length > 0 ? (
+                  <svg
+                    className="w-full h-full"
+                    viewBox="0 0 600 160"
+                    preserveAspectRatio="none"
+                  >
+                    <defs>
+                      <linearGradient
+                        id="chartGradient"
+                        x1="0%"
+                        y1="0%"
+                        x2="100%"
+                        y2="0%"
+                      >
+                        <stop offset="0%" stopColor="#14b8a6" stopOpacity="0.3" />
+                        <stop
+                          offset="100%"
+                          stopColor="#14b8a6"
+                          stopOpacity="0.8"
+                        />
+                      </linearGradient>
+                    </defs>
+                    {/* Generate dynamic points from salesData */}
+                    <polyline
+                      fill="none"
+                      stroke="#14b8a6"
+                      strokeWidth="4"
+                      points={salesData.map((point, index) => {
+                        const x = (index / (salesData.length - 1)) * 600;
+                        const maxSales = Math.max(...salesData.map(d => d.sales));
+                        const y = 160 - (point.sales / maxSales) * 120; // Scale to fit height
+                        return `${x},${y}`;
+                      }).join(' ')}
+                    />
+                    <polyline
+                      fill="url(#chartGradient)"
+                      stroke="none"
+                      points={`${salesData.map((point, index) => {
+                        const x = (index / (salesData.length - 1)) * 600;
+                        const maxSales = Math.max(...salesData.map(d => d.sales));
+                        const y = 160 - (point.sales / maxSales) * 120;
+                        return `${x},${y}`;
+                      }).join(' ')} 600,160 0,160`}
+                    />
+                  </svg>
+                ) : (
+                  <div className="flex items-center justify-center h-full text-muted-foreground">
+                    <div className="text-center">
+                      <BarChart className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                      <p>No sales data available</p>
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -342,6 +386,15 @@ const Dashboard = () => {
                     transition={{ delay: 0.8 + index * 0.1 }}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
+                    onClick={() => {
+                      if (action.title === "Add product") {
+                        navigate("/products");
+                      } else if (action.title === "View reports") {
+                        navigate("/reportsAnalytics");
+                      } else if (action.title === "Send promo") {
+                        navigate("/NotificationCommunication");
+                      }
+                    }}
                     className="flex items-center justify-between p-4 rounded-xl bg-background border border-border hover:bg-gradient-to-r hover:from-teal-900/5 hover:to-teal-800/5 dark:hover:from-teal-900/10 dark:hover:to-teal-800/10 transition-all duration-200 group"
                   >
                     <div className="flex items-center gap-3">

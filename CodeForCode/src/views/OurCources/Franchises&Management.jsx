@@ -1,10 +1,88 @@
 import React, { useState } from "react";
 import Layout from "../../components/Layout";
 import { useTheme } from "../../contexts/ThemeContext";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../../components/ui/dialog";
+import { Input } from "../../components/ui/input";
+import { Button } from "../../components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../../components/ui/select";
+import gymServices from "../../services/gymServices";
 
 const FranchiseAndMembership = () => {
   const { theme } = useTheme();
   const [activeTab, setActiveTab] = useState("franchise");
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState("");
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    mobile: "",
+    aadharNo: "",
+    address: "",
+    emergencyContact: "",
+    dob: "",
+    gender: "",
+    occupation: "",
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitMessage, setSubmitMessage] = useState("");
+
+  const handleJoinNow = (planName) => {
+    setSelectedPlan(planName);
+    setIsDialogOpen(true);
+  };
+
+  const handleFormChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setSubmitMessage("");
+
+    try {
+      const customerData = {
+        ...formData,
+        plan: selectedPlan,
+      };
+      await gymServices.addCustomer(customerData);
+      setSubmitMessage("Membership registered successfully!");
+      setFormData({
+        name: "",
+        email: "",
+        mobile: "",
+        aadharNo: "",
+        address: "",
+        emergencyContact: "",
+        dob: "",
+        gender: "",
+        occupation: "",
+      });
+      setTimeout(() => {
+        setIsDialogOpen(false);
+        setSubmitMessage("");
+      }, 2000);
+    } catch (error) {
+      setSubmitMessage("Failed to register membership. Please try again.");
+      console.error("Error registering membership:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const franchiseData = [
     {
@@ -182,13 +260,166 @@ const FranchiseAndMembership = () => {
                     <li key={i}>• {benefit}</li>
                   ))}
                 </ul>
-                <button className="bg-teal-600 text-white font-semibold px-5 py-2 rounded-full hover:bg-teal-700 transition">
+                <button
+                  onClick={() => handleJoinNow(plan.name)}
+                  className="bg-teal-600 text-white font-semibold px-5 py-2 rounded-full hover:bg-teal-700 transition"
+                >
                   Join Now
                 </button>
               </div>
             ))}
           </div>
         )}
+
+        {/* Membership Signup Dialog */}
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogContent className={`sm:max-w-[500px] ${theme === 'dark' ? 'bg-teal-800 text-white' : 'bg-white'}`}>
+            <DialogHeader>
+              <DialogTitle className={theme === 'dark' ? 'text-teal-100' : 'text-teal-800'}>
+                Join {selectedPlan}
+              </DialogTitle>
+              <DialogDescription className={theme === 'dark' ? 'text-teal-300' : 'text-slate-600'}>
+                Fill in your details to register for the membership.
+              </DialogDescription>
+            </DialogHeader>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className={`block text-sm font-medium mb-1 ${theme === 'dark' ? 'text-teal-100' : 'text-teal-800'}`}>
+                    Full Name *
+                  </label>
+                  <Input
+                    name="name"
+                    value={formData.name}
+                    onChange={handleFormChange}
+                    required
+                    className={theme === 'dark' ? 'bg-teal-700 border-teal-600 text-teal-100' : ''}
+                  />
+                </div>
+                <div>
+                  <label className={`block text-sm font-medium mb-1 ${theme === 'dark' ? 'text-teal-100' : 'text-teal-800'}`}>
+                    Email
+                  </label>
+                  <Input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleFormChange}
+                    className={theme === 'dark' ? 'bg-teal-700 border-teal-600 text-teal-100' : ''}
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className={`block text-sm font-medium mb-1 ${theme === 'dark' ? 'text-teal-100' : 'text-teal-800'}`}>
+                    Mobile *
+                  </label>
+                  <Input
+                    name="mobile"
+                    value={formData.mobile}
+                    onChange={handleFormChange}
+                    required
+                    className={theme === 'dark' ? 'bg-teal-700 border-teal-600 text-teal-100' : ''}
+                  />
+                </div>
+                <div>
+                  <label className={`block text-sm font-medium mb-1 ${theme === 'dark' ? 'text-teal-100' : 'text-teal-800'}`}>
+                    Aadhar Number *
+                  </label>
+                  <Input
+                    name="aadharNo"
+                    value={formData.aadharNo}
+                    onChange={handleFormChange}
+                    required
+                    className={theme === 'dark' ? 'bg-teal-700 border-teal-600 text-teal-100' : ''}
+                  />
+                </div>
+              </div>
+              <div>
+                <label className={`block text-sm font-medium mb-1 ${theme === 'dark' ? 'text-teal-100' : 'text-teal-800'}`}>
+                  Address
+                </label>
+                <Input
+                  name="address"
+                  value={formData.address}
+                  onChange={handleFormChange}
+                  className={theme === 'dark' ? 'bg-teal-700 border-teal-600 text-teal-100' : ''}
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className={`block text-sm font-medium mb-1 ${theme === 'dark' ? 'text-teal-100' : 'text-teal-800'}`}>
+                    Emergency Contact
+                  </label>
+                  <Input
+                    name="emergencyContact"
+                    value={formData.emergencyContact}
+                    onChange={handleFormChange}
+                    className={theme === 'dark' ? 'bg-teal-700 border-teal-600 text-teal-100' : ''}
+                  />
+                </div>
+                <div>
+                  <label className={`block text-sm font-medium mb-1 ${theme === 'dark' ? 'text-teal-100' : 'text-teal-800'}`}>
+                    Date of Birth
+                  </label>
+                  <Input
+                    type="date"
+                    name="dob"
+                    value={formData.dob}
+                    onChange={handleFormChange}
+                    className={theme === 'dark' ? 'bg-teal-700 border-teal-600 text-teal-100' : ''}
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className={`block text-sm font-medium mb-1 ${theme === 'dark' ? 'text-teal-100' : 'text-teal-800'}`}>
+                    Gender
+                  </label>
+                  <Select onValueChange={(value) => setFormData({ ...formData, gender: value })}>
+                    <SelectTrigger className={theme === 'dark' ? 'bg-teal-700 border-teal-600 text-teal-100' : ''}>
+                      <SelectValue placeholder="Select gender" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Male">Male</SelectItem>
+                      <SelectItem value="Female">Female</SelectItem>
+                      <SelectItem value="Other">Other</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <label className={`block text-sm font-medium mb-1 ${theme === 'dark' ? 'text-teal-100' : 'text-teal-800'}`}>
+                    Occupation
+                  </label>
+                  <Input
+                    name="occupation"
+                    value={formData.occupation}
+                    onChange={handleFormChange}
+                    className={theme === 'dark' ? 'bg-teal-700 border-teal-600 text-teal-100' : ''}
+                  />
+                </div>
+              </div>
+              {submitMessage && (
+                <p className={`text-sm ${submitMessage.includes('successfully') ? 'text-green-600' : 'text-red-600'}`}>
+                  {submitMessage}
+                </p>
+              )}
+              <DialogFooter>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsDialogOpen(false)}
+                  disabled={isSubmitting}
+                >
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={isSubmitting}>
+                  {isSubmitting ? "Registering..." : "Register Membership"}
+                </Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
       </section>
     </Layout>
   );

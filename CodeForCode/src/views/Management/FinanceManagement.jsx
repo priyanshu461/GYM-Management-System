@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Layout from "../../components/Layout";
 import { motion } from "framer-motion";
-import { Plus, DollarSign, TrendingUp, TrendingDown, Calendar, FileText, Edit3, Trash2, X } from "lucide-react";
+import { Plus, DollarSign, TrendingUp, TrendingDown, Calendar, FileText, Edit3, Trash2, X, Tag } from "lucide-react";
 
 const Finance = () => {
   const [transactions, setTransactions] = useState([
@@ -118,25 +118,28 @@ const Finance = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
-          className="overflow-x-auto bg-background border border-border rounded-2xl shadow-xl"
+          className="overflow-x-auto bg-background border border-border rounded-2xl shadow-xl "
         >
           <table className="w-full text-left border-collapse">
-            <thead className="bg-gradient-to-r from-teal-600 to-teal-500">
+            <thead className="bg-gradient-to-r from-teal-600 to-teal-500 w-full  ">
               <tr>
-                <th className="px-6 py-4 text-white font-semibold flex items-center gap-2">
+                <th className="px-6 py-4 text-left text-white font-semibold  items-center gap-2">
                   <Calendar className="w-4 h-4" />
                   Date
                 </th>
-                <th className="px-6 py-4 text-white font-semibold">Type</th>
-                <th className="px-6 py-4 text-white font-semibold flex items-center gap-2">
+                <th className="px-6 py-4 text-left text-white font-semibold  items-center gap-2">
+                  <Tag className="w-4 h-4" />
+                  Type
+                </th>
+                <th className="px-6 py-4 text-left text-white font-semibold  items-center gap-2">
                   <DollarSign className="w-4 h-4" />
                   Amount
                 </th>
-                <th className="px-6 py-4 text-white font-semibold flex items-center gap-2">
+                <th className="px-6 py-4 text-left text-white font-semibold  items-center gap-2">
                   <FileText className="w-4 h-4" />
                   Description
                 </th>
-                <th className="px-6 py-4 text-white font-semibold text-center">Actions</th>
+                <th className="px-6 pl-40 py-4 text-left text-white font-semibold">Actions</th>
               </tr>
             </thead>
             <tbody>

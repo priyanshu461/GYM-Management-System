@@ -1,4 +1,3 @@
-const { MongoMemoryServer } = require('mongodb-memory-server');
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const User = require("./models/UserModel");
@@ -6,17 +5,10 @@ const Role = require("./models/RoleModel");
 require("dotenv").config();
 
 async function seedDatabase() {
-  let mongoServer;
-
   try {
-    // Start in-memory MongoDB server
-    mongoServer = await MongoMemoryServer.create();
-    const mongoUri = mongoServer.getUri();
-    console.log("In-memory MongoDB started at:", mongoUri);
-
-    // Connect to the in-memory database
-    await mongoose.connect(mongoUri);
-    console.log("Connected to in-memory MongoDB");
+    // Connect to the database using the same connection string as the main app
+    await mongoose.connect("mongodb+srv://rathorenisha397_db_user:FyD450e9i4dRHZyD@userdata.x6f1kdi.mongodb.net/");
+    console.log("Connected to MongoDB");
 
     // Create roles if they don't exist
     const adminRole = await Role.findOneAndUpdate(
@@ -84,23 +76,15 @@ async function seedDatabase() {
     console.log("- Trainer: trainer@gym.com / trainer123");
 
     console.log("Database seeded successfully!");
-    console.log("In-memory database is running. Press Ctrl+C to stop.");
-
-    // Keep the server running for testing
-    process.on('SIGINT', async () => {
-      console.log("Shutting down...");
-      await mongoose.connection.close();
-      await mongoServer.stop();
-      process.exit(0);
-    });
 
   } catch (error) {
     console.error("Error seeding database:", error);
-    if (mongoServer) {
-      await mongoServer.stop();
-    }
     process.exit(1);
+  } finally {
+    await mongoose.connection.close();
+    console.log("Database connection closed.");
   }
 }
 
+// Run the seed function
 seedDatabase();

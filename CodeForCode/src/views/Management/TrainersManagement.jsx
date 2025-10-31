@@ -358,14 +358,27 @@ export default function Trainer() {
                     onChange={handleChange}
                     className="w-full bg-background border border-input text-foreground rounded-xl px-4 py-3 placeholder:text-muted-foreground focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all"
                   />
-                  <input
-                    type="url"
-                    name="image"
-                    placeholder="Profile Image URL"
-                    value={formData.image}
-                    onChange={handleChange}
-                    className="w-full bg-background border border-input text-foreground rounded-xl px-4 py-3 placeholder:text-muted-foreground focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all"
-                  />
+                  <div className="relative">
+                    <input
+                      type="file"
+                      name="image"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files[0];
+                        if (file) {
+                          const reader = new FileReader();
+                          reader.onload = (e) => {
+                            setFormData({ ...formData, image: e.target.result });
+                          };
+                          reader.readAsDataURL(file);
+                        }
+                      }}
+                      className="w-full bg-background border border-input text-foreground rounded-xl px-4 py-3 placeholder:text-muted-foreground focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-teal-50 file:text-teal-700 hover:file:bg-teal-100 dark:file:bg-teal-900 dark:file:text-teal-200 dark:hover:file:bg-teal-800"
+                    />
+                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">
+                      📁
+                    </div>
+                  </div>
                   <div className="flex justify-end gap-3 pt-4">
                     <motion.button
                       whileHover={{ scale: 1.02 }}

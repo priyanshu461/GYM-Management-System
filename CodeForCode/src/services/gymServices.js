@@ -4,23 +4,32 @@ const gymServices = {};
 
 gymServices.getStats = async (data) => {
   try {
-    // Simulate fetching stats data
     const res = await fetch(`${BASE_API_URL}dashboard/stats`, {
       headers: { Authorization: `Bearer ${TOKEN}` },
     });
     if (!res.ok) {
       throw new Error('Failed to fetch stats');
     }
-    return await res.json();
+    const stats = await res.json();
+    // Map backend stats to frontend expected format
+    const mappedStats = stats.map(stat => {
+      let icon = 'Users';
+      if (stat.title === 'Total Sales') icon = 'DollarSign';
+      else if (stat.title === 'Orders') icon = 'Box';
+      else if (stat.title === 'Customers') icon = 'Users';
+      else if (stat.title === 'Traffic') icon = 'TrendingUp';
+      return { ...stat, icon };
+    });
+    return { stats: mappedStats };
   } catch (error) {
     console.error('Error fetching stats:', error);
     // Return mock data if API fails
     return {
       stats: [
-        { id: 1, title: 'Total Members', value: '1,250', change: '+12%', changeType: 'positive', icon: 'Users' },
-        { id: 2, title: 'Active Trainers', value: '15', change: '+5%', changeType: 'positive', icon: 'UserCheck' },
-        { id: 3, title: 'Revenue This Month', value: '$45,000', change: '+8%', changeType: 'positive', icon: 'DollarSign' },
-        { id: 4, title: 'Classes Today', value: '8', change: '+2%', changeType: 'positive', icon: 'Calendar' },
+        { id: 1, title: 'Total Sales', value: '₹0', change: '+0%', changeType: 'positive', icon: 'DollarSign' },
+        { id: 2, title: 'Orders', value: '0', change: '+0%', changeType: 'positive', icon: 'Box' },
+        { id: 3, title: 'Customers', value: '0', change: '+0%', changeType: 'positive', icon: 'Users' },
+        { id: 4, title: 'Traffic', value: '0', change: '+0%', changeType: 'positive', icon: 'TrendingUp' },
       ]
     };
   }
@@ -28,22 +37,22 @@ gymServices.getStats = async (data) => {
 
 gymServices.getProducts = async (data) => {
   try {
-    // Simulate fetching products data
-    const res = await fetch(`${BASE_API_URL}dashboard/products`, {
+    const res = await fetch(`${BASE_API_URL}dashboard/top-products`, {
       headers: { Authorization: `Bearer ${TOKEN}` },
     });
     if (!res.ok) {
       throw new Error('Failed to fetch products');
     }
-    return await res.json();
+    const products = await res.json();
+    return { stats: products };
   } catch (error) {
     console.error('Error fetching products:', error);
     // Return mock data if API fails
     return {
       stats: [
-        { id: 1, title: 'Protein Powder', sold: '320', price: '$50', image: '💪' },
-        { id: 2, title: 'Gym Gloves', sold: '150', price: '$25', image: '🧤' },
-        { id: 3, title: 'Yoga Mat', sold: '200', price: '$30', image: '🧘' },
+        { id: 1, title: 'Protein Powder', sold: '0', price: '₹0', image: '💪' },
+        { id: 2, title: 'Gym Gloves', sold: '0', price: '₹0', image: '🧤' },
+        { id: 3, title: 'Yoga Mat', sold: '0', price: '₹0', image: '🧘' },
       ]
     };
   }
@@ -51,24 +60,20 @@ gymServices.getProducts = async (data) => {
 
 gymServices.getOrders = async (data) => {
   try {
-    // Simulate fetching orders data
-    const res = await fetch(`${BASE_API_URL}dashboard/orders`, {
+    const res = await fetch(`${BASE_API_URL}dashboard/recent-orders`, {
       headers: { Authorization: `Bearer ${TOKEN}` },
     });
     if (!res.ok) {
       throw new Error('Failed to fetch orders');
     }
-    return await res.json();
+    const data = await res.json();
+    return { orders: data };
   } catch (error) {
     console.error('Error fetching orders:', error);
     // Return mock data if API fails
     return {
       orders: [
-        { id: 1001, customer: 'John Doe', amount: 150, status: 'Delivered', date: '2023-10-01' },
-        { id: 1002, customer: 'Jane Smith', amount: 200, status: 'Pending', date: '2023-10-02' },
-        { id: 1003, customer: 'Bob Johnson', amount: 75, status: 'Returned', date: '2023-10-03' },
-        { id: 1004, customer: 'Alice Brown', amount: 300, status: 'Delivered', date: '2023-10-04' },
-        { id: 1005, customer: 'Charlie Wilson', amount: 125, status: 'Pending', date: '2023-10-05' },
+        { id: '1', customer: 'No Data', amount: 0, status: 'Pending', date: '2023-10-01' },
       ]
     };
   }
@@ -141,6 +146,64 @@ gymServices.deleteRoutine = async (id) => {
     return await res.json();
   } catch (error) {
     console.error('Error deleting routine:', error);
+    throw error;
+  }
+};
+
+gymServices.getCustomers = async () => {
+  try {
+    const res = await fetch(`${BASE_API_URL}management/members`, {
+      headers: { Authorization: `Bearer ${TOKEN}` },
+    });
+    if (!res.ok) {
+      throw new Error('Failed to fetch customers');
+    }
+    const customers = await res.json();
+    return { customers };
+  } catch (error) {
+    console.error('Error fetching customers:', error);
+    // Return mock data if API fails
+    return {
+      customers: [
+        { _id: 1, name: "Aadi Singh", mobile: "1234567890", email: "aadi@example.com", aadharNo: "123456789012", address: "Delhi", emergencyContact: "0987654321", dob: "1990-01-01", gender: "Male", occupation: "Engineer" },
+        { _id: 2, name: "Rohit Sharma", mobile: "0987654321", email: "rohit@example.com", aadharNo: "098765432109", address: "Mumbai", emergencyContact: "1234567890", dob: "1985-05-15", gender: "Male", occupation: "Doctor" },
+      ]
+    };
+  }
+};
+
+gymServices.addCustomer = async (customerData) => {
+  try {
+    const res = await fetch(`${BASE_API_URL}management/members`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${TOKEN}`,
+      },
+      body: JSON.stringify(customerData),
+    });
+    if (!res.ok) {
+      throw new Error('Failed to add customer');
+    }
+    return await res.json();
+  } catch (error) {
+    console.error('Error adding customer:', error);
+    throw error;
+  }
+};
+
+gymServices.deleteCustomer = async (id) => {
+  try {
+    const res = await fetch(`${BASE_API_URL}management/members/${id}`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${TOKEN}` },
+    });
+    if (!res.ok) {
+      throw new Error('Failed to delete customer');
+    }
+    return await res.json();
+  } catch (error) {
+    console.error('Error deleting customer:', error);
     throw error;
   }
 };

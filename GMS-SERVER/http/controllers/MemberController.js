@@ -5,16 +5,12 @@ const Plans = require("../../models/PlansModel");
 // Get all members
 const getAllMembers = async (req, res) => {
   try {
-    const members = await Customer.find({ status: "Active" }).select("name email");
-    // For simplicity, assume plan is from membership, but frontend has plan in member
-    // Need to populate or adjust
+    const members = await Customer.find({ status: "Active" });
     const membersWithPlans = await Promise.all(
       members.map(async (member) => {
         const membership = await Membership.findOne({ customer: member._id, status: "Active" }).populate("plan", "name");
         return {
-          id: member._id,
-          name: member.name,
-          email: member.email,
+          ...member.toObject(),
           plan: membership ? membership.plan.name : "Basic",
         };
       })
@@ -28,14 +24,32 @@ const getAllMembers = async (req, res) => {
 // Add member
 const addMember = async (req, res) => {
   try {
-    const { name, email, plan, mobile = "1234567890", aadharNo = "123456789012" } = req.body;
-    const customer = new Customer({ name, email, mobile, aadharNo, status: "Active" });
+    const { name, email, mobile, aadharNo, address, emergencyContact, dob, gender, occupation, plan } = req.body;
+    const customer = new Customer({
+      name,
+      email,
+      mobile,
+      aadharNo,
+      address,
+      emergencyContact,
+      dob,
+      gender,
+      occupation,
+      status: "Active"
+    });
     await customer.save();
-    // Find plan by name
-    const planDoc = await Plans.findOne({ name: plan });
-    if (planDoc) {
-      const membership = new Membership({ customer: customer._id, plan: planDoc._id, startDate: new Date(), endDate: new Date(Date.now() + planDoc.duration * 30 * 24 * 60 * 60 * 1000) });
-      await membership.save();
+    // Find plan by name if provided
+    if (plan) {
+      const planDoc = await Plans.findOne({ name: plan });
+      if (planDoc) {
+        const membership = new Membership({
+          customer: customer._id,
+          plan: planDoc._id,
+          startDate: new Date(),
+          endDate: new Date(Date.now() + planDoc.duration * 30 * 24 * 60 * 60 * 1000)
+        });
+        await membership.save();
+      }
     }
     res.status(201).json({ message: "Member added successfully" });
   } catch (error) {

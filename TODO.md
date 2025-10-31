@@ -1,5 +1,0 @@
-- [ ] Update handleSubmit to handle both create and update operations
-- [ ] Make deleteRoutine call the API instead of local state
-- [ ] Add createdBy from auth context to form data
-- [ ] Fix typos in the component (e.g., "spam" to "span", "tale" to "teal")
-- [ ] Test the updated functionality

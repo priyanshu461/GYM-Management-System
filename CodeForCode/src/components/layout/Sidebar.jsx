@@ -144,8 +144,9 @@ const Sidebar = ({ demo = false, isOpen, onClose, collapsed, onToggleCollapse, c
               aria-expanded={workoutOpen}
             >
               <BiDumbbell size={20} className="text-teal-600 dark:text-white" />
-              {(isOpen || !collapsed) && <span className="font-semibold">Workout & Diet</span>}
+              {(isOpen || !collapsed) && <span className="font-semibold">Workout & Plans</span>}
               {(isOpen || !collapsed) && (
+                
                 <svg
                   className={`ml-auto transition-transform ${workoutOpen ? 'rotate-90' : ''}`}
                   width="14"
@@ -168,12 +169,12 @@ const Sidebar = ({ demo = false, isOpen, onClose, collapsed, onToggleCollapse, c
                 {demo ? (
                   <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 dark:hover:bg-teal-800 cursor-pointer text-sm text-teal-900 dark:text-white transition-colors duration-200">
                     <BsClockHistory size={18} className="text-teal-900 dark:text-white" />
-                    <span>Workout Routines</span>
+                    <span> Routines</span>
                   </div>
                 ) : (
                   <Link to="/workoutRoutinue" className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 dark:hover:bg-teal-800 cursor-pointer text-sm text-teal-900 dark:text-white transition-colors duration-200">
                     <BsClockHistory size={18} className="text-teal-900 dark:text-white" />
-                    <span>Workout Routines</span>
+                    <span>Routines</span>
                   </Link>
                 )}
                 {demo ? (
@@ -190,34 +191,34 @@ const Sidebar = ({ demo = false, isOpen, onClose, collapsed, onToggleCollapse, c
                 {demo ? (
                   <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 dark:hover:bg-teal-800 cursor-pointer text-sm text-teal-900 dark:text-white transition-colors duration-200">
                     <TbReportAnalytics size={18} className="text-teal-900 dark:text-white" />
-                    <span>Custom Diet </span>
+                    <span>Diet </span>
                   </div>
                 ) : (
                   <Link to="/dietPlan" className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 dark:hover:bg-teal-800 cursor-pointer text-sm text-teal-900 dark:text-white transition-colors duration-200">
                     <TbReportAnalytics size={18} className="text-teal-900 dark:text-white" />
-                    <span>Custom Diet </span>
+                    <span>Diet </span>
                   </Link>
                 )}
                 {demo ? (
                   <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 dark:hover:bg-teal-800 cursor-pointer text-sm text-teal-900 dark:text-white transition-colors duration-200">
                     <GiProgression size={18} className="text-teal-900 dark:text-white" />
-                    <span>Progress Tracking</span>
+                    <span>Progress</span>
                   </div>
                 ) : (
                   <Link to="/progressTracking" className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 dark:hover:bg-teal-800 cursor-pointer text-sm text-teal-900 dark:text-white transition-colors duration-200">
                     <GiProgression size={18} className="text-teal-900 dark:text-white" />
-                    <span>Progress Tracking</span>
+                    <span>Progress</span>
                   </Link>
                 )}
                 {demo ? (
                   <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 dark:hover:bg-teal-800 cursor-pointer text-sm text-teal-900 dark:text-white transition-colors duration-200">
                     <TbReportSearch size={18} className="text-teal-900 dark:text-white" />
-                    <span>Reports / Analytics</span>
+                    <span>Reports</span>
                   </div>
                 ) : (
                   <Link to="/reportsAnalytics" className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 dark:hover:bg-teal-800 cursor-pointer text-sm text-teal-900 dark:text-white transition-colors duration-200">
                     <TbReportSearch size={18} className="text-teal-900 dark:text-white" />
-                    <span>Reports / Analytics</span>
+                    <span>Reports</span>
                   </Link>
                 )}
               </div>
@@ -388,7 +389,7 @@ const Sidebar = ({ demo = false, isOpen, onClose, collapsed, onToggleCollapse, c
                     <span>All Products</span>
                   </Link>
                 )}
-                {demo ? (
+                {/* {demo ? (
                   <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 dark:hover:bg-teal-800 cursor-pointer text-sm text-teal-900 dark:text-white transition-colors duration-200">
                     <GiFruitBowl size={18} className="text-teal-900 dark:text-white" />
                     <span>Protein</span>
@@ -431,7 +432,7 @@ const Sidebar = ({ demo = false, isOpen, onClose, collapsed, onToggleCollapse, c
                     <FaCapsules size={18} className="text-teal-900 dark:text-white" />
                     <span>Multivitamins & Minerals</span>
                   </Link>
-                )}
+                )} */}
               </div>
             )}
           </div>
@@ -453,12 +454,12 @@ const Sidebar = ({ demo = false, isOpen, onClose, collapsed, onToggleCollapse, c
           {demo ? (
             <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-3 rounded-lg hover:teal-100 dark:hover:bg-teal-800 cursor-pointer text-sm text-teal-900 dark:text-white transition-colors duration-200">
               <MdSupportAgent size={18} className="text-teal-900 dark:text-white" />
-              {(isOpen || !collapsed) && <span className="font-semibold">Support Tickets</span>}
+              {(isOpen || !collapsed) && <span className="font-semibold"> Tickets</span>}
             </div>
           ) : (
             <Link to="/supportTickets" className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 dark:hover:bg-teal-800 cursor-pointer text-sm text-teal-900 dark:text-white transition-colors duration-200">
               <MdSupportAgent size={18} className="text-teal-900 dark:text-white" />
-              {(isOpen || !collapsed) && <span className="font-semibold">Support Tickets</span>}
+              {(isOpen || !collapsed) && <span className="font-semibold">Tickets</span>}
             </Link>
           )}
           {demo ? (
