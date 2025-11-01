@@ -2,6 +2,7 @@
 import Layout from "../../components/Layout";
 
 import React, { useMemo, useState } from "react";
+import { Link } from 'react-router-dom';
 
 
 const PRODUCTS= [
@@ -101,6 +102,11 @@ export default function Suppliments() {
           <div>
             <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent dark:from-teal-400 dark:to-cyan-400">Products</h1>
             <p className="text-gray-600 dark:text-gray-300 text-sm mt-1 font-medium">Pre, Intra, and Post workout supplements</p>
+            <Link to="/products">
+              <button className="mt-4 bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-400 hover:to-emerald-400 px-4 py-2 rounded-xl font-semibold text-white shadow-lg shadow-teal-500/40 hover:shadow-teal-500/60 hover:scale-105 transition-all duration-300">
+                View All Products
+              </button>
+            </Link>
           </div>
           <div className="flex gap-2">
             <button className="px-3 py-2 rounded-lg bg-gray-100 dark:bg-teal-900 border border-gray-300 text-sm hover:bg-gray-200 dark:text-white">High contrast</button>

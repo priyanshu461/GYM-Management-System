@@ -1,27 +1,16 @@
 import Layout from "@/components/Layout";
 import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { UserPlus, Search, User, Mail, Crown, Trash2, Users, X, Phone, MapPin, Calendar, AlertCircle, CheckCircle } from "lucide-react";
+import { motion } from "framer-motion";
+import { UserPlus, Search, Users, Trash2, AlertCircle } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import gymServices from "@/services/gymServices";
 
 export default function Member() {
+  const navigate = useNavigate();
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [search, setSearch] = useState("");
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [newMember, setNewMember] = useState({
-    name: "",
-    mobile: "",
-    email: "",
-    aadharNo: "",
-    address: "",
-    emergencyContact: "",
-    dob: "",
-    gender: "",
-    occupation: ""
-  });
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Fetch members on component mount
   useEffect(() => {
@@ -38,36 +27,6 @@ export default function Member() {
       setMembers([]);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const addMember = async () => {
-    // Validate required fields
-    if (!newMember.name || !newMember.mobile || !newMember.aadharNo) {
-      alert("Please fill in all required fields (Name, Mobile, Aadhar Number)");
-      return;
-    }
-
-    try {
-      setIsSubmitting(true);
-      await gymServices.addCustomer(newMember);
-      await fetchMembers(); // Refresh the list
-      setIsModalOpen(false);
-      setNewMember({
-        name: "",
-        mobile: "",
-        email: "",
-        aadharNo: "",
-        address: "",
-        emergencyContact: "",
-        dob: "",
-        gender: "",
-        occupation: ""
-      });
-    } catch (err) {
-      alert("Failed to add member: " + err.message);
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -181,7 +140,7 @@ export default function Member() {
                     <motion.button
                       whileHover={{ scale: 1.05, y: -2 }}
                       whileTap={{ scale: 0.95 }}
-                      onClick={() => setIsModalOpen(true)}
+                      onClick={() => navigate("/members/add")}
                       className="group relative overflow-hidden bg-gradient-to-r from-teal-600 via-teal-500 to-teal-600 text-white px-8 py-4 rounded-2xl font-semibold shadow-xl hover:shadow-2xl transition-all duration-300"
                     >
                       {/* Button Background Animation */}
@@ -297,206 +256,6 @@ export default function Member() {
           <div className="mt-6 text-center text-xs text-muted-foreground">{filteredMembers.length} members</div>
         </div>
       </div>
-
-      {/* Add Member Modal */}
-      <AnimatePresence>
-        {isModalOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-            onClick={() => setIsModalOpen(false)}
-          >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-background rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="p-6 border-b border-border">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-2xl font-bold text-foreground flex items-center gap-2">
-                    <UserPlus className="w-6 h-6 text-teal-500" />
-                    Add New Member
-                  </h2>
-                  <button
-                    onClick={() => setIsModalOpen(false)}
-                    className="p-2 hover:bg-muted rounded-lg transition-colors"
-                  >
-                    <X className="w-5 h-5" />
-                  </button>
-                </div>
-              </div>
-
-              <div className="p-6 space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Name */}
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-foreground flex items-center gap-2">
-                      <User className="w-4 h-4" />
-                      Full Name *
-                    </label>
-                    <input
-                      type="text"
-                      value={newMember.name}
-                      onChange={(e) => setNewMember({ ...newMember, name: e.target.value })}
-                      className="w-full bg-background border border-input text-foreground rounded-xl px-4 py-3 focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all"
-                      placeholder="Enter full name"
-                      required
-                    />
-                  </div>
-
-                  {/* Mobile */}
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-foreground flex items-center gap-2">
-                      <Phone className="w-4 h-4" />
-                      Mobile Number *
-                    </label>
-                    <input
-                      type="tel"
-                      value={newMember.mobile}
-                      onChange={(e) => setNewMember({ ...newMember, mobile: e.target.value })}
-                      className="w-full bg-background border border-input text-foreground rounded-xl px-4 py-3 focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all"
-                      placeholder="Enter 10-digit mobile number"
-                      required
-                    />
-                  </div>
-
-                  {/* Email */}
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-foreground flex items-center gap-2">
-                      <Mail className="w-4 h-4" />
-                      Email Address
-                    </label>
-                    <input
-                      type="email"
-                      value={newMember.email}
-                      onChange={(e) => setNewMember({ ...newMember, email: e.target.value })}
-                      className="w-full bg-background border border-input text-foreground rounded-xl px-4 py-3 focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all"
-                      placeholder="Enter email address"
-                    />
-                  </div>
-
-                  {/* Aadhar Number */}
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-foreground flex items-center gap-2">
-                      <AlertCircle className="w-4 h-4" />
-                      Aadhar Number *
-                    </label>
-                    <input
-                      type="text"
-                      value={newMember.aadharNo}
-                      onChange={(e) => setNewMember({ ...newMember, aadharNo: e.target.value })}
-                      className="w-full bg-background border border-input text-foreground rounded-xl px-4 py-3 focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all"
-                      placeholder="Enter 12-digit aadhar number"
-                      required
-                    />
-                  </div>
-
-                  {/* Address */}
-                  <div className="space-y-2 md:col-span-2">
-                    <label className="text-sm font-medium text-foreground flex items-center gap-2">
-                      <MapPin className="w-4 h-4" />
-                      Address
-                    </label>
-                    <textarea
-                      value={newMember.address}
-                      onChange={(e) => setNewMember({ ...newMember, address: e.target.value })}
-                      className="w-full bg-background border border-input text-foreground rounded-xl px-4 py-3 focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all resize-none"
-                      placeholder="Enter address"
-                      rows="3"
-                    />
-                  </div>
-
-                  {/* Emergency Contact */}
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-foreground flex items-center gap-2">
-                      <Phone className="w-4 h-4" />
-                      Emergency Contact
-                    </label>
-                    <input
-                      type="tel"
-                      value={newMember.emergencyContact}
-                      onChange={(e) => setNewMember({ ...newMember, emergencyContact: e.target.value })}
-                      className="w-full bg-background border border-input text-foreground rounded-xl px-4 py-3 focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all"
-                      placeholder="Enter emergency contact"
-                    />
-                  </div>
-
-                  {/* Date of Birth */}
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-foreground flex items-center gap-2">
-                      <Calendar className="w-4 h-4" />
-                      Date of Birth
-                    </label>
-                    <input
-                      type="date"
-                      value={newMember.dob}
-                      onChange={(e) => setNewMember({ ...newMember, dob: e.target.value })}
-                      className="w-full bg-background border border-input text-foreground rounded-xl px-4 py-3 focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all"
-                    />
-                  </div>
-
-                  {/* Gender */}
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-foreground">Gender</label>
-                    <select
-                      value={newMember.gender}
-                      onChange={(e) => setNewMember({ ...newMember, gender: e.target.value })}
-                      className="w-full bg-background border border-input text-foreground rounded-xl px-4 py-3 focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all"
-                    >
-                      <option value="">Select Gender</option>
-                      <option value="Male">Male</option>
-                      <option value="Female">Female</option>
-                      <option value="Other">Other</option>
-                    </select>
-                  </div>
-
-                  {/* Occupation */}
-                  <div className="space-y-2 md:col-span-2">
-                    <label className="text-sm font-medium text-foreground">Occupation</label>
-                    <input
-                      type="text"
-                      value={newMember.occupation}
-                      onChange={(e) => setNewMember({ ...newMember, occupation: e.target.value })}
-                      className="w-full bg-background border border-input text-foreground rounded-xl px-4 py-3 focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all"
-                      placeholder="Enter occupation"
-                    />
-                  </div>
-                </div>
-
-                <div className="flex gap-4 pt-6 border-t border-border">
-                  <button
-                    onClick={() => setIsModalOpen(false)}
-                    className="flex-1 px-6 py-3 border border-border rounded-xl text-foreground hover:bg-muted transition-colors"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={addMember}
-                    disabled={isSubmitting}
-                    className="flex-1 px-6 py-3 bg-gradient-to-r from-teal-600 to-teal-500 text-white rounded-xl hover:from-teal-700 hover:to-teal-600 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                  >
-                    {isSubmitting ? (
-                      <>
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                        Adding...
-                      </>
-                    ) : (
-                      <>
-                        <CheckCircle className="w-4 h-4" />
-                        Add Member
-                      </>
-                    )}
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </Layout>
   );
 }

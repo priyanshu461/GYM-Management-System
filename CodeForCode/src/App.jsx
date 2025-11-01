@@ -5,8 +5,10 @@ import { ThemeProvider } from './contexts/ThemeContext'
 import Login from './views/Login'
 import Home from './views/Home'
 import MemberManagement from './views/Management/MemberManagement'
+import AddMember from './views/Management/AddMember'
 import Finance from './views/Management/FinanceManagement'
 import Trainers from './views/Management/TrainersManagement'
+import AddTrainer from './views/Management/AddTrainer'
 import Facilities from './views/Management/FacilitiesManagement'
 import WorkoutRoutine from './views/Workout& Diet Plan/WorkoutRoutinue'
 import DietPlan from './views/Workout& Diet Plan/CoustumDietPlan'
@@ -28,6 +30,7 @@ import NotificationsCommunication from './views/NotificationCommunication'
 import Dashboard from './views/Dashboard'
 import Profile from './views/Profile'
 import ProductCreate from './views/Products/ProductCreate'
+import ProductIndex from './views/Products/ProductIndex'
 
 function ProtectedRoute({ children }) {
   const { isAuthenticated } = useAuth();
@@ -49,8 +52,10 @@ function App() {
               <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
               <Route path="/" element={<Home />} />
               <Route path="/members" element={<ProtectedRoute><MemberManagement /></ProtectedRoute>} />
+              <Route path="/members/add" element={<ProtectedRoute><AddMember /></ProtectedRoute>} />
               <Route path="/finance" element={<ProtectedRoute><Finance /></ProtectedRoute>} />
               <Route path="/trainers" element={<ProtectedRoute><Trainers /></ProtectedRoute>} />
+              <Route path="/trainers/add" element={<ProtectedRoute><AddTrainer /></ProtectedRoute>} />
               <Route path="/facilities" element={<ProtectedRoute><Facilities /></ProtectedRoute>} />
               <Route path="/workoutRoutinue" element={<ProtectedRoute><WorkoutRoutine /></ProtectedRoute>} />
               <Route path="/dietPlan" element={<ProtectedRoute><DietPlan /></ProtectedRoute>} />
@@ -70,6 +75,8 @@ function App() {
               <Route path='/gymblog' element={<ProtectedRoute><GymBlog /></ProtectedRoute>} />
               <Route path='/notificationcommunication' element={<ProtectedRoute><NotificationsCommunication /></ProtectedRoute>} />
               <Route path='/profile' element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+              <Route path='/products/index' element={<ProtectedRoute><ProductIndex /></ProtectedRoute>} />
+              <Route path='/products/create' element={<ProtectedRoute><ProductCreate /></ProtectedRoute>} />
             </Routes>
           </div>
         </AuthProvider>

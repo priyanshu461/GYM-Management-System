@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Layout from "../../components/Layout";
 import { motion } from "framer-motion";
 import {
@@ -7,6 +8,7 @@ import {
 } from "lucide-react";
 
 export default function Trainer() {
+  const navigate = useNavigate();
   const [trainers, setTrainers] = useState([
     {
       id: 1,
@@ -113,7 +115,7 @@ export default function Trainer() {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => setShowForm(true)}
+              onClick={() => navigate("/trainers/add")}
               className="bg-gradient-to-r from-teal-600 to-teal-500 text-white px-6 py-3 rounded-xl shadow-lg hover:from-teal-700 hover:to-teal-600 transition-all flex items-center gap-2 font-semibold"
             >
               <Plus className="w-5 h-5" />

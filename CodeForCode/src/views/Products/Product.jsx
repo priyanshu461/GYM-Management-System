@@ -1,6 +1,7 @@
-import React, { useMemo, useState, useRef } from "react";
+import React, { useMemo, useState } from "react";
 import Layout from "../../components/Layout";
 import { useTheme } from "../../contexts/ThemeContext";
+import { Link } from 'react-router-dom';
 
 const PRODUCTS = [
   // Protein 1-10
@@ -106,7 +107,6 @@ export default function Product() {
   const [category, setCategory] = useState("All");
   const [sort, setSort] = useState("featured");
   const [cart, setCart] = useState([]);
-  const cartRef = useRef(null);
 
   const addToCart = (product) => {
     setCart(prev => {
@@ -172,6 +172,9 @@ export default function Product() {
               <p className={`text-gray-600 dark:text-gray-300 text-sm mt-1 font-medium`}>Protein, Amino Acids, Pre, Intra, Post workout, and Multivitamin supplements</p>
             </div>
             <div className="flex gap-2">
+              <Link to="/products/index">
+                <button className="px-3 py-2 rounded-lg bg-teal-100 dark:bg-teal-900 border border-teal-300 text-teal-800 dark:text-white text-sm hover:bg-teal-200">Products Index</button>
+              </Link>
               <button className="px-3 py-2 rounded-lg bg-teal-100 dark:bg-teal-900 border border-teal-300 text-teal-800 dark:text-white text-sm hover:bg-teal-200">High contrast</button>
               <select
                 value={sort}

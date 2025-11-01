@@ -2,7 +2,7 @@ import { BASE_API_URL, TOKEN } from "@/Utils/data";
 
 const gymServices = {};
 
-gymServices.getStats = async (data) => {
+gymServices.getStats = async () => {
   try {
     const res = await fetch(`${BASE_API_URL}dashboard/stats`, {
       headers: { Authorization: `Bearer ${TOKEN}` },
@@ -35,7 +35,7 @@ gymServices.getStats = async (data) => {
   }
 };
 
-gymServices.getProducts = async (data) => {
+gymServices.getProducts = async () => {
   try {
     const res = await fetch(`${BASE_API_URL}dashboard/top-products`, {
       headers: { Authorization: `Bearer ${TOKEN}` },
@@ -58,7 +58,7 @@ gymServices.getProducts = async (data) => {
   }
 };
 
-gymServices.getOrders = async (data) => {
+gymServices.getOrders = async () => {
   try {
     const res = await fetch(`${BASE_API_URL}dashboard/recent-orders`, {
       headers: { Authorization: `Bearer ${TOKEN}` },
@@ -174,12 +174,15 @@ gymServices.getCustomers = async () => {
 
 gymServices.addCustomer = async (customerData) => {
   try {
+    const headers = {
+      'Content-Type': 'application/json',
+    };
+    if (TOKEN) {
+      headers.Authorization = `Bearer ${TOKEN}`;
+    }
     const res = await fetch(`${BASE_API_URL}management/members`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${TOKEN}`,
-      },
+      headers,
       body: JSON.stringify(customerData),
     });
     if (!res.ok) {

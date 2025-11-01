@@ -1,7 +1,9 @@
 import productService from "@/services/productService";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
-export default function ProductCreate({ open, setOpen }) {
+export default function ProductCreate({ open, setOpen, product, onSave }) {
+  const navigate = useNavigate();
   const [data, setData] = useState({
     name: "",
     category: "",
@@ -9,15 +11,30 @@ export default function ProductCreate({ open, setOpen }) {
   });
   const [isActive, setIsActive] = useState(false);
 
+  useEffect(() => {
+    if (product) {
+      setData({
+        name: product.name || "",
+        category: product.category || "",
+        price: product.price || "",
+      });
+      setIsActive(product.isActive || false);
+    } else {
+      setData({ name: "", category: "", price: "" });
+      setIsActive(false);
+    }
+  }, [product]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const formData = new FormData();
-    formData.append("name", data.name);
-    formData.append("category", data.category);
-    formData.append("price", data.price);
-    formData.append("isActive", isActive);
-    const res = await productService.createProduct(data);
-    setOpen(false);
+    if (onSave) {
+      onSave({ ...data, isActive });
+    } else {
+      await productService.createProduct(data);
+      setOpen(false);
+    }
+    // Redirect to ProductIndex after creation
+    navigate('/products/index');
   };
 
   const onChange = (e) => {
@@ -40,7 +57,7 @@ export default function ProductCreate({ open, setOpen }) {
             </button>
 
             <h2 className="text-2xl font-semibold text-gray-800 mb-6 text-center">
-              User Form
+              {product ? "Edit Product" : "Create Product"}
             </h2>
 
             <form onSubmit={handleSubmit} className="space-y-6">

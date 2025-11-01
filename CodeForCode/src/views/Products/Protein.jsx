@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link } from 'react-router-dom';
 import Layout from "../../components/Layout";
 import { useTheme } from "../../contexts/ThemeContext";
 import ProductCreate from "./ProductCreate";
@@ -149,6 +150,11 @@ export default function Protein() {
               Explore our premium selection of protein powders for your fitness
               goals.
             </p>
+            <Link to="/products">
+              <button className="mt-4 bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-400 hover:to-emerald-400 px-4 py-2 rounded-xl font-semibold text-white shadow-lg shadow-teal-500/40 hover:shadow-teal-500/60 hover:scale-105 transition-all duration-300">
+                View All Products
+              </button>
+            </Link>
           </div>
         </div>
 
