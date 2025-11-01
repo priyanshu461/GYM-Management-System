@@ -18,7 +18,7 @@ export default function AddMember() {
     occupation: ""
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [setErrors] = useState({});
+  const [errors, setErrors] = useState({});
 
   const validateForm = () => {
     const newErrors = {};
@@ -135,10 +135,11 @@ export default function AddMember() {
                       type="text"
                       value={newMember.name}
                       onChange={(e) => setNewMember({ ...newMember, name: e.target.value })}
-                      className="w-full bg-background border border-input text-foreground rounded-xl px-4 py-3 focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all"
+                      className={`w-full bg-background border text-foreground rounded-xl px-4 py-3 focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all ${errors.name ? 'border-red-500' : 'border-input'}`}
                       placeholder="Enter full name"
                       required
                     />
+                    {errors.name && <p className="text-red-500 text-xs">{errors.name}</p>}
                   </div>
 
                   {/* Mobile */}
@@ -151,10 +152,11 @@ export default function AddMember() {
                       type="tel"
                       value={newMember.mobile}
                       onChange={(e) => setNewMember({ ...newMember, mobile: e.target.value })}
-                      className="w-full bg-background border border-input text-foreground rounded-xl px-4 py-3 focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all"
+                      className={`w-full bg-background border text-foreground rounded-xl px-4 py-3 focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all ${errors.mobile ? 'border-red-500' : 'border-input'}`}
                       placeholder="Enter 10-digit mobile number"
                       required
                     />
+                    {errors.mobile && <p className="text-red-500 text-xs">{errors.mobile}</p>}
                   </div>
 
                   {/* Email */}
@@ -167,9 +169,10 @@ export default function AddMember() {
                       type="email"
                       value={newMember.email}
                       onChange={(e) => setNewMember({ ...newMember, email: e.target.value })}
-                      className="w-full bg-background border border-input text-foreground rounded-xl px-4 py-3 focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all"
+                      className={`w-full bg-background border text-foreground rounded-xl px-4 py-3 focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all ${errors.email ? 'border-red-500' : 'border-input'}`}
                       placeholder="Enter email address"
                     />
+                    {errors.email && <p className="text-red-500 text-xs">{errors.email}</p>}
                   </div>
 
                   {/* Aadhar Number */}
@@ -182,10 +185,11 @@ export default function AddMember() {
                       type="text"
                       value={newMember.aadharNo}
                       onChange={(e) => setNewMember({ ...newMember, aadharNo: e.target.value })}
-                      className="w-full bg-background border border-input text-foreground rounded-xl px-4 py-3 focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all"
+                      className={`w-full bg-background border text-foreground rounded-xl px-4 py-3 focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all ${errors.aadharNo ? 'border-red-500' : 'border-input'}`}
                       placeholder="Enter 12-digit aadhar number"
                       required
                     />
+                    {errors.aadharNo && <p className="text-red-500 text-xs">{errors.aadharNo}</p>}
                   </div>
 
                   {/* Address */}
@@ -213,9 +217,10 @@ export default function AddMember() {
                       type="tel"
                       value={newMember.emergencyContact}
                       onChange={(e) => setNewMember({ ...newMember, emergencyContact: e.target.value })}
-                      className="w-full bg-background border border-input text-foreground rounded-xl px-4 py-3 focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all"
+                      className={`w-full bg-background border text-foreground rounded-xl px-4 py-3 focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all ${errors.emergencyContact ? 'border-red-500' : 'border-input'}`}
                       placeholder="Enter emergency contact"
                     />
+                    {errors.emergencyContact && <p className="text-red-500 text-xs">{errors.emergencyContact}</p>}
                   </div>
 
                   {/* Date of Birth */}

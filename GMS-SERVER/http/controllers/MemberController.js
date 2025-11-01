@@ -21,6 +21,25 @@ const getAllMembers = async (req, res) => {
   }
 };
 
+// Get member by ID
+const getMemberById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const member = await Customer.findById(id);
+    if (!member || member.status !== "Active") {
+      return res.status(404).json({ message: "Member not found" });
+    }
+    const membership = await Membership.findOne({ customer: member._id, status: "Active" }).populate("plan", "name");
+    const memberWithPlan = {
+      ...member.toObject(),
+      plan: membership ? membership.plan.name : "Basic",
+    };
+    res.status(200).json(memberWithPlan);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching member", error: error.message });
+  }
+};
+
 // Add member
 const addMember = async (req, res) => {
   try {
@@ -61,12 +80,24 @@ const addMember = async (req, res) => {
 const updateMember = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, email, plan } = req.body;
-    await Customer.findByIdAndUpdate(id, { name, email });
+    const { name, mobile, email, aadharNo, address, emergencyContact, dob, gender, occupation, plan } = req.body;
+    await Customer.findByIdAndUpdate(id, {
+      name,
+      mobile,
+      email,
+      aadharNo,
+      address,
+      emergencyContact,
+      dob,
+      gender,
+      occupation
+    });
     // Update membership if plan changed
-    const planDoc = await Plans.findOne({ name: plan });
-    if (planDoc) {
-      await Membership.findOneAndUpdate({ customer: id, status: "Active" }, { plan: planDoc._id });
+    if (plan) {
+      const planDoc = await Plans.findOne({ name: plan });
+      if (planDoc) {
+        await Membership.findOneAndUpdate({ customer: id, status: "Active" }, { plan: planDoc._id });
+      }
     }
     res.status(200).json({ message: "Member updated successfully" });
   } catch (error) {
@@ -88,6 +119,7 @@ const deleteMember = async (req, res) => {
 
 module.exports = {
   getAllMembers,
+  getMemberById,
   addMember,
   updateMember,
   deleteMember,

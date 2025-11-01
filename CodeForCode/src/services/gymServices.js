@@ -195,6 +195,45 @@ gymServices.addCustomer = async (customerData) => {
   }
 };
 
+gymServices.getCustomerById = async (id) => {
+  try {
+    const res = await fetch(`${BASE_API_URL}management/members/${id}`, {
+      headers: { Authorization: `Bearer ${TOKEN}` },
+    });
+    if (!res.ok) {
+      throw new Error('Failed to fetch customer');
+    }
+    const customer = await res.json();
+    return { customer };
+  } catch (error) {
+    console.error('Error fetching customer:', error);
+    throw error;
+  }
+};
+
+gymServices.updateCustomer = async (id, customerData) => {
+  try {
+    const headers = {
+      'Content-Type': 'application/json',
+    };
+    if (TOKEN) {
+      headers.Authorization = `Bearer ${TOKEN}`;
+    }
+    const res = await fetch(`${BASE_API_URL}management/members/${id}`, {
+      method: 'PUT',
+      headers,
+      body: JSON.stringify(customerData),
+    });
+    if (!res.ok) {
+      throw new Error('Failed to update customer');
+    }
+    return await res.json();
+  } catch (error) {
+    console.error('Error updating customer:', error);
+    throw error;
+  }
+};
+
 gymServices.deleteCustomer = async (id) => {
   try {
     const res = await fetch(`${BASE_API_URL}management/members/${id}`, {

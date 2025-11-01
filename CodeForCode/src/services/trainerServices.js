@@ -5,7 +5,7 @@ const trainerServices = {};
 trainerServices.getAllTrainers = async () => {
 
    // Simulate fetching all traners
-    const res = await fetch(`${BASE_API_URL}dashboard/trainer/all`, {
+    const res = await fetch(`${BASE_API_URL}management/trainers/all`, {
       headers: { Authorization: `Bearer ${TOKEN}` },
     });
     return await res.json();
@@ -13,12 +13,13 @@ trainerServices.getAllTrainers = async () => {
 
 trainerServices.createTrainer = async (data = {}) => {
   // Simulate fetching all trainers
-  const res = await fetch(`${BASE_API_URL}dashboard/trainer/create`, {
+  const res = await fetch(`${BASE_API_URL}management/trainers/add`, {
     method: "POST",
     headers: {
+      "Content-Type": "application/json",
       Authorization: `Bearer ${TOKEN}`,
     },
-    body: data,
+    body: JSON.stringify(data),
   });
   return await res.json();
 };
@@ -26,7 +27,7 @@ trainerServices.createTrainer = async (data = {}) => {
 trainerServices.updateTrainer = async (data = {}) => {
   // Simulate fetching all trainers
   const res = await fetch(
-    `${BASE_API_URL}dashboard/trainer/update/${data.trainer_id}`,
+    `${BASE_API_URL}management/trainers/${data.trainer_id}`,
     {
       method: "PUT",
       headers: {
@@ -41,7 +42,7 @@ trainerServices.updateTrainer = async (data = {}) => {
 
 trainerServices.deleteTrainer = async (data = {}) => {
   // Simulate fetching all trainers
-  const res = await fetch(`${BASE_API_URL}dashboard/trainer/delete`, {
+  const res = await fetch(`${BASE_API_URL}management/trainers/${data.id}`, {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",

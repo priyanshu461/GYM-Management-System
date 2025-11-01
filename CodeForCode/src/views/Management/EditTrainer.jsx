@@ -1,12 +1,13 @@
 import Layout from "../../components/Layout";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { UserPlus, User, Award, Calendar, Star, AlertCircle, CheckCircle, ArrowLeft, X } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import trainerServices from "../../services/trainerServices";
 
-export default function AddTrainer() {
+export default function EditTrainer() {
   const navigate = useNavigate();
-  const [newTrainer, setNewTrainer] = useState({
+  const { id } = useParams();
+  const [trainer, setTrainer] = useState({
     name: "",
     expertise: "",
     experience: "",
@@ -16,24 +17,49 @@ export default function AddTrainer() {
     specializations: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [errors, setErrors] = useState({});
+
+  useEffect(() => {
+    fetchTrainer();
+  }, [id]);
+
+  const fetchTrainer = async () => {
+    try {
+      const trainers = await trainerServices.getAllTrainers();
+      const foundTrainer = trainers.find(t => t.id === id);
+      if (foundTrainer) {
+        setTrainer({
+          ...foundTrainer,
+          certifications: foundTrainer.certifications.join(', '),
+          specializations: foundTrainer.specializations.join(', '),
+        });
+      } else {
+        setErrors({ fetch: "Trainer not found" });
+      }
+    } catch (err) {
+      setErrors({ fetch: "Failed to load trainer data" });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const validateForm = () => {
     const newErrors = {};
 
-    if (!newTrainer.name.trim()) {
+    if (!trainer.name.trim()) {
       newErrors.name = "Full name is required";
     }
 
-    if (!newTrainer.expertise.trim()) {
+    if (!trainer.expertise.trim()) {
       newErrors.expertise = "Expertise is required";
     }
 
-    if (!newTrainer.experience.trim()) {
+    if (!trainer.experience.trim()) {
       newErrors.experience = "Experience is required";
     }
 
-    if (newTrainer.rating && (isNaN(newTrainer.rating) || newTrainer.rating < 0 || newTrainer.rating > 5)) {
+    if (trainer.rating && (isNaN(trainer.rating) || trainer.rating < 0 || trainer.rating > 5)) {
       newErrors.rating = "Rating must be a number between 0 and 5";
     }
 
@@ -41,7 +67,7 @@ export default function AddTrainer() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const addTrainer = async (e) => {
+  const updateTrainer = async (e) => {
     e.preventDefault();
 
     if (!validateForm()) {
@@ -53,40 +79,51 @@ export default function AddTrainer() {
       setErrors({});
 
       const trainerData = {
-        name: newTrainer.name,
-        expertise: newTrainer.expertise,
-        experience: newTrainer.experience,
-        image: newTrainer.image,
-        rating: parseFloat(newTrainer.rating) || 0,
-        certifications: newTrainer.certifications.split(',').map(c => c.trim()).filter(c => c),
-        specializations: newTrainer.specializations.split(',').map(s => s.trim()).filter(s => s),
+        name: trainer.name,
+        expertise: trainer.expertise,
+        experience: trainer.experience,
+        image: trainer.image,
+        rating: parseFloat(trainer.rating) || 0,
+        certifications: trainer.certifications.split(',').map(c => c.trim()).filter(c => c),
+        specializations: trainer.specializations.split(',').map(s => s.trim()).filter(s => s),
+        trainer_id: id,
       };
 
-      await trainerServices.createTrainer(trainerData);
+      await trainerServices.updateTrainer(trainerData);
 
-      alert("Trainer added successfully!");
-
-      // Reset form
-      setNewTrainer({
-        name: "",
-        expertise: "",
-        experience: "",
-        image: "",
-        rating: "",
-        certifications: "",
-        specializations: "",
-      });
+      alert("Trainer updated successfully!");
 
       // Navigate back to trainers list
       navigate("/trainers");
 
     } catch (err) {
-      console.error("Error adding trainer:", err);
-      setErrors({ submit: err.message || "Failed to add trainer. Please try again." });
+      console.error("Error updating trainer:", err);
+      setErrors({ submit: err.message || "Failed to update trainer. Please try again." });
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  if (isLoading) {
+    return (
+      <Layout>
+        <div className="min-h-screen bg-background text-foreground py-10 px-4 flex items-center justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-500"></div>
+          <span className="ml-3 text-muted-foreground">Loading trainer...</span>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (errors.fetch) {
+    return (
+      <Layout>
+        <div className="min-h-screen bg-background text-foreground py-10 px-4 flex items-center justify-center">
+          <div className="text-red-500">{errors.fetch}</div>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
@@ -105,9 +142,9 @@ export default function AddTrainer() {
           <div className="text-center mb-8">
             <h1 className="text-4xl font-extrabold mb-3 text-foreground tracking-tight">
               <UserPlus className="inline-block w-10 h-10 mr-3 text-teal-500 dark:text-teal-400" />
-              Add New <span className="text-teal-500 dark:text-teal-400">Trainer</span>
+              Edit <span className="text-teal-500 dark:text-teal-400">Trainer</span>
             </h1>
-            <p className="text-muted-foreground text-lg">Welcome a new trainer to your fitness team</p>
+            <p className="text-muted-foreground text-lg">Update trainer information</p>
           </div>
 
           {/* Form Container */}
@@ -131,8 +168,8 @@ export default function AddTrainer() {
                     </label>
                     <input
                       type="text"
-                      value={newTrainer.name}
-                      onChange={(e) => setNewTrainer({ ...newTrainer, name: e.target.value })}
+                      value={trainer.name}
+                      onChange={(e) => setTrainer({ ...trainer, name: e.target.value })}
                       className={`w-full bg-background border text-foreground rounded-xl px-4 py-3 focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all ${errors.name ? 'border-red-500' : 'border-input'}`}
                       placeholder="Enter full name"
                       required
@@ -148,8 +185,8 @@ export default function AddTrainer() {
                     </label>
                     <input
                       type="text"
-                      value={newTrainer.expertise}
-                      onChange={(e) => setNewTrainer({ ...newTrainer, expertise: e.target.value })}
+                      value={trainer.expertise}
+                      onChange={(e) => setTrainer({ ...trainer, expertise: e.target.value })}
                       className={`w-full bg-background border text-foreground rounded-xl px-4 py-3 focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all ${errors.expertise ? 'border-red-500' : 'border-input'}`}
                       placeholder="e.g., Strength & Conditioning"
                       required
@@ -165,8 +202,8 @@ export default function AddTrainer() {
                     </label>
                     <input
                       type="text"
-                      value={newTrainer.experience}
-                      onChange={(e) => setNewTrainer({ ...newTrainer, experience: e.target.value })}
+                      value={trainer.experience}
+                      onChange={(e) => setTrainer({ ...trainer, experience: e.target.value })}
                       className={`w-full bg-background border text-foreground rounded-xl px-4 py-3 focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all ${errors.experience ? 'border-red-500' : 'border-input'}`}
                       placeholder="e.g., 5 Years"
                       required
@@ -185,8 +222,8 @@ export default function AddTrainer() {
                       min="0"
                       max="5"
                       step="0.1"
-                      value={newTrainer.rating}
-                      onChange={(e) => setNewTrainer({ ...newTrainer, rating: e.target.value })}
+                      value={trainer.rating}
+                      onChange={(e) => setTrainer({ ...trainer, rating: e.target.value })}
                       className={`w-full bg-background border text-foreground rounded-xl px-4 py-3 focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all ${errors.rating ? 'border-red-500' : 'border-input'}`}
                       placeholder="Enter rating"
                     />
@@ -198,8 +235,8 @@ export default function AddTrainer() {
                     <label className="text-sm font-medium text-foreground">Certifications</label>
                     <input
                       type="text"
-                      value={newTrainer.certifications}
-                      onChange={(e) => setNewTrainer({ ...newTrainer, certifications: e.target.value })}
+                      value={trainer.certifications}
+                      onChange={(e) => setTrainer({ ...trainer, certifications: e.target.value })}
                       className="w-full bg-background border border-input text-foreground rounded-xl px-4 py-3 focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all"
                       placeholder="Comma-separated certifications"
                     />
@@ -210,8 +247,8 @@ export default function AddTrainer() {
                     <label className="text-sm font-medium text-foreground">Specializations</label>
                     <input
                       type="text"
-                      value={newTrainer.specializations}
-                      onChange={(e) => setNewTrainer({ ...newTrainer, specializations: e.target.value })}
+                      value={trainer.specializations}
+                      onChange={(e) => setTrainer({ ...trainer, specializations: e.target.value })}
                       className="w-full bg-background border border-input text-foreground rounded-xl px-4 py-3 focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all"
                       placeholder="Comma-separated specializations"
                     />
@@ -228,7 +265,7 @@ export default function AddTrainer() {
                         if (file) {
                           const reader = new FileReader();
                           reader.onload = (e) => {
-                            setNewTrainer({ ...newTrainer, image: e.target.result });
+                            setTrainer({ ...trainer, image: e.target.result });
                           };
                           reader.readAsDataURL(file);
                         }
@@ -255,19 +292,19 @@ export default function AddTrainer() {
                     Cancel
                   </button>
                   <button
-                    onClick={addTrainer}
+                    onClick={updateTrainer}
                     disabled={isSubmitting}
                     className="flex-1 px-6 py-3 bg-gradient-to-r from-teal-600 to-teal-500 text-white rounded-xl hover:from-teal-700 hover:to-teal-600 active:from-teal-800 active:to-teal-700 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                   >
                     {isSubmitting ? (
                       <>
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                        Adding...
+                        Updating...
                       </>
                     ) : (
                       <>
                         <CheckCircle className="w-4 h-4" />
-                        Add Trainer
+                        Update Trainer
                       </>
                     )}
                   </button>

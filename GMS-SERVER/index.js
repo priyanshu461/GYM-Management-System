@@ -6,6 +6,10 @@ console.log(process.env.PORT);
 const port = process.env.PORT || 8080;
 require("./lib/db"); // Database connection
 
+// Import models to register them
+require("./models/RoleModel");
+require("./models/UserModel");
+
 // Middleware
 app.use(cors());
 app.use(express.json());

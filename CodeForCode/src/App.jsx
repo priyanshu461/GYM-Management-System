@@ -7,8 +7,9 @@ import Home from './views/Home'
 import MemberManagement from './views/Management/MemberManagement'
 import AddMember from './views/Management/AddMember'
 import Finance from './views/Management/FinanceManagement'
-import Trainers from './views/Management/TrainersManagement'
+import Trainer from './views/Management/TrainersManagement'
 import AddTrainer from './views/Management/AddTrainer'
+import EditTrainer from './views/Management/EditTrainer'
 import Facilities from './views/Management/FacilitiesManagement'
 import WorkoutRoutine from './views/Workout& Diet Plan/WorkoutRoutinue'
 import DietPlan from './views/Workout& Diet Plan/CoustumDietPlan'
@@ -54,8 +55,9 @@ function App() {
               <Route path="/members" element={<ProtectedRoute><MemberManagement /></ProtectedRoute>} />
               <Route path="/members/add" element={<ProtectedRoute><AddMember /></ProtectedRoute>} />
               <Route path="/finance" element={<ProtectedRoute><Finance /></ProtectedRoute>} />
-              <Route path="/trainers" element={<ProtectedRoute><Trainers /></ProtectedRoute>} />
+              <Route path="/trainers" element={<ProtectedRoute><Trainer /></ProtectedRoute>} />
               <Route path="/trainers/add" element={<ProtectedRoute><AddTrainer /></ProtectedRoute>} />
+              <Route path="/trainers/edit/:id" element={<ProtectedRoute><EditTrainer /></ProtectedRoute>} />
               <Route path="/facilities" element={<ProtectedRoute><Facilities /></ProtectedRoute>} />
               <Route path="/workoutRoutinue" element={<ProtectedRoute><WorkoutRoutine /></ProtectedRoute>} />
               <Route path="/dietPlan" element={<ProtectedRoute><DietPlan /></ProtectedRoute>} />
