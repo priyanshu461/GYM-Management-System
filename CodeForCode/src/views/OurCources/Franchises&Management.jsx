@@ -143,7 +143,7 @@ const FranchiseAndMembership = () => {
           <h2 className={`text-4xl font-extrabold mb-3 ${
             theme === 'dark' ? 'text-white' : 'text-teal-600'
           }`}>
-            Franchise & Membership
+            Membership Plans
           </h2>
           <p className={`max-w-2xl mx-auto ${
             theme === 'dark' ? 'text-gray-300' : 'text-slate-700'

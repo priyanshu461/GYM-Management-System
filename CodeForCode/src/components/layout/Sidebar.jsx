@@ -182,7 +182,7 @@ const Sidebar = ({ demo = false, isOpen, onClose, collapsed, onToggleCollapse, c
                     <TbReportAnalytics size={18} className="text-teal-900 dark:text-white" />
                     <span>BMI Calculator</span>
                   </div>
-                ) : (
+                ) : ( 
                   <Link to="/bmiCalculator" className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 dark:hover:bg-teal-800 cursor-pointer text-sm text-teal-900 dark:text-white transition-colors duration-200">
                     <TbReportAnalytics size={18} className="text-teal-900 dark:text-white" />
                     <span>BMI Calculator</span>
@@ -275,17 +275,17 @@ const Sidebar = ({ demo = false, isOpen, onClose, collapsed, onToggleCollapse, c
                   <Link to="/courses" className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 dark:hover:bg-teal-800 cursor-pointer text-sm text-teal-900 dark:text-white transition-colors duration-200">
                     <AiOutlineAudit size={18} className="text-teal-900 dark:text-white" />
                     <span>Courses</span>
-                  </Link>
+                  </Link> 
                 )}
                 {demo ? (
                   <div onClick={() => alert('This is a demo. Please login to access.')} className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 dark:hover:bg-teal-800 cursor-pointer text-sm text-teal-900 dark:text-white transition-colors duration-200">
                     <GiGymBag size={18} className="text-teal-900 dark:text-white" />
-                    <span>Franchise & Members Managementhips</span>
+                    <span>Membership Plans </span>
                   </div>
                 ) : (
                   <Link to="/FranchiseAndMembership" className="flex items-center gap-3 p-2 rounded-lg hover:teal-50 dark:hover:bg-teal-800 cursor-pointer text-sm text-teal-900 dark:text-white transition-colors duration-200">
                     <GiGymBag size={18} className="text-teal-900 dark:text-white" />
-                    <span>Franchise & Members Managementhips</span>
+                    <span>Membership Plans </span>
                   </Link>
                 )}
 
