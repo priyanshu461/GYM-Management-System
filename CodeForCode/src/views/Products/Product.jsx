@@ -3,7 +3,7 @@ import Layout from "../../components/Layout";
 import { useTheme } from "../../contexts/ThemeContext";
 import { Link } from 'react-router-dom';
 
-const PRODUCTS = [
+export const PRODUCTS = [
   // Protein 1-10
   { id: 1, name: "Whey Protein Isolate", category: "Protein", brand: "Volt Labs", price: 3299, flavor: "Vanilla", servings: 30, rating: 4.5, stock: 25, image: "https://m.media-amazon.com/images/I/61j1JiaFLlL._SY450_.jpg" },
   { id: 2, name: "Mass Gainer Pro", category: "Protein", brand: "PrimeForce", price: 4149, flavor: "Chocolate", servings: 25, rating: 4.2, stock: 18, image: "https://m.media-amazon.com/images/I/61DQLVMdwsL._SX679_.jpg" },
