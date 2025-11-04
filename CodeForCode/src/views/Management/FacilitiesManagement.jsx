@@ -1,47 +1,66 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Layout from "../../components/Layout";
 import { motion } from "framer-motion";
 import {
   Plus, Building2, CheckCircle, XCircle, BarChart3, PieChart, Edit3, Trash2, X,
-  Dumbbell, Activity, Heart, Users
+  Dumbbell, Activity, Heart, Users, Loader2
 } from "lucide-react";
 import {
   PieChart as RechartsPieChart, Pie, Cell, Tooltip, Legend,
   BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer
 } from "recharts";
+import facilitiesService from "../../services/facilitiesService";
 
 const Facilities = () => {
-  const [facilities, setFacilities] = useState([
-    { id: 1, name: "Treadmill", type: "Cardio", status: "Available", usage: 70 },
-    { id: 2, name: "Swimming Pool", type: "Recreation", status: "Unavailable", usage: 40 },
-    { id: 3, name: "Yoga Hall", type: "Wellness", status: "Available", usage: 55 },
-    { id: 4, name: "Weight Section", type: "Strength", status: "Available", usage: 85 },
-  ]);
-
+  const [facilities, setFacilities] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [editingFacility, setEditingFacility] = useState(null);
   const [formData, setFormData] = useState({
     name: "", type: "", status: "Available", usage: 0
   });
 
+  // Fetch facilities on component mount
+  useEffect(() => {
+    fetchFacilities();
+  }, []);
+
+  const fetchFacilities = async () => {
+    try {
+      setLoading(true);
+      const response = await facilitiesService.getAllFacilities();
+      setFacilities(response.facilities);
+      setError(null);
+    } catch (err) {
+      setError('Failed to fetch facilities');
+      console.error('Error fetching facilities:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Input change handler
   const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
   // Add or Update facility
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (editingFacility) {
-      setFacilities(
-        facilities.map((f) =>
-          f.id === editingFacility.id ? { ...formData, id: f.id } : f
-        )
-      );
+    try {
+      if (editingFacility) {
+        await facilitiesService.updateFacility(editingFacility._id, formData);
+        await fetchFacilities(); // Refresh the list
+      } else {
+        await facilitiesService.addFacility(formData);
+        await fetchFacilities(); // Refresh the list
+      }
       setEditingFacility(null);
-    } else {
-      setFacilities([...facilities, { ...formData, id: Date.now() }]);
+      setFormData({ name: "", type: "", status: "Available", usage: 0 });
+      setShowForm(false);
+    } catch (err) {
+      console.error('Error saving facility:', err);
+      setError('Failed to save facility');
     }
-    setFormData({ name: "", type: "", status: "Available", usage: 0 });
-    setShowForm(false);
   };
 
   // Edit
@@ -52,7 +71,15 @@ const Facilities = () => {
   };
 
   // Delete
-  const handleDelete = (id) => setFacilities(facilities.filter((f) => f.id !== id));
+  const handleDelete = async (id) => {
+    try {
+      await facilitiesService.deleteFacility(id);
+      await fetchFacilities(); // Refresh the list
+    } catch (err) {
+      console.error('Error deleting facility:', err);
+      setError('Failed to delete facility');
+    }
+  };
 
   // Chart Data
   const statusData = [
@@ -191,6 +218,31 @@ const Facilities = () => {
             </motion.div>
           </motion.div>
 
+          {/* Loading and Error States */}
+          {loading && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="flex justify-center items-center py-12"
+            >
+              <Loader2 className="w-8 h-8 animate-spin text-teal-500" />
+              <span className="ml-2 text-muted-foreground">Loading facilities...</span>
+            </motion.div>
+          )}
+
+          {error && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-4 mb-8"
+            >
+              <div className="flex items-center gap-2">
+                <XCircle className="w-5 h-5 text-red-500" />
+                <span className="text-red-700 dark:text-red-400 font-medium">{error}</span>
+              </div>
+            </motion.div>
+          )}
+
           {/* Facilities Table */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -214,7 +266,7 @@ const Facilities = () => {
               <tbody>
                 {facilities.map((facility, index) => (
                   <motion.tr
-                    key={facility.id}
+                    key={facility._id}
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.8 + index * 0.1 }}
@@ -263,7 +315,7 @@ const Facilities = () => {
                       <motion.button
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
-                        onClick={() => handleDelete(facility.id)}
+                        onClick={() => handleDelete(facility._id)}
                         className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-3 py-2 rounded-xl transition-all shadow-md flex items-center gap-2 text-sm font-medium"
                       >
                         <Trash2 className="w-4 h-4" />

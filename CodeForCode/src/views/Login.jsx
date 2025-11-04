@@ -230,7 +230,7 @@ const Login = () => {
       )}
       {/* Signup Modal */}
       {showSignup && (
-        <Register />
+        <Register onClose={() => setShowSignup(false)} />
       )}
 
       {/* Forgot Password Modal */}

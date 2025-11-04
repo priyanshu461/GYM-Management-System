@@ -6,13 +6,14 @@ const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email: email.toLowerCase() });
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
 
     const isValid = bcrypt.compareSync(password, user.password);
     if (!isValid) {
+      console.log(`Invalid credentials for email: ${email}`); // Debug log
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
@@ -38,32 +39,74 @@ const login = async (req, res) => {
   }
 };
 
-const signup = async (req, res) => {
-  const { name, email, password } = req.body;
+const verify = async (req, res) => {
+  try {
+    const token = req.body.token;
+    if (!token) {
+      return res.status(401).json({ message: "No token provided" });
+    }
 
-  const existingUser = await User.findOne({ email });
-  if (existingUser) {
-    return res.status(400).json({ message: "User already exists" });
+    const decoded = jwt.verify(token, "7c892230e8994de8b59b604e");
+    const user = await User.findById(decoded.id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    return res.status(200).json({
+      message: "Token valid",
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        roleId: user.roleId,
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(401).json({ message: "Invalid token" });
   }
+};
+ 
+const signup = async (req, res) => {
+  try {
+    const { name, email, password } = req.body;
 
-  const hashedPassword = bcrypt.hashSync(password, 10);
+    const existingUser = await User.findOne({ email: email.toLowerCase() });
+    if (existingUser) {
+      return res.status(400).json({ message: "User already exists" });
+    }
 
-  const newUser = new User({
-    name,
-    email,
-    password: hashedPassword,
-    roleId: "69005789c00a5b9674dc6cfe", // Assuming a default role, adjust as needed
-  });
+    const hashedPassword = bcrypt.hashSync(password, 10);
 
-  await newUser.save();
+    const newUser = new User({
+      name,
+      email: email.toLowerCase(),
+      password: hashedPassword,
+      roleId: "69005789c00a5b9674dc6cfe", // Assuming a default role, adjust as needed
+    });
 
-  const token = jwt.sign(
-    { id: newUser._id, roleId: newUser.roleId, name: newUser.name, email: newUser.email },
-    "7c892230e8994de8b59b604e",
-    { expiresIn: "1h" }
-  );
+    await newUser.save();
 
-  return res.status(200).json({ token, user: newUser }); ;
+    const token = jwt.sign(
+      { id: newUser._id, roleId: newUser.roleId },
+      "7c892230e8994de8b59b604e",
+      { expiresIn: "1h" }
+    );
+
+    return res.status(200).json({
+      message: "Signup successful",
+      token,
+      user: {
+        id: newUser._id,
+        name: newUser.name,
+        email: newUser.email,
+        roleId: newUser.roleId,
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
 };
 
-module.exports = { login, signup };
+module.exports = { login, signup, verify };

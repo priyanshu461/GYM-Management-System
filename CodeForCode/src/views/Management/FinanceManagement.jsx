@@ -1,34 +1,61 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Layout from "../../components/Layout";
 import { motion } from "framer-motion";
-import { Plus, DollarSign, TrendingUp, TrendingDown, Calendar, FileText, Edit3, Trash2, X, Tag } from "lucide-react";
+import { Plus, DollarSign, TrendingUp, TrendingDown, Calendar, FileText, Edit3, Trash2, X, Tag, Loader2 } from "lucide-react";
+import financeService from "../../services/financeService";
 
 const Finance = () => {
-  const [transactions, setTransactions] = useState([
-    { id: 1, date: "2025-10-01", type: "Income", amount: 5000, description: "Membership Fees" },
-    { id: 2, date: "2025-10-02", type: "Expense", amount: 2000, description: "Equipment Maintenance" },
-  ]);
-
+  const [transactions, setTransactions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState(null);
   const [formData, setFormData] = useState({ date: "", type: "Income", amount: "", description: "" });
+  const [submitting, setSubmitting] = useState(false);
+
+  // Fetch transactions on component mount
+  useEffect(() => {
+    fetchTransactions();
+  }, []);
+
+  const fetchTransactions = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await financeService.getAllTransactions();
+      setTransactions(response.transactions || []);
+    } catch (err) {
+      console.error('Error fetching transactions:', err);
+      setError('Failed to load transactions. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Handle input change
   const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
   // Add / Update transaction
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (editingTransaction) {
-      setTransactions(
-        transactions.map((t) => (t.id === editingTransaction.id ? { ...formData, id: t.id, amount: Number(formData.amount) } : t))
-      );
-      setEditingTransaction(null);
-    } else {
-      setTransactions([...transactions, { ...formData, id: Date.now(), amount: Number(formData.amount) }]);
+    setSubmitting(true);
+    try {
+      if (editingTransaction) {
+        await financeService.updateTransaction(editingTransaction._id, formData);
+        await fetchTransactions(); // Refresh data
+        setEditingTransaction(null);
+      } else {
+        await financeService.addTransaction(formData);
+        await fetchTransactions(); // Refresh data
+      }
+      setFormData({ date: "", type: "Income", amount: "", description: "" });
+      setShowForm(false);
+    } catch (err) {
+      console.error('Error submitting transaction:', err);
+      setError('Failed to save transaction. Please try again.');
+    } finally {
+      setSubmitting(false);
     }
-    setFormData({ date: "", type: "Income", amount: "", description: "" });
-    setShowForm(false);
   };
 
   // Edit
@@ -39,7 +66,17 @@ const Finance = () => {
   };
 
   // Delete
-  const handleDelete = (id) => setTransactions(transactions.filter((t) => t.id !== id));
+  const handleDelete = async (id) => {
+    if (window.confirm('Are you sure you want to delete this transaction?')) {
+      try {
+        await financeService.deleteTransaction(id);
+        await fetchTransactions(); // Refresh data
+      } catch (err) {
+        console.error('Error deleting transaction:', err);
+        setError('Failed to delete transaction. Please try again.');
+      }
+    }
+  };
 
   // Summary
   const totalIncome = transactions.filter((t) => t.type === "Income").reduce((acc, curr) => acc + curr.amount, 0);
@@ -143,50 +180,74 @@ const Finance = () => {
               </tr>
             </thead>
             <tbody>
-              {transactions.map((t, index) => (
-                <motion.tr
-                  key={t.id}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.6 + index * 0.1 }}
-                  className="border-b border-border hover:bg-gradient-to-r hover:from-teal-900/5 hover:to-teal-800/5 dark:hover:from-teal-900/10 dark:hover:to-teal-800/10 transition-all duration-200"
-                >
-                  <td className="px-6 py-4 text-foreground">{t.date}</td>
-                  <td className="px-6 py-4">
-                    <span
-                      className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-semibold ${
-                        t.type === "Income" ? "bg-green-100 text-green-800 border border-green-300 dark:bg-green-900/20 dark:text-green-400 dark:border-green-600" : "bg-red-100 text-red-800 border border-red-300 dark:bg-red-900/20 dark:text-red-400 dark:border-red-600"
-                      }`}
-                    >
-                      {t.type === "Income" ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
-                      {t.type}
-                    </span>
+              {loading ? (
+                <tr>
+                  <td colSpan="5" className="px-6 py-12 text-center text-muted-foreground">
+                    <div className="flex flex-col items-center gap-2">
+                      <Loader2 className="w-8 h-8 animate-spin text-teal-500" />
+                      <span className="text-lg">Loading transactions...</span>
+                    </div>
                   </td>
-                  <td className="px-6 py-4 font-semibold text-foreground">₹{t.amount.toLocaleString()}</td>
-                  <td className="px-6 py-4 text-foreground">{t.description}</td>
-                  <td className="px-6 py-4 flex justify-center gap-3">
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={() => handleEdit(t)}
-                      className="bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white px-3 py-2 rounded-xl transition-all shadow-md flex items-center gap-2 text-sm font-medium"
-                    >
-                      <Edit3 className="w-4 h-4" />
-                      Edit
-                    </motion.button>
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={() => handleDelete(t.id)}
-                      className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-3 py-2 rounded-xl transition-all shadow-md flex items-center gap-2 text-sm font-medium"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                      Delete
-                    </motion.button>
+                </tr>
+              ) : error ? (
+                <tr>
+                  <td colSpan="5" className="px-6 py-12 text-center text-red-500">
+                    <div className="flex flex-col items-center gap-2">
+                      <span className="text-lg">{error}</span>
+                      <button
+                        onClick={fetchTransactions}
+                        className="mt-2 px-4 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-colors"
+                      >
+                        Retry
+                      </button>
+                    </div>
                   </td>
-                </motion.tr>
-              ))}
-              {transactions.length === 0 && (
+                </tr>
+              ) : transactions.length > 0 ? (
+                transactions.map((t, index) => (
+                  <motion.tr
+                    key={t._id}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.6 + index * 0.1 }}
+                    className="border-b border-border hover:bg-gradient-to-r hover:from-teal-900/5 hover:to-teal-800/5 dark:hover:from-teal-900/10 dark:hover:to-teal-800/10 transition-all duration-200"
+                  >
+                    <td className="px-6 py-4 text-foreground">{t.date}</td>
+                    <td className="px-6 py-4">
+                      <span
+                        className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-semibold ${
+                          t.type === "Income" ? "bg-green-100 text-green-800 border border-green-300 dark:bg-green-900/20 dark:text-green-400 dark:border-green-600" : "bg-red-100 text-red-800 border border-red-300 dark:bg-red-900/20 dark:text-red-400 dark:border-red-600"
+                        }`}
+                      >
+                        {t.type === "Income" ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+                        {t.type}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 font-semibold text-foreground">₹{t.amount.toLocaleString()}</td>
+                    <td className="px-6 py-4 text-foreground">{t.description}</td>
+                    <td className="px-6 py-4 flex justify-center gap-3">
+                      <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => handleEdit(t)}
+                        className="bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white px-3 py-2 rounded-xl transition-all shadow-md flex items-center gap-2 text-sm font-medium"
+                      >
+                        <Edit3 className="w-4 h-4" />
+                        Edit
+                      </motion.button>
+                      <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => handleDelete(t._id)}
+                        className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-3 py-2 rounded-xl transition-all shadow-md flex items-center gap-2 text-sm font-medium"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                        Delete
+                      </motion.button>
+                    </td>
+                  </motion.tr>
+                ))
+              ) : (
                 <tr>
                   <td colSpan="5" className="px-6 py-12 text-center text-muted-foreground">
                     <div className="flex flex-col items-center gap-2">
@@ -309,10 +370,11 @@ const Finance = () => {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   type="submit"
-                  className="px-6 py-3 bg-gradient-to-r from-teal-600 to-teal-500 text-white rounded-xl shadow-lg hover:from-teal-700 hover:to-teal-600 transition-all font-semibold flex items-center gap-2"
+                  disabled={submitting}
+                  className="px-6 py-3 bg-gradient-to-r from-teal-600 to-teal-500 text-white rounded-xl shadow-lg hover:from-teal-700 hover:to-teal-600 transition-all font-semibold flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {editingTransaction ? <Edit3 className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
-                  {editingTransaction ? "Update" : "Add"}
+                  {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : (editingTransaction ? <Edit3 className="w-4 h-4" /> : <Plus className="w-4 h-4" />)}
+                  {submitting ? "Saving..." : (editingTransaction ? "Update" : "Add")}
                 </motion.button>
               </div>
             </form>

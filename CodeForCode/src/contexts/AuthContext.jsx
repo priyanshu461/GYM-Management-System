@@ -14,35 +14,39 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
-      // Optionally verify token with backend
-      setIsAuthenticated(true);
-      const storedUser = localStorage.getItem("user");
-      if (storedUser) {
-        try {
-          const user = JSON.parse(storedUser);
-          if (user && user.name) {
-            updateUser({
-              name: user.name,
-              email: user.email,
-              phone: user.phone || "",
-              address: user.address || "",
-              roleId: user.roleId,
-              role: "",
-              membershipStatus: user.membershipStatus || false,
-            });
+      // Verify token with backend
+      fetch(`${BASE_API_URL}auth/verify`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ token }),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.user) {
+            setUser(data.user);
+            setIsAuthenticated(true);
           } else {
-            // Invalid user data, clear it
+            // Invalid token, clear localStorage
+            localStorage.removeItem("token");
             localStorage.removeItem("user");
             setIsAuthenticated(false);
           }
-        } catch (error) {
-          // Parsing error, clear invalid data
+        })
+        .catch((error) => {
+          console.error("Token verification error:", error);
+          // Clear localStorage on error
+          localStorage.removeItem("token");
           localStorage.removeItem("user");
           setIsAuthenticated(false);
-        }
-      }
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    } else {
+      setLoading(false);
     }
-    setLoading(false);
   }, []);
 
   // Login function
@@ -110,6 +114,7 @@ export const AuthProvider = ({ children }) => {
     setIsAuthenticated(false);
     setUser(null);
     localStorage.removeItem("token");
+    localStorage.removeItem("user");
   };
 
   return (

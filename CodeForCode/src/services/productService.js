@@ -2,24 +2,30 @@ import { BASE_API_URL, TOKEN } from "@/Utils/data";
 
 const productService = {};
 
-productService.getAllProducts = async (data = {}) => {
-  // Simulate fetching all products
-  const res = await fetch(`${BASE_API_URL}dashboard/product/all`, {
+productService.getAllProducts = async (params = {}) => {
+  const queryParams = new URLSearchParams();
+
+  if (params.category && params.category !== 'All') queryParams.append('category', params.category);
+  if (params.search) queryParams.append('search', params.search);
+  if (params.sortBy) queryParams.append('sortBy', params.sortBy);
+  if (params.sortOrder) queryParams.append('sortOrder', params.sortOrder);
+
+  const url = `${BASE_API_URL}dashboard/product/all${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
+
+  const res = await fetch(url, {
     headers: { Authorization: `Bearer ${TOKEN}` },
-    data: json.stringify(data),
   });
   return await res.json();
 };
 
 productService.createProduct = async (data = {}) => {
-  // Simulate fetching all products
   const res = await fetch(`${BASE_API_URL}dashboard/product/create`, {
     method: "POST",
     headers: {
-      "Content-Type": "mulptipart/form-data",
+      "Content-Type": "application/json",
       Authorization: `Bearer ${TOKEN}`,
     },
-    body: data,
+    body: JSON.stringify(data),
   });
   return await res.json();
 };
@@ -29,8 +35,12 @@ productService.updateProduct = async (data = {}) => {
   const res = await fetch(
     `${BASE_API_URL}dashboard/product/update/${data.product_id}`,
     {
-      headers: { Authorization: `Bearer ${TOKEN}` },
-      data: json.stringify(data),
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${TOKEN}`,
+      },
+      body: JSON.stringify(data),
     }
   );
   return await res.json();
@@ -39,8 +49,12 @@ productService.updateProduct = async (data = {}) => {
 productService.deleteProduct = async (data = {}) => {
   // Simulate fetching all products
   const res = await fetch(`${BASE_API_URL}dashboard/product/delete`, {
-    headers: { Authorization: `Bearer ${TOKEN}` },
-    data: json.stringify(data),
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${TOKEN}`,
+    },
+    body: JSON.stringify(data),
   });
   return await res.json();
 };
@@ -48,8 +62,12 @@ productService.deleteProduct = async (data = {}) => {
 productService.getProduct = async (data = {}) => {
   // Simulate fetching all products
   const res = await fetch(`${BASE_API_URL}dashboard/product/get`, {
-    headers: { Authorization: `Bearer ${TOKEN}` },
-    data: json.stringify(data),
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${TOKEN}`,
+    },
+    body: JSON.stringify(data),
   });
   return await res.json();
 };

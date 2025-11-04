@@ -2,6 +2,7 @@ import React from 'react'
 import { Route, Routes, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
 import { ThemeProvider } from './contexts/ThemeContext'
+import { ProductProvider } from './contexts/ProductContext'
 import Login from './views/Login'
 import Home from './views/Home'
 import MemberManagement from './views/Management/MemberManagement'
@@ -20,6 +21,7 @@ import Courses from './views/OurCources/Courses'
 import ClassesSchedule from './views/OurCources/Classes&Schedule'
 import FranchiseAndMembership from './views/OurCources/Franchises&Management'
 import Product from './views/Products/Product'
+import ProductCreate from './views/Products/ProductCreate'
 import Protein from './views/Products/Protein'
 import AminoAcidSuppliments from './views/Products/AminoAcidSuppliments'
 import Suppliments from './views/Products/Suppliments'
@@ -30,8 +32,6 @@ import GymBlog from './views/GymBlog'
 import NotificationsCommunication from './views/NotificationCommunication'
 import Dashboard from './views/Dashboard'
 import Profile from './views/Profile'
-import ProductCreate from './views/Products/ProductCreate'
-import ProductIndex from './views/Products/ProductIndex'
 
 function ProtectedRoute({ children }) {
   const { isAuthenticated } = useAuth();
@@ -47,8 +47,9 @@ function App() {
   return (
       <ThemeProvider>
         <AuthProvider>
-          <div>
-            <Routes>
+          <ProductProvider>
+            <div>
+              <Routes>
               <Route path="/login" element={<CheckAuth><Login /></CheckAuth>} />
               <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
               <Route path="/" element={<Home />} />
@@ -68,6 +69,7 @@ function App() {
               <Route path="/courses" element={<ProtectedRoute><Courses /></ProtectedRoute>} />
               <Route path="/franchiseAndMembership" element={<ProtectedRoute><FranchiseAndMembership /></ProtectedRoute>} />
               <Route path="/products" element={<ProtectedRoute><Product /></ProtectedRoute>} />
+              <Route path="/products/create" element={<ProtectedRoute><ProductCreate /></ProtectedRoute>} />
               <Route path="/protein" element={<ProtectedRoute><Protein /></ProtectedRoute>} />
               <Route path='/aminoacidsuppliments' element={<ProtectedRoute><AminoAcidSuppliments /></ProtectedRoute>} />
               <Route path='/suppliments' element={<ProtectedRoute><Suppliments /></ProtectedRoute>} />
@@ -77,10 +79,9 @@ function App() {
               <Route path='/gymblog' element={<ProtectedRoute><GymBlog /></ProtectedRoute>} />
               <Route path='/notificationcommunication' element={<ProtectedRoute><NotificationsCommunication /></ProtectedRoute>} />
               <Route path='/profile' element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-              <Route path='/products/index' element={<ProtectedRoute><ProductIndex /></ProtectedRoute>} />
-              <Route path='/products/create' element={<ProtectedRoute><ProductCreate /></ProtectedRoute>} />
             </Routes>
           </div>
+          </ProductProvider>
         </AuthProvider>
       </ThemeProvider>
   )

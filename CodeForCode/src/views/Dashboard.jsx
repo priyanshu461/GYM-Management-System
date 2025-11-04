@@ -344,7 +344,11 @@ const Dashboard = () => {
                         className="p-4 rounded-xl bg-background border border-border hover:bg-gradient-to-r hover:from-teal-900/5 hover:to-teal-800/5 dark:hover:from-teal-900/10 dark:hover:to-teal-800/10 transition-all duration-200 flex items-center justify-between"
                       >
                         <div className="flex items-center gap-3">
-                          <div className="text-2xl">{p.image}</div>
+                          <img
+                            src={p.image}
+                            alt={p.title}
+                            className="w-12 h-12 rounded-lg object-cover"
+                          />
                           <div>
                             <div className="font-semibold text-foreground">
                               {p.title}
@@ -392,7 +396,7 @@ const Dashboard = () => {
                       } else if (action.title === "View reports") {
                         navigate("/reportsAnalytics");
                       } else if (action.title === "Send promo") {
-                        navigate("/NotificationCommunication");
+                        navigate("/notificationcommunication");
                       }
                     }}
                     className="flex items-center justify-between p-4 rounded-xl bg-background border border-border hover:bg-gradient-to-r hover:from-teal-900/5 hover:to-teal-800/5 dark:hover:from-teal-900/10 dark:hover:to-teal-800/10 transition-all duration-200 group"

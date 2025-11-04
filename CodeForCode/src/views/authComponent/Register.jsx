@@ -1,10 +1,10 @@
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "../../contexts/AuthContext";
 import React, { useState } from "react";
-import { useTheme } from "@/contexts/ThemeContext";
+import { useTheme } from "../../contexts/ThemeContext";
 import { User } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
-const Register = () => {
+const Register = ({ onClose }) => {
   const { theme } = useTheme();
   const { signup } = useAuth();
   const navigate = useNavigate();
@@ -192,7 +192,8 @@ const Register = () => {
           </form>
           <div className="mt-6 text-center">
             <button
-              onClick={() => setShowSignup(false)}
+              type="button"
+              onClick={() => onClose()}
               className={`font-medium transition-colors ${
                 theme === "dark"
                   ? "text-teal-300 hover:text-teal-100"
