@@ -1,13 +1,14 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
-const User = require("./models/UserModel");
-const Role = require("./models/RoleModel");
+const User = require("./src/models/UserModel");
+const Role = require("./src/models/RoleModel");
 require("dotenv").config();
 
 async function seedDatabase() {
   try {
-    // Connect to the database using the same connection string as the main app
-    await mongoose.connect("mongodb+srv://rathorenisha397_db_user:FyD450e9i4dRHZyD@userdata.x6f1kdi.mongodb.net/");
+    // Connect to the database using environment variable
+    const mongoURI = process.env.MONGODB_URI || process.env.MONGO_URI || "mongodb+srv://rathorenisha397_db_user:FyD450e9i4dRHZyD@userdata.x6f1kdi.mongodb.net/";
+    await mongoose.connect(mongoURI);
     console.log("Connected to MongoDB");
 
     // Create roles if they don't exist

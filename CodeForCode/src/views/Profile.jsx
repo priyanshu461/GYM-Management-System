@@ -354,7 +354,7 @@ const Profile = () => {
                 <div className="text-teal-600 text-sm">Check your health metrics</div>
               </motion.div>
             </Link>
-            <Link to="/workoutRoutinue">
+            <Link to="/workout-routine">
               <motion.div
                 className="bg-gradient-to-br from-orange-50 to-orange-100 p-4 rounded-xl border border-orange-200 text-center hover:shadow-lg transition-all duration-200 cursor-pointer"
                 whileHover={{ scale: 1.05 }}

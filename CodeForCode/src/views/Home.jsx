@@ -132,11 +132,12 @@ const Home = () => {
       </nav>
 
       {/* Hero Section */}
-      <section id="home" className={`pt-20 min-h-[80vh] flex items-center justify-center ${theme === 'dark' ? 'bg-gradient-to-r from-teal-700 via-teal-800 to-teal-800' : 'bg-gradient-to-r from-teal-300 via-teal-400 to-teal-400'} text-white relative`}>
-        <div className="absolute inset-0 opacity-30 bg-[url('https://images.unsplash.com/photo-1556817411-31ae72fa3ea0?auto=format&fit=crop&w=1200&q=80')] bg-cover bg-center" />
+      <section id="home" className={`pt-16 sm:pt-20 md:pt-24 min-h-[70vh] sm:min-h-[80vh] flex items-center justify-center ${theme === 'dark' ? 'bg-gradient-to-r from-teal-700 via-teal-800 to-teal-800' : 'bg-gradient-to-r from-teal-300 via-teal-400 to-teal-400'} text-white relative overflow-hidden`}>
+        <div className="absolute inset-0 opacity-30 bg-[url('https://images.unsplash.com/photo-1556817411-31ae72fa3ea0?auto=format&fit=crop&w=1200&q=80')] bg-cover bg-center bg-no-repeat" />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/20" />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center z-10">
           <motion.h1
-            className="text-5xl md:text-6xl font-extrabold mb-6 drop-shadow"
+            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold mb-4 sm:mb-6 drop-shadow-lg leading-tight px-2"
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
@@ -144,7 +145,7 @@ const Home = () => {
             Next-level Gym Management
           </motion.h1>
           <motion.p
-            className="text-2xl md:text-3xl mb-8 max-w-3xl mx-auto text-white/90 font-medium drop-shadow"
+            className="text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl mb-6 sm:mb-8 max-w-3xl mx-auto text-white/90 font-medium drop-shadow px-4 leading-relaxed"
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
@@ -152,15 +153,15 @@ const Home = () => {
             Smart, simple, and fully integrated software for fitness clubs and studios. Empower success for your members, trainers, and business.
           </motion.p>
           <motion.div
-            className="space-x-4"
+            className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 px-4"
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
           >
-            <button onClick={() => setShowDemo(true)} className="bg-white text-teal-700 px-8 py-3 rounded-lg font-bold shadow-lg hover:bg-teal-100 transition">
+            <button onClick={() => setShowDemo(true)} className="w-full sm:w-auto bg-white text-teal-700 px-6 sm:px-8 py-2.5 sm:py-3 rounded-lg font-bold shadow-lg hover:bg-teal-100 hover:shadow-xl transition-all duration-200 transform hover:scale-105">
               Get Started Free
             </button>
-            <button onClick={() => scrollToSection('whyus')} className="border-2 border-white text-white px-8 py-3 rounded-lg font-bold hover:bg-white hover:text-teal-600 transition">
+            <button onClick={() => scrollToSection('whyus')} className="w-full sm:w-auto border-2 border-white text-white px-6 sm:px-8 py-2.5 sm:py-3 rounded-lg font-bold hover:bg-white hover:text-teal-600 transition-all duration-200 transform hover:scale-105">
               Why Choose GMS?
             </button>
           </motion.div>
@@ -168,10 +169,10 @@ const Home = () => {
       </section>
 
       {/* Features Section */}
-      <section id="services" className={`py-20 ${theme === 'dark' ? 'bg-teal-900' : 'bg-white'}`}>
-        <div className="max-w-7xl mx-auto  bg-tale-400  px-4 sm:px-6 lg:px-8">
+      <section id="services" className={`py-12 sm:py-16 md:py-20 ${theme === 'dark' ? 'bg-teal-900' : 'bg-white'}`}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.h2
-            className={`text-4xl font-extrabold text-center ${theme === 'dark' ? 'text-white' : 'text-teal-800'} mb-12`}
+            className={`text-2xl sm:text-3xl md:text-4xl font-extrabold text-center ${theme === 'dark' ? 'text-white' : 'text-teal-800'} mb-8 sm:mb-10 md:mb-12 px-4`}
             initial={{ opacity: 0, y: 50 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
@@ -180,7 +181,7 @@ const Home = () => {
             Core Features
           </motion.h2>
           <motion.div
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8"
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
@@ -195,18 +196,18 @@ const Home = () => {
             }}
           >
             <motion.div
-              className={`group ${theme === 'dark' ? 'bg-teal-800' : 'bg-white'} p-8 rounded-2xl shadow-md border-t-4 border-teal-400 transition-all cursor-pointer hover:bg-teal-400 hover:border-teal-400`}
+              className={`group ${theme === 'dark' ? 'bg-teal-800' : 'bg-white'} p-6 sm:p-8 rounded-xl sm:rounded-2xl shadow-md border-t-4 border-teal-400 transition-all cursor-pointer hover:bg-teal-400 hover:border-teal-400 hover:shadow-xl`}
               variants={{
                 hidden: { opacity: 0, y: 50 },
                 visible: { opacity: 1, y: 0 },
               }}
-              whileHover={{ scale: 1.05, boxShadow: "0 10px 15px rgba(0,0,0,0.1)" }}
+              whileHover={{ scale: 1.02, boxShadow: "0 10px 15px rgba(0,0,0,0.1)" }}
               transition={{ duration: 0.3 }}
             >
-              <Users className="h-12 w-12 text-teal-500 mb-4 group-hover:text-teal-100" />
-              <h3 className={`text-xl font-semibold mb-2 ${theme === 'dark' ? 'group-hover:text-teal-100' : 'group-hover:text-teal-900'}`}>Member Management</h3>
-              <p className={`${theme === 'dark' ? 'text-teal-100' : 'text-teal-700'} group-hover:opacity-0 transition-opacity duration-300`}>Digital signups, attendance tracking, renewals, full profile management, and communication all in one place.</p>
-              <p className={`${theme === 'dark' ? 'text-teal-100' : 'text-teal-900'} mt-2 max-h-0 overflow-hidden group-hover:max-h-40 transition-all duration-300 ease-in-out`}>
+              <Users className="h-10 w-10 sm:h-12 sm:w-12 text-teal-500 mb-3 sm:mb-4 group-hover:text-teal-100 transition-colors duration-300" />
+              <h3 className={`text-lg sm:text-xl font-semibold mb-2 ${theme === 'dark' ? 'group-hover:text-teal-100' : 'group-hover:text-teal-900'} transition-colors duration-300`}>Member Management</h3>
+              <p className={`text-sm sm:text-base ${theme === 'dark' ? 'text-teal-100' : 'text-teal-700'} group-hover:opacity-0 transition-opacity duration-300`}>Digital signups, attendance tracking, renewals, full profile management, and communication all in one place.</p>
+              <p className={`text-sm sm:text-base ${theme === 'dark' ? 'text-teal-100' : 'text-teal-900'} mt-2 max-h-0 overflow-hidden group-hover:max-h-40 transition-all duration-300 ease-in-out`}>
                 • Revolutionize operations by automating tedious tasks and saving 10+ hours weekly<br/>
                 • Unlock powerful insights with centralized data for smarter decision-making<br/>
                 • Seamlessly integrate with existing workflows for zero disruption<br/>
@@ -254,7 +255,7 @@ const Home = () => {
                 • Boost profits with automated upselling and cross-selling features
               </p>
             </motion.div>
-            <Link to="/bmiCalculator">
+            <Link to="/bmi-calculator">
             <motion.div
               className={`group ${theme === 'dark' ? 'bg-teal-800' : 'bg-white'} p-8 rounded-2xl shadow-md border-t-4 border-teal-400 transition-all cursor-pointer hover:bg-teal-400 hover:border-teal-400`}
                 variants={{

@@ -77,17 +77,17 @@ const Login = () => {
       </header>
 
       {/* Centered Login Form */}
-      <div className="flex-1 flex items-center justify-center px-4">
-        <div className={`max-w-md w-full rounded-2xl shadow-2xl p-8 animate-fade-in backdrop-blur-sm ${theme === 'dark' ? 'bg-teal-800/90' : 'bg-teal-50/90'}`}>
+      <div className="flex-1 flex items-center justify-center px-4 sm:px-6 py-8 sm:py-12">
+        <div className={`max-w-md w-full rounded-xl sm:rounded-2xl shadow-2xl p-6 sm:p-8 animate-fade-in backdrop-blur-sm ${theme === 'dark' ? 'bg-teal-800/90' : 'bg-teal-50/90'} border border-teal-200/50 dark:border-teal-700/50`}>
           {/* Form Header */}
-          <div className="text-center mb-8">
+          <div className="text-center mb-6 sm:mb-8">
             <div className="flex justify-center mb-4">
-              <div className={`p-4 rounded-full shadow-lg ${theme === 'dark' ? 'bg-teal-700' : 'bg-teal-100'}`}>
-                <Lock className={`text-teal-600 ${theme === 'dark' ? 'text-teal-200' : ''}`} size={32} />
+              <div className={`p-3 sm:p-4 rounded-full shadow-lg ${theme === 'dark' ? 'bg-teal-700' : 'bg-teal-100'}`}>
+                <Lock className={`text-teal-600 ${theme === 'dark' ? 'text-teal-200' : ''} w-7 h-7 sm:w-8 sm:h-8`} />
               </div>
             </div>
-            <h1 className={`text-3xl font-bold mb-2 ${theme === 'dark' ? 'text-white' : 'text-teal-800'}`}>Welcome Back</h1>
-            <p className={`text-gray-600 ${theme === 'dark' ? 'text-teal-200' : ''}`}>Sign in to your account</p>
+            <h1 className={`text-2xl sm:text-3xl font-bold mb-2 ${theme === 'dark' ? 'text-white' : 'text-teal-800'}`}>Welcome Back</h1>
+            <p className={`text-sm sm:text-base text-gray-600 ${theme === 'dark' ? 'text-teal-200' : ''}`}>Sign in to your account</p>
             {errorMessage && (
               <p className="text-red-600 mt-4">{errorMessage}</p>
             )}
@@ -97,14 +97,14 @@ const Login = () => {
           </div>
 
           {/* Login Form */}
-          <form onSubmit={handleLogin} className="space-y-6">
+          <form onSubmit={handleLogin} className="space-y-4 sm:space-y-6">
             {/* Email Field */}
             <div>
-              <label htmlFor="email" className={`block text-sm font-medium mb-2 ${theme === 'dark' ? 'text-teal-100' : 'text-teal-800'}`}>
+              <label htmlFor="email" className={`block text-xs sm:text-sm font-medium mb-2 ${theme === 'dark' ? 'text-teal-100' : 'text-teal-800'}`}>
                 Email Address
               </label>
               <div className="relative">
-                <Mail className={`absolute left-3 top-1/2 transform -translate-y-1/2 text-teal-500 ${theme === 'dark' ? 'text-teal-300' : ''}`} size={20} />
+                <Mail className={`absolute left-3 top-1/2 transform -translate-y-1/2 text-teal-500 ${theme === 'dark' ? 'text-teal-300' : ''} w-4 h-4 sm:w-5 sm:h-5`} />
                 <input
                   type="email"
                   id="email"
@@ -113,7 +113,7 @@ const Login = () => {
                     setEmail(e.target.value);
                     setErrorMessage('');
                   }}
-                  className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-200 shadow-sm ${theme === 'dark' ? 'bg-teal-700 border-teal-600 text-teal-100' : 'bg-white border-teal-300'}`}
+                  className={`w-full pl-9 sm:pl-10 pr-4 py-2.5 sm:py-3 border rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-200 shadow-sm text-sm sm:text-base ${theme === 'dark' ? 'bg-teal-700 border-teal-600 text-teal-100' : 'bg-white border-teal-300'}`}
                   placeholder="Enter your email"
                   required
                 />
@@ -122,17 +122,17 @@ const Login = () => {
 
             {/* Password Field */}
             <div>
-              <label htmlFor="password" className={`block text-sm font-medium mb-2 ${theme === 'dark' ? 'text-teal-100' : 'text-teal-800'}`}>
+              <label htmlFor="password" className={`block text-xs sm:text-sm font-medium mb-2 ${theme === 'dark' ? 'text-teal-100' : 'text-teal-800'}`}>
                 Password
               </label>
               <div className="relative">
-                <Lock className={`absolute left-3 top-1/2 transform -translate-y-1/2 text-teal-500 ${theme === 'dark' ? 'text-teal-300' : ''}`} size={20} />
+                <Lock className={`absolute left-3 top-1/2 transform -translate-y-1/2 text-teal-500 ${theme === 'dark' ? 'text-teal-300' : ''} w-4 h-4 sm:w-5 sm:h-5`} />
                 <input
                   type="password"
                   id="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-200 shadow-sm ${theme === 'dark' ? 'bg-teal-700 border-teal-600 text-teal-100' : 'bg-white border-teal-300'}`}
+                  className={`w-full pl-9 sm:pl-10 pr-4 py-2.5 sm:py-3 border rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-200 shadow-sm text-sm sm:text-base ${theme === 'dark' ? 'bg-teal-700 border-teal-600 text-teal-100' : 'bg-white border-teal-300'}`}
                   placeholder="Enter your password"
                   required
                 />
@@ -140,10 +140,10 @@ const Login = () => {
             </div>
 
             {/* Buttons */}
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               <button
                 type="submit"
-                className={`w-full bg-gradient-to-r from-teal-400 via-teal-800 to-teal-400 hover:from-teal-200 hover:to-teal-600 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 shadow-lg ${theme === 'dark' ? 'from-teal-600 via-teal-900 to-teal-600 hover:from-teal-500 hover:to-teal-700' : ''}`}
+                className={`w-full bg-gradient-to-r from-teal-400 via-teal-800 to-teal-400 hover:from-teal-200 hover:to-teal-600 text-white font-semibold py-2.5 sm:py-3 px-4 rounded-lg sm:rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 shadow-lg hover:shadow-xl transform hover:scale-[1.02] text-sm sm:text-base ${theme === 'dark' ? 'from-teal-600 via-teal-900 to-teal-600 hover:from-teal-500 hover:to-teal-700' : ''}`}
               >
                 Login
               </button>
@@ -151,7 +151,7 @@ const Login = () => {
               <button
                 type="button"
                 onClick={handleForgotPassword}
-                className={`w-full font-medium py-3 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 ${theme === 'dark' ? 'bg-teal-700 hover:bg-teal-600 text-teal-100' : 'bg-teal-50 hover:bg-gray-200 text-gray-700'}`}
+                className={`w-full font-medium py-2.5 sm:py-3 px-4 rounded-lg sm:rounded-xl transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 text-sm sm:text-base ${theme === 'dark' ? 'bg-teal-700 hover:bg-teal-600 text-teal-100' : 'bg-teal-50 hover:bg-gray-200 text-gray-700'}`}
               >
                 Forgot Password?
               </button>

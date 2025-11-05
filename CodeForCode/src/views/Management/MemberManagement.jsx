@@ -1,7 +1,7 @@
 import Layout from "@/components/Layout";
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { UserPlus, Search, Users, Trash2, AlertCircle } from "lucide-react";
+import { UserPlus, Search, Users, Trash2, AlertCircle, Edit2, Eye, Phone, Mail, Calendar, Filter, Download } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import gymServices from "@/services/gymServices";
 
@@ -31,7 +31,7 @@ export default function Member() {
   };
 
   const deleteMember = async (id) => {
-    if (!confirm("Are you sure you want to delete this member?")) return;
+    if (!window.confirm("Are you sure you want to delete this member?")) return;
 
     try {
       await gymServices.deleteCustomer(id);
@@ -42,218 +42,348 @@ export default function Member() {
   };
 
   const filteredMembers = members.filter((m) =>
-    m.name.toLowerCase().includes(search.toLowerCase()) ||
-    m.mobile.includes(search) ||
+    m.name?.toLowerCase().includes(search.toLowerCase()) ||
+    m.mobile?.includes(search) ||
     (m.email && m.email.toLowerCase().includes(search.toLowerCase()))
   );
 
+  const newMembersThisMonth = members.filter(m => 
+    m.createdAt && new Date(m.createdAt) > new Date(Date.now() - 30*24*60*60*1000)
+  ).length;
+
   return (
     <Layout>
-      <div className="min-h-screen bg-background text-foreground py-10 px-4">
-        <div className="mx-auto max-w-5xl">
-          {/* Title */}
+      <div className="min-h-screen bg-gradient-to-br from-teal-50/50 via-white to-teal-50/50 dark:from-teal-900 dark:via-teal-900 dark:to-teal-800 text-foreground py-6 sm:py-10 px-4 sm:px-6">
+        <div className="mx-auto max-w-7xl">
+          {/* Title Section */}
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-center mb-8"
+            className="mb-6 sm:mb-8"
           >
-            <h1 className="text-4xl font-extrabold mb-3 text-foreground tracking-tight">
-              <Users className="inline-block w-10 h-10 mr-3 text-teal-500 dark:text-teal-400" />
-              Member<span className="text-teal-500 dark:text-teal-400"> Management</span>
-            </h1>
-            <p className="text-muted-foreground text-lg">Add, search and manage gym members efficiently</p>
-          </motion.div>
-
-          {/* Add Member Section - Enhanced */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="relative mb-8"
-          >
-            {/* Background Pattern */}
-            <div className="absolute inset-0 bg-gradient-to-br from-teal-500/10 via-teal-400/5 to-teal-600/10 rounded-3xl"></div>
-            <div className="absolute inset-0 bg-gradient-to-r from-teal-600/20 to-teal-500/20 rounded-3xl blur-xl"></div>
-
-            <div className="relative bg-gradient-to-br from-white/80 to-teal-50/50 dark:from-teal-900/20 dark:to-teal-800/20 backdrop-blur-sm border border-teal-200/50 dark:border-teal-700/30 rounded-3xl shadow-2xl p-8 overflow-hidden">
-              {/* Decorative Elements */}
-              <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-teal-400/20 to-teal-600/20 rounded-full blur-2xl -translate-y-16 translate-x-16"></div>
-              <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-teal-500/15 to-teal-700/15 rounded-full blur-xl translate-y-12 -translate-x-12"></div>
-
-              <div className="relative z-10">
-                <div className="flex flex-col lg:flex-row items-center justify-between gap-6">
-                  {/* Left Content */}
-                  <div className="flex-1 text-center lg:text-left">
-                    <motion.div
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.4 }}
-                      className="flex items-center justify-center lg:justify-start gap-3 mb-4"
-                    >
-                      <div className="w-12 h-12 bg-gradient-to-br from-teal-500 to-teal-600 rounded-2xl flex items-center justify-center shadow-lg">
-                        <UserPlus className="w-6 h-6 text-white" />
-                      </div>
-                      <div>
-                        <h2 className="text-2xl font-bold text-foreground bg-gradient-to-r from-teal-600 to-teal-500 bg-clip-text text-transparent">
-                          Add New Member
-                        </h2>
-                        <p className="text-muted-foreground text-sm">Expand your gym community</p>
-                      </div>
-                    </motion.div>
-
-                    <motion.p
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.6 }}
-                      className="text-muted-foreground mb-6 max-w-md"
-                    >
-                      Welcome new members to your fitness family. Collect essential information and get them started on their fitness journey.
-                    </motion.p>
-
-                    {/* Quick Stats */}
-                    <motion.div
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.8 }}
-                      className="flex items-center justify-center lg:justify-start gap-6 mb-6"
-                    >
-                      <div className="text-center">
-                        <div className="text-2xl font-bold text-teal-600 dark:text-teal-400">{filteredMembers.length}</div>
-                        <div className="text-xs text-muted-foreground">Total Members</div>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-2xl font-bold text-green-600 dark:text-green-400">
-                          {members.filter(m => m.createdAt && new Date(m.createdAt) > new Date(Date.now() - 30*24*60*60*1000)).length}
-                        </div>
-                        <div className="text-xs text-muted-foreground">This Month</div>
-                      </div>
-                    </motion.div>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+              <div>
+                <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold mb-2 text-foreground tracking-tight flex items-center gap-3">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-teal-500 to-teal-600 rounded-xl flex items-center justify-center shadow-lg">
+                    <Users className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                   </div>
-
-                  {/* Right Content - CTA Button */}
-                  <motion.div
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.4 }}
-                    className="flex-shrink-0"
-                  >
-                    <motion.button
-                      whileHover={{ scale: 1.05, y: -2 }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={() => navigate("/members/add")}
-                      className="group relative overflow-hidden bg-gradient-to-r from-teal-600 via-teal-500 to-teal-600 text-white px-8 py-4 rounded-2xl font-semibold shadow-xl hover:shadow-2xl transition-all duration-300"
-                    >
-                      {/* Button Background Animation */}
-                      <div className="absolute inset-0 bg-gradient-to-r from-teal-400 to-teal-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                      <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl"></div>
-
-                      {/* Button Content */}
-                      <div className="relative z-10 flex items-center gap-3">
-                        <div className="w-6 h-6 bg-white/20 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
-                          <UserPlus className="w-4 h-4" />
-                        </div>
-                        <span className="text-lg">Add Member</span>
-                      </div>
-
-                      {/* Shine Effect */}
-                      <div className="absolute inset-0 -top-1 -left-1 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 group-hover:animate-shine rounded-2xl"></div>
-                    </motion.button>
-
-                    {/* Floating Elements */}
-                    <div className="absolute -top-2 -right-2 w-4 h-4 bg-yellow-400 rounded-full animate-pulse"></div>
-                    <div className="absolute -bottom-1 -left-1 w-3 h-3 bg-teal-300 rounded-full animate-bounce" style={{ animationDelay: '0.5s' }}></div>
-                  </motion.div>
-                </div>
-
-                {/* Bottom Decorative Line */}
-                <motion.div
-                  initial={{ scaleX: 0 }}
-                  animate={{ scaleX: 1 }}
-                  transition={{ delay: 1.0, duration: 0.8 }}
-                  className="h-1 bg-gradient-to-r from-teal-500/50 via-teal-400/70 to-teal-500/50 rounded-full mt-6 origin-left"
-                ></motion.div>
+                  Member <span className="text-teal-500 dark:text-teal-400">Management</span>
+                </h1>
+                <p className="text-sm sm:text-base text-muted-foreground">Manage your gym members efficiently</p>
               </div>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => navigate("/members/add")}
+                className="group relative overflow-hidden bg-gradient-to-r from-teal-600 via-teal-500 to-teal-600 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2"
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-teal-400 to-teal-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <UserPlus className="w-4 h-4 sm:w-5 sm:h-5 relative z-10" />
+                <span className="relative z-10 text-sm sm:text-base">Add Member</span>
+              </motion.button>
+            </div>
+
+            {/* Stats Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+                className="bg-white/90 dark:bg-teal-900/50 backdrop-blur-sm border border-teal-200/50 dark:border-teal-700/30 rounded-xl p-4 shadow-lg"
+              >
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-xs sm:text-sm text-muted-foreground mb-1">Total Members</p>
+                    <p className="text-2xl sm:text-3xl font-bold text-teal-600 dark:text-teal-400">{members.length}</p>
+                  </div>
+                  <div className="w-12 h-12 bg-gradient-to-br from-teal-500/20 to-teal-600/20 rounded-lg flex items-center justify-center">
+                    <Users className="w-6 h-6 text-teal-600 dark:text-teal-400" />
+                  </div>
+                </div>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="bg-white/90 dark:bg-teal-900/50 backdrop-blur-sm border border-green-200/50 dark:border-green-700/30 rounded-xl p-4 shadow-lg"
+              >
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-xs sm:text-sm text-muted-foreground mb-1">New This Month</p>
+                    <p className="text-2xl sm:text-3xl font-bold text-green-600 dark:text-green-400">{newMembersThisMonth}</p>
+                  </div>
+                  <div className="w-12 h-12 bg-gradient-to-br from-green-500/20 to-green-600/20 rounded-lg flex items-center justify-center">
+                    <Calendar className="w-6 h-6 text-green-600 dark:text-green-400" />
+                  </div>
+                </div>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="bg-white/90 dark:bg-teal-900/50 backdrop-blur-sm border border-blue-200/50 dark:border-blue-700/30 rounded-xl p-4 shadow-lg"
+              >
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-xs sm:text-sm text-muted-foreground mb-1">Filtered Results</p>
+                    <p className="text-2xl sm:text-3xl font-bold text-blue-600 dark:text-blue-400">{filteredMembers.length}</p>
+                  </div>
+                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500/20 to-blue-600/20 rounded-lg flex items-center justify-center">
+                    <Filter className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                  </div>
+                </div>
+              </motion.div>
             </div>
           </motion.div>
 
-          {/* Search */}
+          {/* Search and Filters */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
-            className="flex justify-between items-center mb-6"
+            className="mb-6"
           >
-            <div className="relative w-full md:w-1/3">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <input
-                type="text"
-                placeholder="Search members..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="w-full bg-background border border-input text-foreground rounded-xl pl-10 pr-4 py-3 placeholder:text-muted-foreground focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all"
-              />
+            <div className="flex flex-col sm:flex-row gap-4 items-center">
+              <div className="relative flex-1 w-full">
+                <Search className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground" />
+                <input
+                  type="text"
+                  placeholder="Search by name, mobile, or email..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="w-full bg-white/90 dark:bg-teal-900/50 backdrop-blur-sm border border-input text-foreground rounded-xl pl-10 sm:pl-12 pr-4 py-2.5 sm:py-3 placeholder:text-muted-foreground focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all shadow-sm"
+                />
+              </div>
+              <button className="px-4 py-2.5 sm:py-3 bg-white/90 dark:bg-teal-900/50 backdrop-blur-sm border border-input rounded-xl hover:bg-muted transition-colors flex items-center gap-2 text-sm font-medium">
+                <Download className="w-4 h-4" />
+                <span className="hidden sm:inline">Export</span>
+              </button>
             </div>
           </motion.div>
 
           {/* Loading/Error States */}
           {loading && (
-            <div className="text-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-500 mx-auto"></div>
-              <p className="mt-2 text-muted-foreground">Loading members...</p>
+            <div className="text-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-500 mx-auto"></div>
+              <p className="mt-4 text-muted-foreground">Loading members...</p>
             </div>
           )}
 
           {error && (
-            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-4 mb-6">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-4 mb-6"
+            >
               <div className="flex items-center gap-2">
-                <AlertCircle className="w-5 h-5 text-red-500" />
+                <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
                 <p className="text-red-700 dark:text-red-300">Error: {error}</p>
               </div>
-            </div>
+            </motion.div>
           )}
 
-          {/* Members Table */}
+          {/* Members Table/Cards */}
           {!loading && !error && (
-            <div className="overflow-x-auto">
-              <table className="w-full rounded-2xl overflow-hidden shadow-sm bg-background border border-border">
-                <thead className="bg-gradient-to-r from-teal-600 to-teal-500">
-                  <tr>
-                    <th className="px-5 py-3 text-left text-white font-semibold">Name</th>
-                    <th className="px-5 py-3 text-left text-white font-semibold">Mobile</th>
-                    <th className="px-5 py-3 text-left text-white font-semibold">Email</th>
-                    <th className="px-5 py-3 text-left text-white font-semibold">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredMembers.length > 0 ? (
-                    filteredMembers.map((member) => (
-                      <tr key={member._id} className="border-b border-border hover:bg-teal-900/5 dark:hover:bg-teal-900/10 transition-colors">
-                        <td className="px-5 py-3 text-foreground">{member.name}</td>
-                        <td className="px-5 py-3 text-foreground">{member.mobile}</td>
-                        <td className="px-5 py-3 text-foreground">{member.email || "N/A"}</td>
-                        <td className="px-3 py-2">
-                          <button
-                            onClick={() => deleteMember(member._id)}
-                            className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-xl transition shadow text-sm"
-                          >
-                            Delete
-                          </button>
-                        </td>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+            >
+              {/* Desktop Table View */}
+              <div className="hidden lg:block overflow-x-auto">
+                <div className="bg-white/90 dark:bg-teal-900/50 backdrop-blur-sm border border-teal-200/50 dark:border-teal-700/30 rounded-2xl shadow-xl overflow-hidden">
+                  <table className="w-full">
+                    <thead className="bg-gradient-to-r from-teal-600 to-teal-500">
+                      <tr>
+                        <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-semibold text-white">Name</th>
+                        <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-semibold text-white">Contact</th>
+                        <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-semibold text-white hidden xl:table-cell">Email</th>
+                        <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-semibold text-white hidden xl:table-cell">Gender</th>
+                        <th className="px-4 sm:px-6 py-3 sm:py-4 text-center text-xs sm:text-sm font-semibold text-white">Actions</th>
                       </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td colSpan="4" className="px-5 py-6 text-center text-muted-foreground">
-                        No members found.
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          )}
+                    </thead>
+                    <tbody className="divide-y divide-border">
+                      {filteredMembers.length > 0 ? (
+                        filteredMembers.map((member, index) => (
+                          <motion.tr
+                            key={member._id}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.6 + index * 0.05 }}
+                            className="hover:bg-teal-50/50 dark:hover:bg-teal-800/30 transition-colors"
+                          >
+                            <td className="px-4 sm:px-6 py-3 sm:py-4">
+                              <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 bg-gradient-to-br from-teal-500 to-teal-600 rounded-lg flex items-center justify-center text-white font-semibold text-sm">
+                                  {member.name?.charAt(0)?.toUpperCase() || 'U'}
+                                </div>
+                                <div>
+                                  <div className="font-semibold text-foreground">{member.name}</div>
+                                  {member.occupation && (
+                                    <div className="text-xs text-muted-foreground">{member.occupation}</div>
+                                  )}
+                                </div>
+                              </div>
+                            </td>
+                            <td className="px-4 sm:px-6 py-3 sm:py-4">
+                              <div className="flex items-center gap-2 text-sm">
+                                <Phone className="w-4 h-4 text-teal-500" />
+                                <span className="text-foreground">{member.mobile}</span>
+                              </div>
+                            </td>
+                            <td className="px-4 sm:px-6 py-3 sm:py-4 hidden xl:table-cell">
+                              {member.email ? (
+                                <div className="flex items-center gap-2 text-sm text-foreground">
+                                  <Mail className="w-4 h-4 text-teal-500" />
+                                  <span>{member.email}</span>
+                                </div>
+                              ) : (
+                                <span className="text-muted-foreground text-sm">N/A</span>
+                              )}
+                            </td>
+                            <td className="px-4 sm:px-6 py-3 sm:py-4 hidden xl:table-cell">
+                              {member.gender ? (
+                                <span className="px-2 py-1 bg-teal-100 dark:bg-teal-800 text-teal-700 dark:text-teal-300 rounded-lg text-xs font-medium">
+                                  {member.gender}
+                                </span>
+                              ) : (
+                                <span className="text-muted-foreground text-sm">-</span>
+                              )}
+                            </td>
+                            <td className="px-4 sm:px-6 py-3 sm:py-4">
+                              <div className="flex items-center justify-center gap-2">
+                                <motion.button
+                                  whileHover={{ scale: 1.1 }}
+                                  whileTap={{ scale: 0.9 }}
+                                  onClick={() => navigate(`/members/edit/${member._id}`)}
+                                  className="p-2 bg-teal-100 dark:bg-teal-800 text-teal-600 dark:text-teal-300 rounded-lg hover:bg-teal-200 dark:hover:bg-teal-700 transition-colors"
+                                  title="Edit Member"
+                                >
+                                  <Edit2 className="w-4 h-4" />
+                                </motion.button>
+                                <motion.button
+                                  whileHover={{ scale: 1.1 }}
+                                  whileTap={{ scale: 0.9 }}
+                                  onClick={() => deleteMember(member._id)}
+                                  className="p-2 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-lg hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors"
+                                  title="Delete Member"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </motion.button>
+                              </div>
+                            </td>
+                          </motion.tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan="5" className="px-4 sm:px-6 py-12 text-center">
+                            <div className="flex flex-col items-center gap-3">
+                              <Users className="w-12 h-12 text-muted-foreground opacity-50" />
+                              <p className="text-muted-foreground">No members found</p>
+                              <button
+                                onClick={() => navigate("/members/add")}
+                                className="text-teal-600 dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 font-medium"
+                              >
+                                Add your first member
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
 
-          <div className="mt-6 text-center text-xs text-muted-foreground">{filteredMembers.length} members</div>
+              {/* Mobile/Tablet Card View */}
+              <div className="lg:hidden grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {filteredMembers.length > 0 ? (
+                  filteredMembers.map((member, index) => (
+                    <motion.div
+                      key={member._id}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.6 + index * 0.05 }}
+                      className="bg-white/90 dark:bg-teal-900/50 backdrop-blur-sm border border-teal-200/50 dark:border-teal-700/30 rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow"
+                    >
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="flex items-center gap-3 flex-1 min-w-0">
+                          <div className="w-12 h-12 bg-gradient-to-br from-teal-500 to-teal-600 rounded-xl flex items-center justify-center text-white font-semibold flex-shrink-0">
+                            {member.name?.charAt(0)?.toUpperCase() || 'U'}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h3 className="font-semibold text-foreground truncate">{member.name}</h3>
+                            {member.occupation && (
+                              <p className="text-xs text-muted-foreground truncate">{member.occupation}</p>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="space-y-2 mb-4">
+                        <div className="flex items-center gap-2 text-sm text-foreground">
+                          <Phone className="w-4 h-4 text-teal-500 flex-shrink-0" />
+                          <span className="truncate">{member.mobile}</span>
+                        </div>
+                        {member.email && (
+                          <div className="flex items-center gap-2 text-sm text-foreground">
+                            <Mail className="w-4 h-4 text-teal-500 flex-shrink-0" />
+                            <span className="truncate">{member.email}</span>
+                          </div>
+                        )}
+                        {member.gender && (
+                          <div>
+                            <span className="px-2 py-1 bg-teal-100 dark:bg-teal-800 text-teal-700 dark:text-teal-300 rounded-lg text-xs font-medium">
+                              {member.gender}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="flex items-center gap-2 pt-4 border-t border-border">
+                        <motion.button
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={() => navigate(`/members/edit/${member._id}`)}
+                          className="flex-1 px-3 py-2 bg-teal-100 dark:bg-teal-800 text-teal-600 dark:text-teal-300 rounded-lg hover:bg-teal-200 dark:hover:bg-teal-700 transition-colors flex items-center justify-center gap-2 text-sm font-medium"
+                        >
+                          <Edit2 className="w-4 h-4" />
+                          Edit
+                        </motion.button>
+                        <motion.button
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={() => deleteMember(member._id)}
+                          className="flex-1 px-3 py-2 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-lg hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors flex items-center justify-center gap-2 text-sm font-medium"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                          Delete
+                        </motion.button>
+                      </div>
+                    </motion.div>
+                  ))
+                ) : (
+                  <div className="col-span-2 bg-white/90 dark:bg-teal-900/50 backdrop-blur-sm border border-teal-200/50 dark:border-teal-700/30 rounded-xl p-12 text-center">
+                    <Users className="w-16 h-16 text-muted-foreground opacity-50 mx-auto mb-4" />
+                    <p className="text-muted-foreground mb-4">No members found</p>
+                    <button
+                      onClick={() => navigate("/members/add")}
+                      className="text-teal-600 dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 font-medium"
+                    >
+                      Add your first member
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Footer Count */}
+              <div className="mt-6 text-center text-sm text-muted-foreground">
+                Showing {filteredMembers.length} of {members.length} members
+              </div>
+            </motion.div>
+          )}
         </div>
       </div>
     </Layout>

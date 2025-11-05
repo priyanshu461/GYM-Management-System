@@ -1,4 +1,4 @@
-import { BASE_API_URL, TOKEN } from "@/Utils/data";
+import { BASE_API_URL, getToken } from "@/utils/data";
 
 const trainerServices = {};
 
@@ -6,7 +6,7 @@ trainerServices.getAllTrainers = async () => {
 
    // Simulate fetching all traners
     const res = await fetch(`${BASE_API_URL}management/trainers/all`, {
-      headers: { Authorization: `Bearer ${TOKEN}` },
+      headers: { Authorization: `Bearer ${getToken()}` },
     });
     return await res.json();
   };
@@ -17,7 +17,7 @@ trainerServices.createTrainer = async (data = {}) => {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${TOKEN}`,
+      Authorization: `Bearer ${getToken()}`,
     },
     body: JSON.stringify(data),
   });
@@ -32,7 +32,7 @@ trainerServices.updateTrainer = async (data = {}) => {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${TOKEN}`
+        Authorization: `Bearer ${getToken()}`
       },
       body: JSON.stringify(data),
     }
@@ -46,7 +46,7 @@ trainerServices.deleteTrainer = async (data = {}) => {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${TOKEN}`
+      Authorization: `Bearer ${getToken()}`
     },
     body: JSON.stringify(data),
   });
@@ -57,7 +57,7 @@ trainerServices.getTrainer = async () => {
   // Simulate fetching all trainers
   const res = await fetch(`${BASE_API_URL}dashboard/trainer/get`, {
     method: "GET",
-    headers: { Authorization: `Bearer ${TOKEN}` },
+    headers: { Authorization: `Bearer ${getToken()}` },
   });
   return await res.json();
 };

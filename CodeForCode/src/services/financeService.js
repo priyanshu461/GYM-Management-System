@@ -1,11 +1,11 @@
-import { BASE_API_URL, TOKEN } from "@/Utils/data";
+import { BASE_API_URL, getToken } from "@/utils/data";
 
 const financeService = {};
 
 financeService.getAllTransactions = async () => {
   try {
     const res = await fetch(`${BASE_API_URL}management/finance`, {
-      headers: { Authorization: `Bearer ${TOKEN}` },
+      headers: { Authorization: `Bearer ${getToken()}` },
     });
     if (!res.ok) {
       throw new Error('Failed to fetch transactions');
@@ -29,8 +29,9 @@ financeService.addTransaction = async (transactionData) => {
     const headers = {
       'Content-Type': 'application/json',
     };
-    if (TOKEN) {
-      headers.Authorization = `Bearer ${TOKEN}`;
+    const token = getToken();
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
     }
     const res = await fetch(`${BASE_API_URL}management/finance`, {
       method: 'POST',
@@ -52,8 +53,9 @@ financeService.updateTransaction = async (id, transactionData) => {
     const headers = {
       'Content-Type': 'application/json',
     };
-    if (TOKEN) {
-      headers.Authorization = `Bearer ${TOKEN}`;
+    const token = getToken();
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
     }
     const res = await fetch(`${BASE_API_URL}management/finance/${id}`, {
       method: 'PUT',
@@ -74,7 +76,7 @@ financeService.deleteTransaction = async (id) => {
   try {
     const res = await fetch(`${BASE_API_URL}management/finance/${id}`, {
       method: 'DELETE',
-      headers: { Authorization: `Bearer ${TOKEN}` },
+      headers: { Authorization: `Bearer ${getToken()}` },
     });
     if (!res.ok) {
       throw new Error('Failed to delete transaction');

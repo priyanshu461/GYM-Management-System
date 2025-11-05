@@ -1,11 +1,11 @@
-import { BASE_API_URL, TOKEN } from "@/Utils/data";
+import { BASE_API_URL, getToken } from "@/utils/data";
 
 const facilitiesService = {};
 
 facilitiesService.getAllFacilities = async () => {
   try {
     const res = await fetch(`${BASE_API_URL}management/facilities`, {
-      headers: { Authorization: `Bearer ${TOKEN}` },
+      headers: { Authorization: `Bearer ${getToken()}` },
     });
     if (!res.ok) {
       throw new Error('Failed to fetch facilities');
@@ -24,8 +24,9 @@ facilitiesService.addFacility = async (facilityData) => {
     const headers = {
       'Content-Type': 'application/json',
     };
-    if (TOKEN) {
-      headers.Authorization = `Bearer ${TOKEN}`;
+    const token = getToken();
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
     }
     const res = await fetch(`${BASE_API_URL}management/facilities`, {
       method: 'POST',
@@ -47,8 +48,9 @@ facilitiesService.updateFacility = async (id, facilityData) => {
     const headers = {
       'Content-Type': 'application/json',
     };
-    if (TOKEN) {
-      headers.Authorization = `Bearer ${TOKEN}`;
+    const token = getToken();
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
     }
     const res = await fetch(`${BASE_API_URL}management/facilities/${id}`, {
       method: 'PUT',
@@ -69,7 +71,7 @@ facilitiesService.deleteFacility = async (id) => {
   try {
     const res = await fetch(`${BASE_API_URL}management/facilities/${id}`, {
       method: 'DELETE',
-      headers: { Authorization: `Bearer ${TOKEN}` },
+      headers: { Authorization: `Bearer ${getToken()}` },
     });
     if (!res.ok) {
       throw new Error('Failed to delete facility');

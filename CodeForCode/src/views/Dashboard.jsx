@@ -18,7 +18,7 @@ import { useNavigate } from "react-router-dom";
 import Layout from "../components/Layout";
 import { useTheme } from "../contexts/ThemeContext";
 import gymServices from "@/services/gymServices";
-import { BASE_API_URL } from "@/Utils/data";
+import { BASE_API_URL, getToken } from "@/utils/data";
 
 const Dashboard = () => {
   // Sample token for demonstration
@@ -73,8 +73,9 @@ const Dashboard = () => {
 
   const fetchSalesOverview = async () => {
     try {
+      const token = getToken();
       const res = await fetch(`${BASE_API_URL}dashboard/sales-overview`, {
-        headers: { Authorization: localStorage.getItem('token') },
+        headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) {
         throw new Error('Failed to fetch sales overview');
@@ -137,20 +138,20 @@ const Dashboard = () => {
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="flex justify-between items-center mb-8"
+            className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6 sm:mb-8"
           >
             <div>
               <h1
-                className={`text-4xl font-extrabold mb-3 tracking-tight bg-gradient-to-r from-teal-300 via-teal-200 to-teal-100 bg-clip-text text-transparent`}
+                className={`text-2xl sm:text-3xl md:text-4xl font-extrabold mb-2 sm:mb-3 tracking-tight bg-gradient-to-r from-teal-300 via-teal-200 to-teal-100 bg-clip-text text-transparent`}
               >
-                <Home className="inline-block w-10 h-10 mr-3 text-teal-500 dark:text-teal-400" />
+                <Home className="inline-block w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 mr-2 sm:mr-3 text-teal-500 dark:text-teal-400" />
                 Dashboard
                 <span className="text-teal-500 dark:text-teal-400">
                   {" "}
                   Overview
                 </span>
               </h1>
-              <p className={`text-lg text-teal-600 dark:text-teal-400`}>
+              <p className={`text-sm sm:text-base md:text-lg text-teal-600 dark:text-teal-400`}>
                 Welcome back! Here's what's happening with your business today.
               </p>
             </div>
@@ -161,7 +162,7 @@ const Dashboard = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8"
           >
             {stats.map((s, index) => (
               <motion.div
@@ -170,14 +171,14 @@ const Dashboard = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 + index * 0.1 }}
                 whileHover={{ scale: 1.02 }}
-                className="bg-gradient-to-br from-teal-900/10 to-teal-800/5 dark:from-teal-900/20 dark:to-teal-800/10 border border-teal-700/20 dark:border-teal-600/30 p-6 rounded-2xl shadow-xl"
+                className="bg-gradient-to-br from-teal-900/10 to-teal-800/5 dark:from-teal-900/20 dark:to-teal-800/10 border border-teal-700/20 dark:border-teal-600/30 p-4 sm:p-6 rounded-xl sm:rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300"
               >
                 <div className="flex items-center justify-between mb-4">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-teal-600 to-teal-500 flex items-center justify-center shadow-lg">
-                    {s.icon === 'DollarSign' && <DollarSign size={20} className="text-white" />}
-                    {s.icon === 'Box' && <Box size={20} className="text-white" />}
-                    {s.icon === 'Users' && <Users size={20} className="text-white" />}
-                    {s.icon === 'TrendingUp' && <TrendingUp size={20} className="text-white" />}
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-gradient-to-br from-teal-600 to-teal-500 flex items-center justify-center shadow-lg">
+                    {s.icon === 'DollarSign' && <DollarSign size={18} className="sm:w-5 sm:h-5 text-white" />}
+                    {s.icon === 'Box' && <Box size={18} className="sm:w-5 sm:h-5 text-white" />}
+                    {s.icon === 'Users' && <Users size={18} className="sm:w-5 sm:h-5 text-white" />}
+                    {s.icon === 'TrendingUp' && <TrendingUp size={18} className="sm:w-5 sm:h-5 text-white" />}
                   </div>
                   <div
                     className={`flex items-center gap-1 text-sm font-medium ${
@@ -195,7 +196,7 @@ const Dashboard = () => {
                     {s.title}
                   </div>
                   <div
-                    className={`text-3xl font-bold mt-2 bg-gradient-to-r from-teal-300 via-teal-200 to-teal-100 bg-clip-text text-transparent`}
+                    className={`text-2xl sm:text-3xl font-bold mt-2 bg-gradient-to-r from-teal-300 via-teal-200 to-teal-100 bg-clip-text text-transparent`}
                   >
                     {s.value}
                   </div>
@@ -204,28 +205,28 @@ const Dashboard = () => {
             ))}
           </motion.section>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
             {/* Sales Chart + Orders List */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
-              className="lg:col-span-2 bg-gradient-to-br from-teal-900/10 to-teal-800/5 dark:from-teal-900/20 dark:to-teal-800/10 border border-teal-700/20 dark:border-teal-600/30 p-6 rounded-2xl shadow-xl"
+              className="lg:col-span-2 bg-gradient-to-br from-teal-900/10 to-teal-800/5 dark:from-teal-900/20 dark:to-teal-800/10 border border-teal-700/20 dark:border-teal-600/30 p-4 sm:p-6 rounded-xl sm:rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300"
             >
-              <div className="flex items-center justify-between mb-6">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mb-4 sm:mb-6">
                 <h3
-                  className={`text-xl font-semibold flex items-center gap-2 bg-gradient-to-r from-teal-300 via-teal-200 to-teal-100 bg-clip-text text-transparent`}
+                  className={`text-lg sm:text-xl font-semibold flex items-center gap-2 bg-gradient-to-r from-teal-300 via-teal-200 to-teal-100 bg-clip-text text-transparent`}
                 >
-                  <BarChart className="w-5 h-5 text-teal-500 dark:text-teal-400" />
+                  <BarChart className="w-4 h-4 sm:w-5 sm:h-5 text-teal-500 dark:text-teal-400" />
                   Sales Overview
                 </h3>
-                <div className="text-sm text-muted-foreground bg-muted px-3 py-1 rounded-full">
+                <div className="text-xs sm:text-sm text-muted-foreground bg-muted px-2 sm:px-3 py-1 rounded-full self-start sm:self-auto">
                   Last 30 days
                 </div>
               </div>
 
               {/* Dynamic Chart */}
-              <div className="w-full h-48 mb-6 bg-gradient-to-r from-teal-900/5 to-teal-800/5 dark:from-teal-900/10 dark:to-teal-800/10 rounded-xl p-4 border border-teal-700/10 dark:border-teal-600/20">
+              <div className="w-full h-40 sm:h-48 mb-4 sm:mb-6 bg-gradient-to-r from-teal-900/5 to-teal-800/5 dark:from-teal-900/10 dark:to-teal-800/10 rounded-lg sm:rounded-xl p-3 sm:p-4 border border-teal-700/10 dark:border-teal-600/20 overflow-hidden">
                 {salesData.length > 0 ? (
                   <svg
                     className="w-full h-full"
@@ -281,37 +282,37 @@ const Dashboard = () => {
                 )}
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                 <div>
                   <h4
-                    className={`text-lg font-semibold mb-4 flex items-center gap-2 bg-gradient-to-r from-teal-300 via-teal-200 to-teal-100 bg-clip-text text-transparent`}
+                    className={`text-base sm:text-lg font-semibold mb-3 sm:mb-4 flex items-center gap-2 bg-gradient-to-r from-teal-300 via-teal-200 to-teal-100 bg-clip-text text-transparent`}
                   >
-                    <Box className="w-5 h-5 text-teal-500 dark:text-teal-400" />
+                    <Box className="w-4 h-4 sm:w-5 sm:h-5 text-teal-500 dark:text-teal-400" />
                     Recent Orders
                   </h4>
-                  <div className="space-y-3">
+                  <div className="space-y-2 sm:space-y-3">
                     {orders.slice(0, 4).map((o, index) => (
                       <motion.div
                         key={o.id}
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.6 + index * 0.1 }}
-                        className="flex items-center justify-between p-4 rounded-xl bg-background border border-border hover:bg-gradient-to-r hover:from-teal-900/5 hover:to-teal-800/5 dark:hover:from-teal-900/10 dark:hover:to-teal-800/10 transition-all duration-200"
+                        className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4 p-3 sm:p-4 rounded-lg sm:rounded-xl bg-background border border-border hover:bg-gradient-to-r hover:from-teal-900/5 hover:to-teal-800/5 dark:hover:from-teal-900/10 dark:hover:to-teal-800/10 transition-all duration-200"
                       >
-                        <div>
-                          <div className="text-sm font-semibold text-foreground">
+                        <div className="flex-1 min-w-0">
+                          <div className="text-xs sm:text-sm font-semibold text-foreground truncate">
                             Order #{o.id}
                           </div>
-                          <div className="text-xs text-muted-foreground">
+                          <div className="text-[10px] sm:text-xs text-muted-foreground truncate">
                             {o.customer} • {o.date}
                           </div>
                         </div>
-                        <div className="text-right">
-                          <div className="font-bold text-foreground">
+                        <div className="flex sm:flex-col items-start sm:items-end gap-2 sm:gap-1">
+                          <div className="text-sm sm:text-base font-bold text-foreground">
                             ₹{o.amount.toLocaleString()}
                           </div>
                           <div
-                            className={`text-xs font-medium px-2 py-1 rounded-full ${
+                            className={`text-[10px] sm:text-xs font-medium px-2 py-0.5 sm:py-1 rounded-full ${
                               o.status === "Delivered"
                                 ? "bg-green-100 text-green-800 border border-green-300 dark:bg-green-900/20 dark:text-green-400 dark:border-green-600"
                                 : o.status === "Returned"
@@ -432,91 +433,95 @@ const Dashboard = () => {
             transition={{ delay: 1.0 }}
             className="mt-8 bg-gradient-to-br from-teal-900/10 to-teal-800/5 dark:from-teal-900/20 dark:to-teal-800/10 border border-teal-700/20 dark:border-teal-600/30 p-6 rounded-2xl shadow-xl"
           >
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mb-4 sm:mb-6">
               <h3
-                className={`text-xl font-semibold flex items-center gap-2 bg-gradient-to-r from-teal-300 via-teal-200 to-teal-100 bg-clip-text text-transparent`}
+                className={`text-lg sm:text-xl font-semibold flex items-center gap-2 bg-gradient-to-r from-teal-300 via-teal-200 to-teal-100 bg-clip-text text-transparent`}
               >
-                <Box className="w-5 h-5 text-teal-500 dark:text-teal-400" />
+                <Box className="w-4 h-4 sm:w-5 sm:h-5 text-teal-500 dark:text-teal-400" />
                 All Orders
               </h3>
-              <div className="text-sm text-muted-foreground bg-muted px-3 py-1 rounded-full">
+              <div className="text-xs sm:text-sm text-muted-foreground bg-muted px-2 sm:px-3 py-1 rounded-full self-start sm:self-auto">
                 Showing latest 50 orders
               </div>
             </div>
 
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
-                <thead className="bg-gradient-to-r from-teal-600 to-teal-500">
-                  <tr>
-                    <th className="px-6 py-4 text-white font-semibold dark:text-gray-100">
-                      Order
-                    </th>
-                    <th className="px-6 py-4 text-white font-semibold dark:text-gray-100">
-                      Customer
-                    </th>
-                    <th className="px-6 py-4 text-white font-semibold dark:text-gray-100">
-                      Amount
-                    </th>
-                    <th className="px-6 py-4 text-white font-semibold dark:text-gray-100">
-                      Status
-                    </th>
-                    <th className="px-6 py-4 text-white font-semibold dark:text-gray-100">
-                      Date
-                    </th>
-                    <th className="px-6 py-4 text-white font-semibold text-center dark:text-gray-100">
-                      Action
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {orders.map((o, index) => (
-                    <motion.tr
-                      key={o.id}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 1.2 + index * 0.05 }}
-                      className="border-b border-border hover:bg-gradient-to-r hover:from-teal-900/5 hover:to-teal-800/5 dark:hover:from-teal-900/10 dark:hover:to-teal-800/10 transition-all duration-200"
-                    >
-                      <td className="px-6 py-4 font-semibold text-foreground dark:text-gray-200">
-                        #{o.id}
-                      </td>
-                      <td className="px-6 py-4 text-foreground dark:text-gray-200">
-                        {o.customer}
-                      </td>
-                      <td className="px-6 py-4 font-bold text-foreground dark:text-gray-200">
-                        ₹{o.amount.toLocaleString()}
-                      </td>
-                      <td className="px-6 py-4">
-                        <span
-                          className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                            o.status === "Delivered"
-                              ? "bg-green-100 text-green-800 border border-green-300 dark:bg-green-900/20 dark:text-green-400 dark:border-green-600"
-                              : o.status === "Returned"
-                              ? "bg-red-100 text-red-800 border border-red-300 dark:bg-red-900/20 dark:text-red-400 dark:border-red-600"
-                              : "bg-yellow-100 text-yellow-800 border border-yellow-300 dark:bg-yellow-900/20 dark:text-yellow-400 dark:border-yellow-600"
-                          }`}
+            <div className="overflow-x-auto -mx-4 sm:mx-0">
+              <div className="inline-block min-w-full align-middle">
+                <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg">
+                  <table className="min-w-full divide-y divide-gray-300 dark:divide-teal-700">
+                    <thead className="bg-gradient-to-r from-teal-600 to-teal-500">
+                      <tr>
+                        <th className="px-3 sm:px-4 lg:px-6 py-3 sm:py-4 text-xs sm:text-sm font-semibold text-white dark:text-gray-100">
+                          Order
+                        </th>
+                        <th className="px-3 sm:px-4 lg:px-6 py-3 sm:py-4 text-xs sm:text-sm font-semibold text-white dark:text-gray-100 hidden sm:table-cell">
+                          Customer
+                        </th>
+                        <th className="px-3 sm:px-4 lg:px-6 py-3 sm:py-4 text-xs sm:text-sm font-semibold text-white dark:text-gray-100">
+                          Amount
+                        </th>
+                        <th className="px-3 sm:px-4 lg:px-6 py-3 sm:py-4 text-xs sm:text-sm font-semibold text-white dark:text-gray-100 hidden md:table-cell">
+                          Status
+                        </th>
+                        <th className="px-3 sm:px-4 lg:px-6 py-3 sm:py-4 text-xs sm:text-sm font-semibold text-white dark:text-gray-100 hidden lg:table-cell">
+                          Date
+                        </th>
+                        <th className="px-3 sm:px-4 lg:px-6 py-3 sm:py-4 text-xs sm:text-sm font-semibold text-white text-center dark:text-gray-100">
+                          Action
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white dark:bg-teal-900/50 divide-y divide-gray-200 dark:divide-teal-700">
+                      {orders.map((o, index) => (
+                        <motion.tr
+                          key={o.id}
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: 1.2 + index * 0.05 }}
+                          className="hover:bg-gradient-to-r hover:from-teal-900/5 hover:to-teal-800/5 dark:hover:from-teal-900/10 dark:hover:to-teal-800/10 transition-all duration-200"
                         >
-                          {o.status}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-muted-foreground dark:text-gray-300">
-                        {o.date}
-                      </td>
-                      <td className="px-6 py-4 text-center">
-                        <motion.button
-                          onClick={() => setSelectedOrder(o)}
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                          className="px-4 py-2 bg-gradient-to-r from-teal-600 to-teal-500 text-white rounded-xl shadow-lg hover:from-teal-700 hover:to-teal-600 transition-all font-medium flex items-center gap-2"
-                        >
-                          <Eye className="w-4 h-4" />
-                          View
-                        </motion.button>
-                      </td>
-                    </motion.tr>
-                  ))}
-                </tbody>
-              </table>
+                          <td className="px-3 sm:px-4 lg:px-6 py-3 sm:py-4 text-xs sm:text-sm font-semibold text-foreground dark:text-gray-200">
+                            #{o.id}
+                          </td>
+                          <td className="px-3 sm:px-4 lg:px-6 py-3 sm:py-4 text-xs sm:text-sm text-foreground dark:text-gray-200 hidden sm:table-cell">
+                            <span className="truncate block max-w-[120px] lg:max-w-none">{o.customer}</span>
+                          </td>
+                          <td className="px-3 sm:px-4 lg:px-6 py-3 sm:py-4 text-xs sm:text-sm font-bold text-foreground dark:text-gray-200">
+                            ₹{o.amount.toLocaleString()}
+                          </td>
+                          <td className="px-3 sm:px-4 lg:px-6 py-3 sm:py-4 hidden md:table-cell">
+                            <span
+                              className={`px-2 sm:px-3 py-1 rounded-full text-[10px] sm:text-xs font-semibold ${
+                                o.status === "Delivered"
+                                  ? "bg-green-100 text-green-800 border border-green-300 dark:bg-green-900/20 dark:text-green-400 dark:border-green-600"
+                                  : o.status === "Returned"
+                                  ? "bg-red-100 text-red-800 border border-red-300 dark:bg-red-900/20 dark:text-red-400 dark:border-red-600"
+                                  : "bg-yellow-100 text-yellow-800 border border-yellow-300 dark:bg-yellow-900/20 dark:text-yellow-400 dark:border-yellow-600"
+                              }`}
+                            >
+                              {o.status}
+                            </span>
+                          </td>
+                          <td className="px-3 sm:px-4 lg:px-6 py-3 sm:py-4 text-[10px] sm:text-xs text-muted-foreground dark:text-gray-300 hidden lg:table-cell">
+                            {o.date}
+                          </td>
+                          <td className="px-3 sm:px-4 lg:px-6 py-3 sm:py-4 text-center">
+                            <motion.button
+                              onClick={() => setSelectedOrder(o)}
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                              className="px-2 sm:px-3 lg:px-4 py-1.5 sm:py-2 bg-gradient-to-r from-teal-600 to-teal-500 text-white rounded-lg sm:rounded-xl shadow-md hover:shadow-lg hover:from-teal-700 hover:to-teal-600 transition-all text-xs sm:text-sm font-medium flex items-center gap-1 sm:gap-2 mx-auto"
+                            >
+                              <Eye className="w-3 h-3 sm:w-4 sm:h-4" />
+                              <span className="hidden sm:inline">View</span>
+                            </motion.button>
+                          </td>
+                        </motion.tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             </div>
           </motion.section>
         </div>

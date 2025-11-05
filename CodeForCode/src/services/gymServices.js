@@ -1,11 +1,12 @@
-import { BASE_API_URL, TOKEN } from "@/Utils/data";
+import { BASE_API_URL, getToken } from "@/utils/data";
 
 const gymServices = {};
 
 gymServices.getStats = async () => {
   try {
+    const token = getToken();
     const res = await fetch(`${BASE_API_URL}dashboard/stats`, {
-      headers: { Authorization: `Bearer ${TOKEN}` },
+      headers: { Authorization: `Bearer ${token}` },
     });
     if (!res.ok) {
       throw new Error('Failed to fetch stats');
@@ -37,8 +38,9 @@ gymServices.getStats = async () => {
 
 gymServices.getProducts = async () => {
   try {
+    const token = getToken();
     const res = await fetch(`${BASE_API_URL}dashboard/top-products`, {
-      headers: { Authorization: `Bearer ${TOKEN}` },
+      headers: { Authorization: `Bearer ${token}` },
     });
     if (!res.ok) {
       throw new Error('Failed to fetch products');
@@ -60,8 +62,9 @@ gymServices.getProducts = async () => {
 
 gymServices.getOrders = async () => {
   try {
+    const token = getToken();
     const res = await fetch(`${BASE_API_URL}dashboard/recent-orders`, {
-      headers: { Authorization: `Bearer ${TOKEN}` },
+      headers: { Authorization: `Bearer ${token}` },
     });
     if (!res.ok) {
       throw new Error('Failed to fetch orders');
@@ -81,8 +84,9 @@ gymServices.getOrders = async () => {
 
 gymServices.getAllRoutines = async () => {
   try {
+    const token = getToken();
     const res = await fetch(`${BASE_API_URL}workout`, {
-      headers: { Authorization: `Bearer ${TOKEN}` },
+      headers: { Authorization: `Bearer ${token}` },
     });
     if (!res.ok) {
       throw new Error('Failed to fetch routines');
@@ -96,11 +100,12 @@ gymServices.getAllRoutines = async () => {
 
 gymServices.addRoutine = async (routineData) => {
   try {
+    const token = getToken();
     const res = await fetch(`${BASE_API_URL}workout`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${TOKEN}`,
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(routineData),
     });
@@ -116,11 +121,12 @@ gymServices.addRoutine = async (routineData) => {
 
 gymServices.updateRoutine = async (id, routineData) => {
   try {
+    const token = getToken();
     const res = await fetch(`${BASE_API_URL}workout/${id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${TOKEN}`,
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(routineData),
     });
@@ -136,9 +142,10 @@ gymServices.updateRoutine = async (id, routineData) => {
 
 gymServices.deleteRoutine = async (id) => {
   try {
+    const token = getToken();
     const res = await fetch(`${BASE_API_URL}workout/${id}`, {
       method: 'DELETE',
-      headers: { Authorization: `Bearer ${TOKEN}` },
+      headers: { Authorization: `Bearer ${token}` },
     });
     if (!res.ok) {
       throw new Error('Failed to delete routine');
@@ -152,8 +159,9 @@ gymServices.deleteRoutine = async (id) => {
 
 gymServices.getCustomers = async () => {
   try {
+    const token = getToken();
     const res = await fetch(`${BASE_API_URL}management/members`, {
-      headers: { Authorization: `Bearer ${TOKEN}` },
+      headers: { Authorization: `Bearer ${token}` },
     });
     if (!res.ok) {
       throw new Error('Failed to fetch customers');
@@ -177,8 +185,9 @@ gymServices.addCustomer = async (customerData) => {
     const headers = {
       'Content-Type': 'application/json',
     };
-    if (TOKEN) {
-      headers.Authorization = `Bearer ${TOKEN}`;
+    const token = getToken();
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
     }
     const res = await fetch(`${BASE_API_URL}management/members`, {
       method: 'POST',
@@ -197,8 +206,9 @@ gymServices.addCustomer = async (customerData) => {
 
 gymServices.getCustomerById = async (id) => {
   try {
+    const token = getToken();
     const res = await fetch(`${BASE_API_URL}management/members/${id}`, {
-      headers: { Authorization: `Bearer ${TOKEN}` },
+      headers: { Authorization: `Bearer ${token}` },
     });
     if (!res.ok) {
       throw new Error('Failed to fetch customer');
@@ -216,8 +226,9 @@ gymServices.updateCustomer = async (id, customerData) => {
     const headers = {
       'Content-Type': 'application/json',
     };
-    if (TOKEN) {
-      headers.Authorization = `Bearer ${TOKEN}`;
+    const token = getToken();
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
     }
     const res = await fetch(`${BASE_API_URL}management/members/${id}`, {
       method: 'PUT',
@@ -236,9 +247,10 @@ gymServices.updateCustomer = async (id, customerData) => {
 
 gymServices.deleteCustomer = async (id) => {
   try {
+    const token = getToken();
     const res = await fetch(`${BASE_API_URL}management/members/${id}`, {
       method: 'DELETE',
-      headers: { Authorization: `Bearer ${TOKEN}` },
+      headers: { Authorization: `Bearer ${token}` },
     });
     if (!res.ok) {
       throw new Error('Failed to delete customer');

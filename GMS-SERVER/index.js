@@ -1,14 +1,17 @@
 const express = require("express");
 const cors = require("cors");
 const app = express();
-require('dotenv').config();
-console.log(process.env.PORT);
+require("dotenv").config();
+
 const port = process.env.PORT || 8080;
-require("./lib/db"); // Database connection
+
+// Database connection
+const connectDB = require("./src/config/db");
+connectDB();
 
 // Import models to register them
-require("./models/RoleModel");
-require("./models/UserModel");
+require("./src/models/RoleModel");
+require("./src/models/UserModel");
 
 // Middleware
 app.use(cors());
@@ -16,37 +19,121 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Routes
-const dashboardRoutes = require('./routes/dashboardRoutes');
-app.use('/api/dashboard', dashboardRoutes);
+// Authentication routes
+const authRoutes = require("./src/routes/authRoutes");
+app.use("/api/auth", authRoutes);
 
-app.use('/api/dashboard/product', require('./routes/productRoutes'));
+// Dashboard routes
+const dashboardRoutes = require("./src/routes/dashboardRoutes");
+app.use("/api/dashboard", dashboardRoutes);
 
-const memberRoutes = require('./routes/memberRoutes');
-app.use('/api/management/members', memberRoutes);
+// Product routes
+const productRoutes = require("./src/routes/productRoutes");
+app.use("/api/products", productRoutes);
 
-const facilitiesRoutes = require('./routes/facilitiesRoutes');
-app.use('/api/management/facilities', facilitiesRoutes);
+// Member management routes
+const memberRoutes = require("./src/routes/memberRoutes");
+app.use("/api/management/members", memberRoutes);
 
-const trainersRoutes = require('./routes/trainersRoutes');
-app.use('/api/management/trainers', trainersRoutes);
+// Facilities routes
+const facilitiesRoutes = require("./src/routes/facilitiesRoutes");
+app.use("/api/management/facilities", facilitiesRoutes);
 
-const financeRoutes = require('./routes/financeRoutes');
-app.use('/api/management/finance', financeRoutes);
+// Trainers routes
+const trainersRoutes = require("./src/routes/trainersRoutes");
+app.use("/api/management/trainers", trainersRoutes);
 
-const blogRoutes = require('./routes/blogRoutes');
-app.use('/api/blog', blogRoutes);
+// Finance routes
+const financeRoutes = require("./src/routes/financeRoutes");
+app.use("/api/management/finance", financeRoutes);
 
-const authRoutes = require('./routes/authRoutes');
-app.use('/api/auth', authRoutes);
+// Workout routes
+const workoutRoutes = require("./src/routes/workoutRoutes");
+app.use("/api/workout", workoutRoutes);
 
-// Sample route
+// Diet routes
+const dietRoutes = require("./src/routes/dietRoutes");
+app.use("/api/diet", dietRoutes);
+
+// Progress routes
+const progressRoutes = require("./src/routes/progressRoutes");
+app.use("/api/progress", progressRoutes);
+
+// Class routes
+const classRoutes = require("./src/routes/classRoutes");
+app.use("/api/classes", classRoutes);
+
+// Course routes
+const courseRoutes = require("./src/routes/courseRoutes");
+app.use("/api/courses", courseRoutes);
+
+// Franchise routes
+const franchiseRoutes = require("./src/routes/franchiseRoutes");
+app.use("/api/franchises", franchiseRoutes);
+
+// Membership routes
+const membershipRoutes = require("./src/routes/membershipRoutes");
+app.use("/api/memberships", membershipRoutes);
+
+// Supplement routes
+const supplementRoutes = require("./src/routes/supplementRoutes");
+app.use("/api/supplements", supplementRoutes);
+
+// Blog routes
+const blogRoutes = require("./src/routes/blogRoutes");
+app.use("/api/blog", blogRoutes);
+
+// AI routes
+const aiRoutes = require("./src/routes/aiRoutes");
+app.use("/api/ai", aiRoutes);
+
+// Notification routes
+const notificationRoutes = require("./src/routes/notificationRoutes");
+app.use("/api/notifications", notificationRoutes);
+
+// Settings routes
+const settingRoutes = require("./src/routes/settingRoutes");
+app.use("/api/settings", settingRoutes);
+
+// Support routes
+const supportRoutes = require("./src/routes/supportRoutes");
+app.use("/api/support", supportRoutes);
+
+// Health check and sample routes
 app.get("/", (req, res) => {
-  res.send("Hello World!");
+  res.json({
+    message: "Gym Management System API",
+    version: "1.0.0",
+    status: "running",
+  });
 });
-app.post("/data", (req, res) => {
-  res.json({ received: req.body });
+
+app.get("/health", (req, res) => {
+  res.json({
+    status: "healthy",
+    timestamp: new Date().toISOString(),
+  });
 });
+
+// 404 handler
+app.use((req, res) => {
+  res.status(404).json({
+    message: "Route not found",
+    path: req.path,
+  });
+});
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error("Error:", err);
+  res.status(err.status || 500).json({
+    message: err.message || "Internal server error",
+    ...(process.env.NODE_ENV === "development" && { stack: err.stack }),
+  });
+});
+
 // Start server
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}/`);
+  console.log(`Environment: ${process.env.NODE_ENV || "development"}`);
 });

@@ -116,8 +116,46 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-size: 16px;
   }
   .dark .card {
     box-shadow: 0 20px 25px -5px rgba(255, 255, 255, 0.1), 0 10px 10px -5px rgba(255, 255, 255, 0.04);
+  }
+  
+  /* Responsive typography */
+  @media (max-width: 640px) {
+    body {
+      font-size: 14px;
+    }
+  }
+}
+
+/* Custom scrollbar for sidebar */
+@layer utilities {
+  .scrollbar-thin {
+    scrollbar-width: thin;
+  }
+  .scrollbar-thumb-teal-300::-webkit-scrollbar-thumb {
+    background-color: rgb(94 234 212 / 0.5);
+    border-radius: 0.5rem;
+  }
+  .scrollbar-thumb-teal-700::-webkit-scrollbar-thumb {
+    background-color: rgb(15 118 110 / 0.5);
+    border-radius: 0.5rem;
+  }
+  .scrollbar-track-transparent::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+  }
+}
+
+/* Smooth transitions for responsive elements */
+@layer utilities {
+  .transition-responsive {
+    transition-property: width, height, padding, margin, font-size;
+    transition-duration: 0.3s;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   }
 }

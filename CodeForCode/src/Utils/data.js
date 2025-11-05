@@ -1,3 +1,7 @@
-export const BASE_API_URL = 'http://localhost:8080/api/';
+export const BASE_API_URL = "http://localhost:8080/api/";
 
-export const TOKEN = localStorage.getItem('token');
+// Get token dynamically instead of at module level
+export const getToken = () => localStorage.getItem("token");
+
+// Legacy compatibility export - DEPRECATED: Use getToken() instead
+export const TOKEN = getToken();

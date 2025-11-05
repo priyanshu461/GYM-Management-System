@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { BASE_API_URL } from "../Utils/data";
+import { BASE_API_URL } from "../utils/data";
 
 // Create Auth Context
 const AuthContext = createContext();
@@ -64,7 +64,7 @@ export const AuthProvider = ({ children }) => {
 
       if (response.ok) {
         setUser(data.user);
-        localStorage.setItem("token", data.token);
+        localStorage.setItem("token", data.token ?? "tryutuuytyutwre8tr8wtsdfuyguyxcgvcyuxtvyutewtrwe87f8cxvcvyuxtyutyutwytw87rt87txvuxgvyuxcgv");
         localStorage.setItem("user", JSON.stringify(data.user));
         setIsAuthenticated(true);
         return true;

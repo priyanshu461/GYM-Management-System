@@ -1,4 +1,4 @@
-import { BASE_API_URL, TOKEN } from "@/Utils/data";
+import { BASE_API_URL, getToken } from "@/utils/data";
 
 const productService = {};
 
@@ -13,7 +13,7 @@ productService.getAllProducts = async (params = {}) => {
   const url = `${BASE_API_URL}dashboard/product/all${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
 
   const res = await fetch(url, {
-    headers: { Authorization: `Bearer ${TOKEN}` },
+    headers: { Authorization: `Bearer ${getToken()}` },
   });
   return await res.json();
 };
@@ -23,7 +23,7 @@ productService.createProduct = async (data = {}) => {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${TOKEN}`,
+      Authorization: `Bearer ${getToken()}`,
     },
     body: JSON.stringify(data),
   });
@@ -38,7 +38,7 @@ productService.updateProduct = async (data = {}) => {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${TOKEN}`,
+        Authorization: `Bearer ${getToken()}`,
       },
       body: JSON.stringify(data),
     }
@@ -52,7 +52,7 @@ productService.deleteProduct = async (data = {}) => {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${TOKEN}`,
+      Authorization: `Bearer ${getToken()}`,
     },
     body: JSON.stringify(data),
   });
@@ -65,7 +65,7 @@ productService.getProduct = async (data = {}) => {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${TOKEN}`,
+      Authorization: `Bearer ${getToken()}`,
     },
     body: JSON.stringify(data),
   });
