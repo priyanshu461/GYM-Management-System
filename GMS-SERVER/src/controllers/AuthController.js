@@ -42,13 +42,8 @@ const login = async (req, res) => {
 
 const verify = async (req, res) => {
   try {
-    const token = req.body.token;
-    if (!token) {
-      return res.status(401).json({ message: "No token provided" });
-    }
-
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || "7c892230e8994de8b59b604e");
-    const user = await User.findById(decoded.id);
+    // Token is already verified by middleware, user is attached to req
+    const user = req.user;
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -56,7 +51,7 @@ const verify = async (req, res) => {
     return res.status(200).json({
       message: "Token valid",
       user: {
-        id: user._id,
+        id: user.id,
         name: user.name,
         email: user.email,
         roleId: user.roleId,

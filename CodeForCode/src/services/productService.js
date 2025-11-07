@@ -1,4 +1,4 @@
-import { BASE_API_URL, getToken } from "@/utils/data";
+import { BASE_API_URL, getToken } from "../Utils/data";
 
 const productService = {};
 
@@ -9,13 +9,40 @@ productService.getAllProducts = async (params = {}) => {
   if (params.search) queryParams.append('search', params.search);
   if (params.sortBy) queryParams.append('sortBy', params.sortBy);
   if (params.sortOrder) queryParams.append('sortOrder', params.sortOrder);
+  if (params.limit) queryParams.append('limit', params.limit);
 
-  const url = `${BASE_API_URL}dashboard/product/all${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
+  const url = `${BASE_API_URL}products/all${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
 
   const res = await fetch(url, {
     headers: { Authorization: `Bearer ${getToken()}` },
   });
-  return await res.json();
+  const data = await res.json();
+
+  // Transform the response to match expected format
+  if (data.products) {
+    return {
+      success: true,
+      data: data.products.map(product => ({
+        id: product._id,
+        name: product.name,
+        category: product.category,
+        brand: product.brand,
+        price: product.price,
+        mrp: product.mrp,
+        image: product.image,
+        flavor: product.flavor || '',
+        rating: product.rating || 0,
+        stock: product.stock || 0,
+        servings: product.servings || 0,
+        description: product.description || '',
+      })),
+    };
+  }
+
+  return {
+    success: false,
+    message: data.message || 'Failed to fetch products',
+  };
 };
 
 productService.createProduct = async (data = {}) => {
@@ -30,31 +57,24 @@ productService.createProduct = async (data = {}) => {
   return await res.json();
 };
 
-productService.updateProduct = async (data = {}) => {
-  // Simulate fetching all products
-  const res = await fetch(
-    `${BASE_API_URL}dashboard/product/update/${data.product_id}`,
-    {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${getToken()}`,
-      },
-      body: JSON.stringify(data),
-    }
-  );
-  return await res.json();
-};
-
-productService.deleteProduct = async (data = {}) => {
-  // Simulate fetching all products
-  const res = await fetch(`${BASE_API_URL}dashboard/product/delete`, {
-    method: "DELETE",
+productService.updateProduct = async (id, data = {}) => {
+  const res = await fetch(`${BASE_API_URL}products/${id}`, {
+    method: "PUT",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${getToken()}`,
     },
     body: JSON.stringify(data),
+  });
+  return await res.json();
+};
+
+productService.deleteProduct = async (id) => {
+  const res = await fetch(`${BASE_API_URL}products/${id}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${getToken()}`,
+    },
   });
   return await res.json();
 };

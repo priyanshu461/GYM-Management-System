@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { BASE_API_URL } from "../utils/data";
+import { BASE_API_URL } from "../Utils/data";
 
 // Create Auth Context
 const AuthContext = createContext();
@@ -16,11 +16,10 @@ export const AuthProvider = ({ children }) => {
     if (token) {
       // Verify token with backend
       fetch(`${BASE_API_URL}auth/verify`, {
-        method: "POST",
+        method: "GET",
         headers: {
-          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
         },
-        body: JSON.stringify({ token }),
       })
         .then((response) => response.json())
         .then((data) => {

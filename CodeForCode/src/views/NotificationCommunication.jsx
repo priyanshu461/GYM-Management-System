@@ -4,9 +4,8 @@ import { useTheme } from "@/contexts/ThemeContext";
 
 // Notifications & Communication page – Teal color palette applied
 export default function NotificationsCommunication() {
-  const { theme } = useTheme();
+  const { theme, highContrast, toggleHighContrast, toggleTheme } = useTheme();
   const [range, setRange] = useState("7");
-  const [highContrast, setHighContrast] = useState(false);
   const [channel, setChannel] = useState({ email: true, sms: true, push: true, inapp: true });
   const [message, setMessage] = useState("Great job this week. New workout challenges are live. Tap to join and log your best set today!");
   const [subject, setSubject] = useState("New challenge + your weekly summary");
@@ -75,8 +74,12 @@ export default function NotificationsCommunication() {
             </div>
             <div className="flex items-center gap-4">
               <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                <span>Dark mode</span>
+                <input type="checkbox" className="toggle toggle-sm toggle-primary" checked={theme === 'dark'} onChange={toggleTheme} />
+              </label>
+              <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
                 <span>High contrast</span>
-                <input type="checkbox" className="toggle toggle-sm toggle-primary" checked={highContrast} onChange={e=>setHighContrast(e.target.checked)} />
+                <input type="checkbox" className="toggle toggle-sm toggle-primary" checked={highContrast} onChange={toggleHighContrast} />
               </label>
               <select value={range} onChange={e=>setRange(e.target.value)} className="rounded-xl bg-gradient-to-r from-teal-50 to-emerald-50 dark:from-gray-700 dark:to-gray-600 px-4 py-2 text-sm ring-2 ring-teal-300 focus:outline-none focus:ring-teal-500 transition-all duration-300">
                 <option value="7">Last 7 days</option>
@@ -192,11 +195,11 @@ export default function NotificationsCommunication() {
 
               {/* Quick log – teal button */}
               <div className="rounded-2xl border border-teal-200 bg-white/60 dark:bg-gray-800/60 p-4">
-                <h3 className="text-lg font-semibold text-teal-700">Quick announcement</h3>
+                <h3 className="text-lg font-semibold text-teal-700 dark:text-teal-300">Quick announcement</h3>
                 <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                  <input className="rounded-xl bg-teal-50 px-3 py-2 text-sm ring-1 ring-teal-300" placeholder="Title" />
-                  <input className="rounded-xl bg-teal-50 px-3 py-2 text-sm ring-1 ring-teal-300" placeholder="Location or club" />
-                  <input className="rounded-xl bg-teal-50 px-3 py-2 text-sm ring-1 ring-teal-300" placeholder="Starts at" />
+                  <input className="rounded-xl bg-teal-50 dark:bg-gray-700 px-3 py-2 text-sm ring-1 ring-teal-300 dark:ring-gray-600" placeholder="Title" />
+                  <input className="rounded-xl bg-teal-50 dark:bg-gray-700 px-3 py-2 text-sm ring-1 ring-teal-300 dark:ring-gray-600" placeholder="Location or club" />
+                  <input className="rounded-xl bg-teal-50 dark:bg-gray-700 px-3 py-2 text-sm ring-1 ring-teal-300 dark:ring-gray-600" placeholder="Starts at" />
                   <button className="rounded-xl bg-teal-500 px-4 py-2 text-sm font-semibold text-white hover:brightness-110">Publish</button>
                 </div>
               </div>
@@ -208,8 +211,8 @@ export default function NotificationsCommunication() {
                 <h3 className="text-lg font-semibold text-teal-700">Composer</h3>
                 <div className="mt-3 space-y-3">
                   <div className="grid grid-cols-2 gap-3">
-                    <input value={subject} onChange={e=>setSubject(e.target.value)} className="col-span-2 rounded-xl bg-teal-50 px-3 py-2 text-sm ring-1 ring-teal-300" placeholder="Subject or title" />
-                    <textarea value={message} onChange={e=>setMessage(e.target.value)} rows={5} className="col-span-2 rounded-xl bg-teal-50 px-3 py-2 text-sm ring-1 ring-teal-300" placeholder="Write your message" />
+                    <input value={subject} onChange={e=>setSubject(e.target.value)} className="col-span-2 rounded-xl bg-teal-50 dark:bg-gray-900 px-3 py-2 text-sm ring-1 ring-teal-300 dark:ring-gray-600" placeholder="Subject or title" />
+                    <textarea value={message} onChange={e=>setMessage(e.target.value)} rows={5} className="col-span-2 rounded-xl bg-teal-50 dark:bg-gray-900 px-3 py-2 text-sm ring-1 ring-teal-300 dark:ring-gray-600" placeholder="Write your message" />
                   </div>
 
                   {/* Channels */}
@@ -220,7 +223,7 @@ export default function NotificationsCommunication() {
                       { key: "push", label: "Push" },
                       { key: "inapp", label: "In‑app" },
                     ].map((c)=> (
-                      <label key={c.key} className="flex items-center justify-between rounded-xl border border-teal-200 bg-teal-50 px-3 py-2">
+                      <label key={c.key} className="flex items-center justify-between rounded-xl border border-teal-200 dark:border-gray-600 bg-teal-50 dark:bg-gray-900 px-3 py-2">
                         <span>{c.label}</span>
                         <input type="checkbox" checked={channel[c.key]} onChange={e=>setChannel({ ...channel, [c.key]: e.target.checked })} />
                       </label>
@@ -229,19 +232,19 @@ export default function NotificationsCommunication() {
 
                   {/* Targeting */}
                   <div className="grid grid-cols-2 gap-3 text-sm">
-                    <select value={segment} onChange={e=>setSegment(e.target.value)} className="rounded-xl bg-teal-50 px-3 py-2 ring-1 ring-teal-300">
+                    <select value={segment} onChange={e=>setSegment(e.target.value)} className="rounded-xl bg-teal-50 dark:bg-gray-900 px-3 py-2 ring-1 ring-teal-300 dark:ring-gray-600">
                       <option value="all">All members</option>
                       <option value="new">New joiners (30d)</option>
                       <option value="inactive">Inactive 7d</option>
                       <option value="trial">Trial users</option>
                       <option value="vip">PT clients</option>
                     </select>
-                    <select value={priority} onChange={e=>setPriority(e.target.value)} className="rounded-xl bg-teal-50 px-3 py-2 ring-1 ring-teal-300">
+                    <select value={priority} onChange={e=>setPriority(e.target.value)} className="rounded-xl bg-teal-50 dark:bg-gray-900 px-3 py-2 ring-1 ring-teal-300 dark:ring-gray-600">
                       <option value="normal">Priority normal</option>
                       <option value="high">Priority high</option>
                       <option value="urgent">Urgent</option>
                     </select>
-                    <input value={schedule} onChange={e=>setSchedule(e.target.value)} type="datetime-local" className="col-span-2 rounded-xl bg-teal-50 px-3 py-2 ring-1 ring-teal-300" />
+                    <input value={schedule} onChange={e=>setSchedule(e.target.value)} type="datetime-local" className="col-span-2 rounded-xl bg-teal-50 dark:bg-gray-900 px-3 py-2 ring-1 ring-teal-300 dark:ring-gray-600" />
                   </div>
 
                   <div className="flex items-center justify-between">

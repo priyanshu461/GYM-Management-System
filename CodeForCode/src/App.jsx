@@ -14,7 +14,7 @@ import Trainer from './views/Management/TrainersManagement'
 import AddTrainer from './views/Management/AddTrainer'
 import EditTrainer from './views/Management/EditTrainer'
 import Facilities from './views/Management/FacilitiesManagement'
-import WorkoutRoutine from './views/Workout& Diet Plan/WorkoutRoutinue'
+import WorkoutRoutine from './views/workout-and-diet-plan/WorkoutRoutine'
 import DietPlan from './views/Workout& Diet Plan/CoustumDietPlan'
 import BMICalculator from './views/BMICalculator'
 import ProgressTracker from './views/Workout& Diet Plan/ProgressTracking'
@@ -24,10 +24,7 @@ import Courses from './views/OurCources/Courses'
 import FranchiseAndMembership from './views/OurCources/Franchises&Management'
 import Product from './views/Products/Product'
 import ProductCreate from './views/Products/ProductCreate'
-import Protein from './views/Products/Protein'
-import AminoAcidSupplements from './views/Products/AminoAcidSuppliments'
-import Supplements from './views/Products/Suppliments'
-import MultivitaminAndMinerals from './views/Products/MultivitaminAndMinerals'
+
 import Settings from './views/Settings'
 import SupportTickets from './views/SupportTickets'
 import GymBlog from './views/GymBlog'
@@ -101,10 +98,6 @@ function App() {
               <Route path="/franchises-and-membership" element={<ProtectedRoute><FranchiseAndMembership /></ProtectedRoute>} />
               <Route path="/products" element={<ProtectedRoute><Product /></ProtectedRoute>} />
               <Route path="/products/create" element={<ProtectedRoute><ProductCreate /></ProtectedRoute>} />
-              <Route path="/protein" element={<ProtectedRoute><Protein /></ProtectedRoute>} />
-              <Route path='/amino-acid-supplements' element={<ProtectedRoute><AminoAcidSupplements /></ProtectedRoute>} />
-              <Route path='/supplements' element={<ProtectedRoute><Supplements /></ProtectedRoute>} />
-              <Route path='/multivitamin-and-minerals' element={<ProtectedRoute><MultivitaminAndMinerals /></ProtectedRoute>} />
               <Route path='/settings' element={<ProtectedRoute><Settings /></ProtectedRoute>} />
               <Route path='/supporttickets' element={<ProtectedRoute><SupportTickets /></ProtectedRoute>} />
               <Route path='/gymblog' element={<ProtectedRoute><GymBlog /></ProtectedRoute>} />
