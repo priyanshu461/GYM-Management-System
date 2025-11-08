@@ -17,6 +17,9 @@ const userSchema = new Schema(
       emergencyContact: { type: String },
       spacialization: { type: String },
     },
+    certifications: [{ type: String }],
+    specializations: [{ type: String }],
+    rating: { type: Number, default: 0 },
     roleId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Role", // name of the referenced model

@@ -1,18 +1,24 @@
 const User = require("../models/UserModel");
+const Role = require("../models/RoleModel");
 
-// Get all trainers (assuming role is trainer)
+// Get all trainers (filter by Trainer role)
 const getAllTrainers = async (req, res) => {
   try {
-    const trainers = await User.find().populate("roleId", "name").select("name email profile image");
+    const trainerRole = await Role.findOne({ name: "Trainer" });
+    if (!trainerRole) {
+      return res.status(500).json({ message: "Trainer role not found" });
+    }
+
+    const trainers = await User.find({ roleId: trainerRole._id }).populate("roleId", "name").select("name email profile image certifications specializations rating");
     const formattedTrainers = trainers.map(trainer => ({
       id: trainer._id,
       name: trainer.name,
       expertise: trainer.profile.spacialization || "General",
       experience: trainer.profile.exp || "N/A",
       image: trainer.image || "",
-      rating: 4.5, // Placeholder, as not in model
-      certifications: [], // Placeholder
-      specializations: trainer.profile.spacialization ? [trainer.profile.spacialization] : [],
+      rating: trainer.rating || 0,
+      certifications: trainer.certifications || [],
+      specializations: trainer.specializations || [],
     }));
     res.status(200).json(formattedTrainers);
   } catch (error) {
@@ -24,6 +30,13 @@ const getAllTrainers = async (req, res) => {
 const addTrainer = async (req, res) => {
   try {
     const { name, expertise, experience, image, rating, certifications, specializations } = req.body;
+
+    // Get the Trainer role ID
+    const trainerRole = await Role.findOne({ name: "Trainer" });
+    if (!trainerRole) {
+      return res.status(500).json({ message: "Trainer role not found" });
+    }
+
     const trainer = new User({
       name,
       email: req.body.email || `${name.toLowerCase().replace(" ", "")}@gym.com`, // Placeholder
@@ -33,7 +46,10 @@ const addTrainer = async (req, res) => {
         spacialization: expertise,
       },
       image,
-      roleId: null, // Placeholder, set to null for now
+      certifications: certifications || [],
+      specializations: specializations || [],
+      rating: rating || 0,
+      roleId: trainerRole._id,
     });
     await trainer.save();
     res.status(201).json({ message: "Trainer added successfully" });
@@ -46,11 +62,14 @@ const addTrainer = async (req, res) => {
 const updateTrainer = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, expertise, experience, image } = req.body;
+    const { name, expertise, experience, image, rating, certifications, specializations } = req.body;
     await User.findByIdAndUpdate(id, {
       name,
       profile: { exp: experience, spacialization: expertise },
       image,
+      rating: rating || 0,
+      certifications: certifications || [],
+      specializations: specializations || [],
     });
     res.status(200).json({ message: "Trainer updated successfully" });
   } catch (error) {

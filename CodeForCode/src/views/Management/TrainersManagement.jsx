@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import Layout from "../../components/Layout";
 import { motion } from "framer-motion";
 import {
@@ -9,16 +9,17 @@ import {
 import trainerServices from "../../services/trainerServices";
 export default function TrainersManagement() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [trainers, setTrainers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   const [editingTrainer, setEditingTrainer] = useState(null);
 
-  // Fetch trainers on component mount
+  // Fetch trainers on component mount and when location changes (e.g., after edit/add)
   useEffect(() => {
     fetchTrainers();
-  }, []);
+  }, [location]);
 
   const fetchTrainers = async () => {
     try {

@@ -1,4 +1,5 @@
 const User = require("../models/UserModel");
+const Role = require("../models/RoleModel");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
@@ -42,8 +43,13 @@ const login = async (req, res) => {
 
 const verify = async (req, res) => {
   try {
-    // Token is already verified by middleware, user is attached to req
-    const user = req.user;
+    const token = req.body.token;
+    if (!token) {
+      return res.status(401).json({ message: "No token provided" });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || "7c892230e8994de8b59b604e");
+    const user = await User.findById(decoded.id);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -51,7 +57,7 @@ const verify = async (req, res) => {
     return res.status(200).json({
       message: "Token valid",
       user: {
-        id: user.id,
+        id: user._id,
         name: user.name,
         email: user.email,
         roleId: user.roleId,
@@ -74,11 +80,17 @@ const signup = async (req, res) => {
 
     const hashedPassword = bcrypt.hashSync(password, 10);
 
+    // Get the Admin role ID for signup
+    const adminRole = await Role.findOne({ name: "Admin" });
+    if (!adminRole) {
+      return res.status(500).json({ message: "Admin role not found" });
+    }
+
     const newUser = new User({
       name,
       email: email.toLowerCase(),
       password: hashedPassword,
-      roleId: process.env.DEFAULT_ROLE_ID || "69005789c00a5b9674dc6cfe",
+      roleId: adminRole._id,
     });
 
     await newUser.save();

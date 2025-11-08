@@ -1,6 +1,7 @@
-import Layout from "@/components/Layout";
-import React, { useMemo, useState } from "react";
-import { useTheme } from "@/contexts/ThemeContext";
+import Layout from "../components/Layout";
+import React, { useMemo, useState, useEffect } from "react";
+import { useTheme } from "../contexts/ThemeContext";
+import notificationService from "../services/notificationService";
 
 // Notifications & Communication page – Teal color palette applied
 export default function NotificationsCommunication() {
@@ -14,44 +15,106 @@ export default function NotificationsCommunication() {
   const [priority, setPriority] = useState("normal");
   const [search, setSearch] = useState("");
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [stats, setStats] = useState([
+    { label: "Sent", value: "0", sub: "Loading..." },
+    { label: "Open rate", value: "0%", sub: "Loading..." },
+    { label: "Clicks", value: "0", sub: "Loading..." },
+    { label: "Unsubs", value: "0%", sub: "Loading..." },
+  ]);
+  const [templates, setTemplates] = useState([]);
+  const [segments, setSegments] = useState([]);
+  const [activity, setActivity] = useState([]);
+  const [systemHealth, setSystemHealth] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [sending, setSending] = useState(false);
 
   const base = highContrast ? "from-teal-50 via-teal-100 to-teal-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900" : "from-white via-teal-50 to-white dark:from-gray-900 dark:via-gray-800 dark:to-gray-900";
 
-  const stats = [
-    { label: "Sent", value: "12.4k", sub: "+8% vs last week" },
-    { label: "Open rate", value: "48%", sub: "avg across channels" },
-    { label: "Clicks", value: "5.7k", sub: "+11% engaged" },
-    { label: "Unsubs", value: "0.3%", sub: "stable" },
-  ];
+  const filteredActivity = useMemo(() => activity.filter(a => `${a.who} ${a.what} ${a.detail}`.toLowerCase().includes(search.toLowerCase())), [search, activity]);
 
-  const templates = [
-    { id: "welcome", name: "Welcome pack", text: "Welcome to IronBase. Your plan is ready. Start with the Day 1 warmup and record your set PRs." },
-    { id: "winback", name: "7‑day winback", text: "We miss you in the gym. Here is a 3‑move quick routine to get back on track. Tap to book a slot." },
-    { id: "milestone", name: "Milestone unlocked", text: "You just crossed 10 sessions this month. Claim your badge and try the advanced push pull plan." },
-    { id: "renewal", name: "Membership renewal", text: "Your membership ends soon. Renew now to keep access to classes, trainers, and priority slots." },
-  ];
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        setLoading(true);
+        const [globalStatsRes, templatesRes, segmentsRes, activityRes, healthRes] = await Promise.all([
+          notificationService.getGlobalStats(),
+          notificationService.getTemplates(),
+          notificationService.getSegments(),
+          notificationService.getActivityFeed(),
+          notificationService.getSystemHealth()
+        ]);
 
-  const activity = [
-    { id: 1, who: "Sanya R.", what: "Opened", detail: "Weekly goals + challenge", time: "2m" },
-    { id: 2, who: "Rahul P.", what: "Clicked", detail: "Strength plan", time: "7m" },
-    { id: 3, who: "Club: Agra", what: "Announcement", detail: "Pool closed today 3pm", time: "11m" },
-    { id: 4, who: "Trainer: Vikram", what: "Reply", detail: "Client booked PT", time: "22m" },
-    { id: 5, who: "Zara A.", what: "Unsubscribed", detail: "SMS only", time: "40m" },
-    { id: 6, who: "Batch: 6am", what: "Reminder sent", detail: "Class starts in 1h", time: "1h" },
-  ];
+        if (globalStatsRes.success) {
+          setStats([
+            { label: "Sent", value: globalStatsRes.data.sent || "0", sub: globalStatsRes.data.sentChange || "Loading..." },
+            { label: "Open rate", value: globalStatsRes.data.openRate || "0%", sub: globalStatsRes.data.openRateChange || "Loading..." },
+            { label: "Clicks", value: globalStatsRes.data.clicks || "0", sub: globalStatsRes.data.clicksChange || "Loading..." },
+            { label: "Unsubs", value: globalStatsRes.data.unsubs || "0%", sub: globalStatsRes.data.unsubsChange || "Loading..." },
+          ]);
+        }
 
-  const filteredActivity = useMemo(() => activity.filter(a => `${a.who} ${a.what} ${a.detail}`.toLowerCase().includes(search.toLowerCase())), [search]);
+        if (templatesRes.success) {
+          setTemplates(templatesRes.data);
+        }
+
+        if (segmentsRes.success) {
+          setSegments(segmentsRes.data);
+        }
+
+        if (activityRes.success) {
+          setActivity(activityRes.data);
+        }
+
+        if (healthRes.success) {
+          setSystemHealth(healthRes.data);
+        }
+      } catch (error) {
+        console.error('Error loading notification data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, []);
 
   function quickFill(t) {
     setSubject(t.name);
     setMessage(t.text);
   }
 
-  function sendNow() {
-    alert("Queued to send via " + (Object.entries(channel).filter(([,v])=>v).map(([k])=>k).join(", ") || "no channel") +
-      "\nSegment: " + segment +
-      "\nPriority: " + priority +
-      "\nSchedule: " + (schedule || "now"));
+  async function sendNow() {
+    if (sending) return;
+
+    try {
+      setSending(true);
+      const data = {
+        subject,
+        message,
+        channels: Object.entries(channel).filter(([,v]) => v).map(([k]) => k),
+        segment,
+        priority,
+        schedule: schedule || null
+      };
+
+      const res = await notificationService.sendToSegment(data);
+      if (res.success) {
+        alert("Notification sent successfully!");
+        setSubject("");
+        setMessage("");
+        setChannel({ email: true, sms: true, push: true, inapp: true });
+        setSegment("all");
+        setPriority("normal");
+        setSchedule("");
+      } else {
+        alert("Failed to send notification: " + (res.message || "Unknown error"));
+      }
+    } catch (error) {
+      console.error('Error sending notification:', error);
+      alert("Error sending notification");
+    } finally {
+      setSending(false);
+    }
   }
 
   return (
@@ -282,16 +345,14 @@ export default function NotificationsCommunication() {
               <div className="rounded-2xl border border-teal-200 bg-white/60 dark:bg-gray-800/60 p-4">
                 <h3 className="text-lg font-semibold text-teal-700">System health</h3>
                 <div className="mt-3 grid grid-cols-3 gap-3 text-sm">
-                  {[
-                    { k: "Email API", v: "OK" },
-                    { k: "SMS gateway", v: "OK" },
-                    { k: "Push service", v: "Degraded" },
-                  ].map((r) => (
+                  {systemHealth.length > 0 ? systemHealth.map((r) => (
                     <div key={r.k} className="rounded-xl border border-teal-200 bg-teal-50 p-3">
                       <div className="text-xs text-gray-600">{r.k}</div>
                       <div className={`text-base font-semibold ${r.v === "OK" ? "text-teal-500" : "text-yellow-500"}`}>{r.v}</div>
                     </div>
-                  ))}
+                  )) : (
+                    <div className="col-span-3 text-center text-gray-500">Loading system health...</div>
+                  )}
                 </div>
               </div>
             </div>

@@ -9,7 +9,6 @@ import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select";
 import { Textarea } from "../../components/ui/textarea";
-import { Search, Plus, Edit, Trash2, ShoppingCart, Star, Package, Zap, Pill, Dumbbell, Heart } from "lucide-react";
 
 const CategoryPill = ({ value, active, onClick }) => (
   <button
@@ -65,22 +64,7 @@ export default function Product() {
   const [editLoading, setEditLoading] = useState(false);
   const [editError, setEditError] = useState("");
 
-  const [creatingProduct, setCreatingProduct] = useState(false);
-  const [createFormData, setCreateFormData] = useState({
-    name: "",
-    category: "",
-    brand: "",
-    price: "",
-    mrp: "",
-    image: "",
-    rating: "",
-    flavor: "",
-    servings: "",
-    stock: "",
-    description: "",
-  });
-  const [createLoading, setCreateLoading] = useState(false);
-  const [createError, setCreateError] = useState("");
+
 
   const addToCart = (product) => {
     setCart(prev => {
@@ -142,81 +126,7 @@ export default function Product() {
     }));
   };
 
-  const handleCreateProduct = () => {
-    setCreatingProduct(true);
-    setCreateFormData({
-      name: "",
-      category: "",
-      brand: "",
-      price: "",
-      mrp: "",
-      image: "",
-      rating: "",
-      flavor: "",
-      servings: "",
-      stock: "",
-      description: "",
-    });
-    setCreateError("");
-  };
 
-  const handleCreateInputChange = (field, value) => {
-    setCreateFormData(prev => ({
-      ...prev,
-      [field]: value
-    }));
-  };
-
-  const handleCreateSubmit = async (e) => {
-    e.preventDefault();
-    setCreateLoading(true);
-    setCreateError("");
-
-    // Validation
-    if (!createFormData.category) {
-      setCreateError("Category is required");
-      setCreateLoading(false);
-      return;
-    }
-
-    try {
-      const productData = {
-        ...createFormData,
-        price: parseFloat(createFormData.price),
-        mrp: createFormData.mrp ? parseFloat(createFormData.mrp) : undefined,
-        rating: createFormData.rating ? parseFloat(createFormData.rating) : undefined,
-        servings: createFormData.servings ? parseInt(createFormData.servings) : undefined,
-        stock: createFormData.stock ? parseInt(createFormData.stock) : undefined,
-      };
-
-      const createResponse = await productService.createProduct(productData);
-      if (createResponse && createResponse.product && createResponse.product._id) {
-        // Add the new product dynamically to the list
-        const newProduct = {
-          id: createResponse.product._id,
-          name: createResponse.product.name,
-          category: createResponse.product.category,
-          brand: createResponse.product.brand,
-          price: createResponse.product.price,
-          mrp: createResponse.product.mrp,
-          image: createResponse.product.image,
-          flavor: createResponse.product.flavor || '',
-          rating: createResponse.product.rating || 0,
-          stock: createResponse.product.stock || 0,
-          servings: createResponse.product.servings || 0,
-          description: createResponse.product.description || '',
-        };
-        setProducts(prev => [newProduct, ...prev]);
-        setCreatingProduct(false);
-      } else {
-        setCreateError(createResponse.message || "Failed to create product");
-      }
-    } catch (err) {
-      setCreateError(err.message || "Failed to create product");
-    } finally {
-      setCreateLoading(false);
-    }
-  };
 
   const handleEditSubmit = async (e) => {
     e.preventDefault();
