@@ -1,4 +1,6 @@
-import { BASE_API_URL, getToken } from "@/utils/data";
+// import { BASE_API_URL, getToken } from "../utils/data";
+
+import { BASE_API_URL, getToken } from "@/Utils/data";
 
 const gymServices = {};
 
@@ -258,6 +260,105 @@ gymServices.deleteCustomer = async (id) => {
     return await res.json();
   } catch (error) {
     console.error('Error deleting customer:', error);
+    throw error;
+  }
+};
+
+gymServices.getAllGyms = async () => {
+  try {
+    const token = getToken();
+    const res = await fetch(`${BASE_API_URL}gyms`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!res.ok) {
+      throw new Error('Failed to fetch gyms');
+    }
+    return await res.json();
+  } catch (error) {
+    console.error('Error fetching gyms:', error);
+    throw error;
+  }
+};
+
+gymServices.getGymById = async (id) => {
+  try {
+    const token = getToken();
+    const res = await fetch(`${BASE_API_URL}gyms/${id}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!res.ok) {
+      throw new Error('Failed to fetch gym');
+    }
+    return await res.json();
+  } catch (error) {
+    console.error('Error fetching gym:', error);
+    throw error;
+  }
+};
+
+gymServices.addGym = async (gymData) => {
+  try {
+    const token = getToken();
+    console.log('Sending gym data:', gymData); // Debug log
+    const res = await fetch(`${BASE_API_URL}gyms`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(gymData),
+    });
+    console.log('Response status:', res.status); // Debug log
+    const responseData = await res.json();
+    console.log('Response data:', responseData); // Debug log
+    if (!res.ok) {
+      throw new Error(responseData.message || 'Failed to add gym');
+    }
+    return responseData;
+  } catch (error) {
+    console.error('Error adding gym:', error);
+    throw error;
+  }
+};
+
+gymServices.updateGym = async (id, gymData) => {
+  try {
+    const token = getToken();
+    const res = await fetch(`${BASE_API_URL}gyms/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(gymData),
+    });
+    if (!res.ok) {
+      throw new Error('Failed to update gym');
+    }
+    return await res.json();
+  } catch (error) {
+    console.error('Error updating gym:', error);
+    throw error;
+  }
+};
+
+gymServices.deleteGym = async (id) => {
+  try {
+    const token = getToken();
+    console.log('Deleting gym with ID:', id); // Debug log
+    const res = await fetch(`${BASE_API_URL}gyms/${id}`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    console.log('Delete response status:', res.status); // Debug log
+    const responseData = await res.json();
+    console.log('Delete response data:', responseData); // Debug log
+    if (!res.ok) {
+      throw new Error(responseData.message || 'Failed to delete gym');
+    }
+    return responseData;
+  } catch (error) {
+    console.error('Error deleting gym:', error);
     throw error;
   }
 };

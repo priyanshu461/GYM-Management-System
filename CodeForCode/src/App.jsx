@@ -24,6 +24,10 @@ import Courses from './views/OurCources/Courses'
 import FranchiseAndMembership from './views/OurCources/Franchises&Management'
 import Product from './views/Products/Product'
 import ProductCreate from './views/Products/ProductCreate'
+import GymsManagement from './views/Management/GymsManagement'
+import AddGym from './views/Management/AddGym'
+import EditGym from './views/Management/EditGym'
+import ViewGym from './views/Management/ViewGym'
 
 import Settings from './views/Settings'
 import SupportTickets from './views/SupportTickets'
@@ -98,6 +102,10 @@ function App() {
               <Route path="/franchises-and-membership" element={<ProtectedRoute><FranchiseAndMembership /></ProtectedRoute>} />
               <Route path="/products" element={<ProtectedRoute><Product /></ProtectedRoute>} />
               <Route path="/products/create" element={<ProtectedRoute><ProductCreate /></ProtectedRoute>} />
+              <Route path="/gyms" element={<ProtectedRoute><GymsManagement /></ProtectedRoute>} />
+              <Route path="/gyms/add" element={<ProtectedRoute><AddGym /></ProtectedRoute>} />
+              <Route path="/gyms/edit/:id" element={<ProtectedRoute><EditGym /></ProtectedRoute>} />
+              <Route path="/gyms/view/:id" element={<ProtectedRoute><ViewGym /></ProtectedRoute>} />
               <Route path='/settings' element={<ProtectedRoute><Settings /></ProtectedRoute>} />
               <Route path='/supporttickets' element={<ProtectedRoute><SupportTickets /></ProtectedRoute>} />
               <Route path='/gymblog' element={<ProtectedRoute><GymBlog /></ProtectedRoute>} />

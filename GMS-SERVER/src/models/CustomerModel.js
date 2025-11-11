@@ -5,6 +5,11 @@ const Schema = mongoose.Schema;
 // Define Customer Schema
 const customerSchema = new Schema(
   {
+    gymId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Gym",
+      required: true,
+    },
     name: {
       type: String,
       required: [true, "Customer name is required"],

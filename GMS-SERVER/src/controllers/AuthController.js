@@ -33,6 +33,8 @@ const login = async (req, res) => {
         name: user.name,
         email: user.email,
         roleId: user.roleId,
+        user_type: user.user_type,
+        gymId: user.gymId,
       },
     });
   } catch (error) {
@@ -48,7 +50,10 @@ const verify = async (req, res) => {
       return res.status(401).json({ message: "No token provided" });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || "7c892230e8994de8b59b604e");
+    const decoded = jwt.verify(
+      token,
+      process.env.JWT_SECRET || "7c892230e8994de8b59b604e"
+    );
     const user = await User.findById(decoded.id);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
@@ -68,7 +73,7 @@ const verify = async (req, res) => {
     return res.status(401).json({ message: "Invalid token" });
   }
 };
- 
+
 const signup = async (req, res) => {
   try {
     const { name, email, password } = req.body;

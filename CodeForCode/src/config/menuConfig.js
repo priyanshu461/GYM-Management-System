@@ -2,7 +2,7 @@ import { LayoutDashboardIcon, Laptop2, LucideFolderCog } from "lucide-react";
 import { MdGroup, MdNotificationAdd, MdSupportAgent } from 'react-icons/md';
 import { TfiWallet } from 'react-icons/tfi';
 import { BsClockHistory, BsFillBox2HeartFill } from 'react-icons/bs';
-import { FaBlog, FaCartPlus, FaUserTie } from 'react-icons/fa';
+import { FaBlog, FaCartPlus, FaDumbbell, FaUserTie } from 'react-icons/fa';
 import { TbReportAnalytics, TbReportSearch } from 'react-icons/tb';
 import { GiFruitBowl, GiGymBag, GiProgression } from 'react-icons/gi';
 import { BiDumbbell } from 'react-icons/bi';
@@ -20,6 +20,13 @@ export const menuConfig = [
     label: 'Dashboard',
     path: '/dashboard',
     icon: LayoutDashboardIcon,
+    type: 'link', // 'link' or 'dropdown'
+  },
+   {
+    id: 'gyms',
+    label: 'Gyms',
+    path: '/gyms',
+    icon: FaDumbbell,
     type: 'link', // 'link' or 'dropdown'
   },
   {
@@ -119,18 +126,11 @@ export const menuConfig = [
     ],
   },
   {
-    id: 'products',
-    label: 'Products',
+    id: 'all-products',
+    label: 'All Products',
+    path: '/products',
     icon: FaCartPlus,
-    type: 'dropdown',
-    children: [
-      {
-        id: 'all-products',
-        label: 'All Products',
-        path: '/products',
-        icon: FaCartPlus,
-      },
-    ],
+    type: 'link',
   },
   {
     id: 'notifications',
