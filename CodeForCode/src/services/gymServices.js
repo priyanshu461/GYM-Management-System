@@ -1,4 +1,4 @@
-import { BASE_API_URL, getToken } from "@/utils/data";
+import { BASE_API_URL, getToken } from "../Utils/data";
 
 const gymServices = {};
 
@@ -261,5 +261,7 @@ gymServices.deleteCustomer = async (id) => {
     throw error;
   }
 };
+
+
 
 export default gymServices;

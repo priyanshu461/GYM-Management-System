@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Dumbbell, Users, Calendar, ShoppingBag, Mail, Phone, MapPin, X, Zap, TrendingUp, BarChart3, Headphones, Sun, Moon } from 'lucide-react';
 import { motion } from 'framer-motion';
 import emailjs from '@emailjs/browser';
 import Sidebar from '../components/layout/Sidebar';
 import { useTheme } from '../contexts/ThemeContext';
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend, LineChart, Line } from "recharts";
+import { Dumbbell, Users, Calendar, ShoppingBag, Zap, TrendingUp, Headphones, Mail, Phone, MapPin, Moon, Sun, X } from 'lucide-react';
 
 const Home = () => {
   const { theme, toggleTheme } = useTheme();
@@ -122,6 +122,9 @@ const Home = () => {
               </button>
               <Link to="/login" className="bg-gradient-to-r from-teal-600 to-teal-500 text-white px-4 py-2 rounded-lg font-semibold hover:from-teal-100 hover:to-teal-200 hover:text-teal-600 shadow">
                 Login
+              </Link>
+              <Link to="/member-login" className="bg-teal-100 text-teal-900 px-4 py-2 rounded-lg font-semibold hover:bg-teal-200 border border-teal-200 shadow">
+                Member Login
               </Link>
               {/* <Link to="/dashboard" className="bg-teal-100 text-teal-900 px-4 py-2 rounded-lg font-semibold hover:bg-teal-200 border border-teal-200 shadow">
                 Dashboard

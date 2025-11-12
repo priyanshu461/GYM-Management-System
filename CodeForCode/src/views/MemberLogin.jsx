@@ -1,0 +1,409 @@
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Eye, Home, X, Key, Phone, Lock, Sun, Moon, UserPlus } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
+import { useTheme } from '../contexts/ThemeContext';
+import Sidebar from '../components/layout/Sidebar';
+
+const MemberLogin = () => {
+  const [name, setName] = useState('');
+  const [mobile, setMobile] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showDemo, setShowDemo] = useState(false);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [resetMobile, setResetMobile] = useState('');
+  const [showSignup, setShowSignup] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [resetMessage, setResetMessage] = useState('');
+  const navigate = useNavigate();
+  const { memberLogin, memberSignup } = useAuth();
+  const { theme, toggleTheme } = useTheme();
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    if (mobile && password) {
+      const success = await memberLogin(mobile, password);
+      if (success) {
+        navigate('/member-dashboard');
+      } else {
+        setErrorMessage('Invalid credentials');
+      }
+    }
+  };
+const handleSignup = async (e) => {
+  e.preventDefault();
+
+  if (!name || !mobile || !password) {
+    setErrorMessage("All fields are required");
+    return;
+  }
+
+  if (password.length < 6) {
+    setErrorMessage("Password must be at least 6 characters");
+    return;
+  }
+
+  console.log("Signup data being sent:", { name, mobile, email, password });
+
+  const success = await memberSignup(name, mobile, email, password);
+
+  if (success) {
+    navigate("/member-dashboard");
+  } else {
+    setErrorMessage("Signup failed");
+  }
+};
+
+  const handleForgotPassword = () => {
+    setShowForgotPassword(true);
+  };
+
+  const handleResetPassword = (e) => {
+    e.preventDefault();
+    setResetMessage(`Reset code sent to ${resetMobile}`);
+    setTimeout(() => setResetMessage(''), 10000);
+    setResetMobile('');
+    setShowForgotPassword(false);
+  };
+
+  return (
+    <div className={`min-h-screen flex flex-col relative ${theme === 'dark' ? 'bg-gradient-to-br from-teal-900 via-teal-800 to-teal-900' : 'bg-gradient-to-br from-teal-200 via-teal-200 to-teal-100'}`}>
+      {/* Header */}
+      <header className="absolute top-0 left-0 right-0 z-10 flex items-center p-4">
+        <div className={`text-3xl font-extrabold drop-shadow-lg ${theme === 'dark' ? 'text-white' : 'text-white'}`}>GMS</div>
+        <div className="ml-auto flex items-center gap-2">
+          <button
+            onClick={toggleTheme}
+            className={`p-2 rounded-lg transition-colors shadow-lg ${theme === 'dark' ? 'bg-teal-700 text-teal-100 hover:bg-teal-600 hover:text-teal-200' : 'bg-teal-500 text-white hover:bg-teal-200 hover:text-teal-800'}`}
+            aria-label="Toggle theme"
+          >
+            {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
+          </button>
+          <button
+            onClick={() => setShowDemo(true)}
+            className={`px-4 py-2 rounded-lg transition-colors flex items-center gap-2 shadow-lg ${theme === 'dark' ? 'bg-teal-700 text-teal-100 hover:bg-teal-600 hover:text-teal-200' : 'bg-teal-500 text-white hover:bg-teal-200 hover:text-teal-800'}`}
+          >
+            <Eye size={20} /> View Demo
+          </button>
+          <button
+            onClick={() => navigate('/')}
+            className={`px-4 py-2 rounded-lg transition-colors flex items-center gap-2 shadow-lg ${theme === 'dark' ? 'bg-teal-700 text-teal-100 hover:bg-teal-600 hover:text-teal-200' : 'bg-teal-500 text-white hover:bg-teal-200 hover:text-teal-800'}`}
+          >
+            <Home size={20} /> Home
+          </button>
+        </div>
+      </header>
+
+      {/* Centered Login Form */}
+      <div className="flex-1 flex items-center justify-center px-4 sm:px-6 py-8 sm:py-12">
+        <div className={`max-w-md w-full rounded-xl sm:rounded-2xl shadow-2xl p-6 sm:p-8 animate-fade-in backdrop-blur-sm ${theme === 'dark' ? 'bg-teal-800/90' : 'bg-teal-50/90'} border border-teal-200/50 dark:border-teal-700/50`}>
+          {/* Form Header */}
+          <div className="text-center mb-6 sm:mb-8">
+            <div className="flex justify-center mb-4">
+              <div className={`p-3 sm:p-4 rounded-full shadow-lg ${theme === 'dark' ? 'bg-teal-700' : 'bg-teal-100'}`}>
+                <Lock className={`text-teal-600 ${theme === 'dark' ? 'text-teal-200' : ''} w-7 h-7 sm:w-8 sm:h-8`} />
+              </div>
+            </div>
+            <h1 className={`text-2xl sm:text-3xl font-bold mb-2 ${theme === 'dark' ? 'text-white' : 'text-teal-800'}`}>Member Portal</h1>
+            <p className={`text-sm sm:text-base text-gray-600 ${theme === 'dark' ? 'text-teal-200' : ''}`}>Sign in to your member account</p>
+            {errorMessage && (
+              <p className="text-red-600 mt-4">{errorMessage}</p>
+            )}
+            {resetMessage && (
+              <p className="text-green-600 mt-4">{resetMessage}</p>
+            )}
+          </div>
+
+          {/* Login/Signup Toggle */}
+          <div className="flex mb-6 bg-teal-100 dark:bg-teal-700 rounded-lg p-1">
+            <button
+              onClick={() => setShowSignup(false)}
+              className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
+                !showSignup
+                  ? 'bg-white dark:bg-teal-600 text-teal-800 dark:text-teal-100 shadow-sm'
+                  : 'text-teal-600 dark:text-teal-300 hover:text-teal-800 dark:hover:text-teal-100'
+              }`}
+            >
+              Login
+            </button>
+            <button
+              onClick={() => setShowSignup(true)}
+              className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
+                showSignup
+                  ? 'bg-white dark:bg-teal-600 text-teal-800 dark:text-teal-100 shadow-sm'
+                  : 'text-teal-600 dark:text-teal-300 hover:text-teal-800 dark:hover:text-teal-100'
+              }`}
+            >
+              Sign Up
+            </button>
+          </div>
+
+          {/* Login Form */}
+          {!showSignup ? (
+            <form onSubmit={handleLogin} className="space-y-4 sm:space-y-6">
+              {/* Mobile Field */}
+              <div>
+                <label htmlFor="mobile" className={`block text-xs sm:text-sm font-medium mb-2 ${theme === 'dark' ? 'text-teal-100' : 'text-teal-800'}`}>
+                  Mobile Number
+                </label>
+                <div className="relative">
+                  <Phone className={`absolute left-3 top-1/2 transform -translate-y-1/2 text-teal-500 ${theme === 'dark' ? 'text-teal-300' : ''} w-4 h-4 sm:w-5 sm:h-5`} />
+                  <input
+                    type="tel"
+                    id="mobile"
+                    value={mobile}
+                    onChange={(e) => {
+                      setMobile(e.target.value);
+                      setErrorMessage('');
+                    }}
+                    className={`w-full pl-9 sm:pl-10 pr-4 py-2.5 sm:py-3 border rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-200 shadow-sm text-sm sm:text-base ${theme === 'dark' ? 'bg-teal-700 border-teal-600 text-teal-100' : 'bg-white border-teal-300'}`}
+                    placeholder="Enter your mobile number"
+                    required
+                  />
+                </div>
+              </div>
+
+              {/* Password Field */}
+              <div>
+                <label htmlFor="password" className={`block text-xs sm:text-sm font-medium mb-2 ${theme === 'dark' ? 'text-teal-100' : 'text-teal-800'}`}>
+                  Password
+                </label>
+                <div className="relative">
+                  <Lock className={`absolute left-3 top-1/2 transform -translate-y-1/2 text-teal-500 ${theme === 'dark' ? 'text-teal-300' : ''} w-4 h-4 sm:w-5 sm:h-5`} />
+                  <input
+                    type="password"
+                    id="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className={`w-full pl-9 sm:pl-10 pr-4 py-2.5 sm:py-3 border rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-200 shadow-sm text-sm sm:text-base ${theme === 'dark' ? 'bg-teal-700 border-teal-600 text-teal-100' : 'bg-white border-teal-300'}`}
+                    placeholder="Enter your password"
+                    required
+                  />
+                </div>
+              </div>
+
+              {/* Buttons */}
+              <div className="space-y-3 sm:space-y-4">
+                <button
+                  type="submit"
+                  className={`w-full bg-gradient-to-r from-teal-400 via-teal-800 to-teal-400 hover:from-teal-200 hover:to-teal-600 text-white font-semibold py-2.5 sm:py-3 px-4 rounded-lg sm:rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 shadow-lg hover:shadow-xl transform hover:scale-[1.02] text-sm sm:text-base ${theme === 'dark' ? 'from-teal-600 via-teal-900 to-teal-600 hover:from-teal-500 hover:to-teal-700' : ''}`}
+                >
+                  Login
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleForgotPassword}
+                  className={`w-full font-medium py-2.5 sm:py-3 px-4 rounded-lg sm:rounded-xl transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 text-sm sm:text-base ${theme === 'dark' ? 'bg-teal-700 hover:bg-teal-600 text-teal-100' : 'bg-teal-50 hover:bg-gray-200 text-gray-700'}`}
+                >
+                  Forgot Password?
+                </button>
+              </div>
+            </form>
+          ) : (
+            /* Signup Form */
+            <form onSubmit={handleSignup} className="space-y-4 sm:space-y-6">
+              {/* Name Field */}
+              <div>
+                <label htmlFor="name" className={`block text-xs sm:text-sm font-medium mb-2 ${theme === 'dark' ? 'text-teal-100' : 'text-teal-800'}`}>
+                  Full Name
+                </label>
+                <input
+                  type="text"
+                  id="name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className={`w-full px-4 py-2.5 sm:py-3 border rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-200 shadow-sm text-sm sm:text-base ${theme === 'dark' ? 'bg-teal-700 border-teal-600 text-teal-100' : 'bg-white border-teal-300'}`}
+                  placeholder="Enter your full name"
+                  required
+                />
+              </div>
+
+              {/* Mobile Field */}
+              <div>
+                <label htmlFor="mobile-signup" className={`block text-xs sm:text-sm font-medium mb-2 ${theme === 'dark' ? 'text-teal-100' : 'text-teal-800'}`}>
+                  Mobile Number
+                </label>
+                <div className="relative">
+                  <Phone className={`absolute left-3 top-1/2 transform -translate-y-1/2 text-teal-500 ${theme === 'dark' ? 'text-teal-300' : ''} w-4 h-4 sm:w-5 sm:h-5`} />
+                  <input
+                    type="tel"
+                    id="mobile-signup"
+                    value={mobile}
+                    onChange={(e) => setMobile(e.target.value)}
+                    className={`w-full pl-9 sm:pl-10 pr-4 py-2.5 sm:py-3 border rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-200 shadow-sm text-sm sm:text-base ${theme === 'dark' ? 'bg-teal-700 border-teal-600 text-teal-100' : 'bg-white border-teal-300'}`}
+                    placeholder="Enter your mobile number"
+                    required
+                  />
+                </div>
+              </div>
+
+              {/* Email Field */}
+              <div>
+                <label htmlFor="email-signup" className={`block text-xs sm:text-sm font-medium mb-2 ${theme === 'dark' ? 'text-teal-100' : 'text-teal-800'}`}>
+                  Email (Optional)
+                </label>
+                <input
+                  type="email"
+                  id="email-signup"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className={`w-full px-4 py-2.5 sm:py-3 border rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-200 shadow-sm text-sm sm:text-base ${theme === 'dark' ? 'bg-teal-700 border-teal-600 text-teal-100' : 'bg-white border-teal-300'}`}
+                  placeholder="Enter your email address"
+                />
+              </div>
+
+              {/* Password Field */}
+              <div>
+                <label htmlFor="password-signup" className={`block text-xs sm:text-sm font-medium mb-2 ${theme === 'dark' ? 'text-teal-100' : 'text-teal-800'}`}>
+                  Password
+                </label>
+                <div className="relative">
+                  <Lock className={`absolute left-3 top-1/2 transform -translate-y-1/2 text-teal-500 ${theme === 'dark' ? 'text-teal-300' : ''} w-4 h-4 sm:w-5 sm:h-5`} />
+                  <input
+                    type="password"
+                    id="password-signup"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className={`w-full pl-9 sm:pl-10 pr-4 py-2.5 sm:py-3 border rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-200 shadow-sm text-sm sm:text-base ${theme === 'dark' ? 'bg-teal-700 border-teal-600 text-teal-100' : 'bg-white border-teal-300'}`}
+                    placeholder="Create a password"
+                    required
+                  />
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                className={`w-full bg-gradient-to-r from-teal-400 via-teal-800 to-teal-400 hover:from-teal-200 hover:to-teal-600 text-white font-semibold py-2.5 sm:py-3 px-4 rounded-lg sm:rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 shadow-lg hover:shadow-xl transform hover:scale-[1.02] text-sm sm:text-base flex items-center justify-center gap-2 ${theme === 'dark' ? 'from-teal-600 via-teal-900 to-teal-600 hover:from-teal-500 hover:to-teal-700' : ''}`}
+              >
+                <UserPlus size={20} />
+                Sign Up
+              </button>
+            </form>
+          )}
+
+          {/* Footer */}
+          <div className="mt-8 text-center">
+            <p className={`text-sm ${theme === 'dark' ? 'text-teal-300' : 'text-gray-600'}`}>
+              {!showSignup ? "Don't have an account?" : "Already have an account?"}{' '}
+              <button
+                onClick={() => setShowSignup(!showSignup)}
+                className={`font-medium focus:outline-none ${theme === 'dark' ? 'text-teal-300 hover:text-teal-100' : 'text-teal-500 hover:text-teal-300'}`}
+              >
+                {!showSignup ? 'Sign up' : 'Login'}
+              </button>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Demo Modal */}
+      {showDemo && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50"
+          onContextMenu={(e) => e.preventDefault()}
+        >
+          <div className="bg-white rounded-lg shadow-2xl w-11/12 h-5/6 flex overflow-hidden relative">
+            <Sidebar demo={true} />
+            <div className="flex-1 p-6 bg-gray-50">
+              <div className="flex items-center gap-4 mb-6">
+                <button
+                  onClick={toggleTheme}
+                  className="p-2 rounded-lg bg-gray-200 hover:bg-gray-300 transition-colors duration-200"
+                  aria-label="Toggle theme"
+                >
+                  {theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
+                </button>
+                <h2 className="text-2xl font-bold text-teal-800">Member Dashboard Preview</h2>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div onClick={() => alert('This is a demo. Please login to access.')} className="bg-blue-100 p-6 rounded-lg shadow-md cursor-pointer">
+                  <h3 className="font-semibold text-blue-800">My Profile</h3>
+                  <p className="text-2xl font-bold text-blue-600">John Doe</p>
+                </div>
+                <div onClick={() => alert('This is a demo. Please login to access.')} className="bg-green-100 p-6 rounded-lg shadow-md cursor-pointer">
+                  <h3 className="font-semibold text-green-800">Active Membership</h3>
+                  <p className="text-2xl font-bold text-green-600">Premium</p>
+                </div>
+                <div onClick={() => alert('This is a demo. Please login to access.')} className="bg-yellow-100 p-6 rounded-lg shadow-md cursor-pointer">
+                  <h3 className="font-semibold text-yellow-800">Workout Sessions</h3>
+                  <p className="text-2xl font-bold text-yellow-600">24</p>
+                </div>
+                <div onClick={() => alert('This is a demo. Please login to access.')} className="bg-purple-100 p-6 rounded-lg shadow-md cursor-pointer">
+                  <h3 className="font-semibold text-purple-800">Classes Attended</h3>
+                  <p className="text-2xl font-bold text-purple-600">12</p>
+                </div>
+                <div onClick={() => alert('This is a demo. Please login to access.')} className="bg-pink-100 p-6 rounded-lg shadow-md cursor-pointer">
+                  <h3 className="font-semibold text-pink-800">BMI Score</h3>
+                  <p className="text-2xl font-bold text-pink-600">22.5</p>
+                </div>
+                <div onClick={() => alert('This is a demo. Please login to access.')} className="bg-indigo-100 p-6 rounded-lg shadow-md cursor-pointer">
+                  <h3 className="font-semibold text-indigo-800">Progress Points</h3>
+                  <p className="text-2xl font-bold text-indigo-600">1,250</p>
+                </div>
+              </div>
+            </div>
+            <button
+              onClick={() => setShowDemo(false)}
+              className="absolute top-4 right-4 bg-red-500 hover:bg-red-600 text-white p-3 rounded-full shadow-lg transition-colors"
+            >
+              <X size={24} />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Forgot Password Modal */}
+      {showForgotPassword && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 animate-fade-in">
+          <div className={`max-w-md w-full rounded-2xl shadow-2xl p-8 animate-fade-in backdrop-blur-sm ${theme === 'dark' ? 'bg-teal-800/90' : 'bg-teal-50/90'}`}>
+            <div className="relative z-10">
+            <div className="text-center mb-6">
+              <div className="flex justify-center mb-4">
+                <div className={`p-4 rounded-full ${theme === 'dark' ? 'bg-teal-700' : 'bg-teal-100'}`}>
+                  <Key className={`text-teal-600 ${theme === 'dark' ? 'text-teal-200' : ''}`} size={32} />
+                </div>
+              </div>
+              <h2 className={`text-3xl font-bold mb-2 ${theme === 'dark' ? 'text-teal-100' : 'text-teal-800'}`}>Forgot Your Password?</h2>
+              <p className={`text-gray-600 ${theme === 'dark' ? 'text-teal-300' : ''}`}>No worries! Enter your mobile number and we'll send you a reset code.</p>
+            </div>
+            <form onSubmit={handleResetPassword} className="space-y-6">
+              <div>
+                <label htmlFor="resetMobile" className={`block text-sm font-medium mb-2 ${theme === 'dark' ? 'text-teal-100' : 'text-teal-800'}`}>
+                  Mobile Number
+                </label>
+                <input
+                  type="tel"
+                  id="resetMobile"
+                  value={resetMobile}
+                  onChange={(e) => setResetMobile(e.target.value)}
+                  className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-200 shadow-sm ${theme === 'dark' ? 'bg-teal-700 border-teal-600 text-teal-100' : 'bg-white border-teal-300'}`}
+                  placeholder="Enter your mobile number"
+                  required
+                />
+              </div>
+              <button
+                type="submit"
+                className={`w-full bg-gradient-to-r hover:from-teal-600 hover:to-teal-800 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 shadow-lg transform hover:scale-105 ${theme === 'dark' ? 'from-teal-700 to-teal-900' : 'from-teal-500 to-teal-700'}`}
+              >
+                Send Reset Code
+              </button>
+            </form>
+            <div className="mt-6 text-center">
+              <button
+                onClick={() => setShowForgotPassword(false)}
+                className={`font-medium transition-colors ${theme === 'dark' ? 'text-teal-300 hover:text-teal-100' : 'text-teal-600 hover:text-teal-800'}`}
+              >
+                Back to Login
+              </button>
+            </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default MemberLogin;

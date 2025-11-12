@@ -15,8 +15,9 @@ import {
 } from "recharts";
 import { Ruler, Scale, Calendar, Users, Zap, Trophy, Target } from "lucide-react";
 import { motion } from "framer-motion";
-import Layout from "../components/Layout";
+import MemberLayout from "../components/layout/MemberLayout";
 import { useTheme } from "../contexts/ThemeContext";
+import MemberSidebar from "@/components/layout/MemberSidebar";
 
 const BMICalculator = () => {
   const { theme } = useTheme();
@@ -267,7 +268,8 @@ const BMICalculator = () => {
   ];
 
   return (
-    <Layout>
+     <div className={`min-h-screen flex ${theme === 'dark' ? 'bg-teal-900' : 'bg-gradient-to-br from-teal-50 via-teal-100 to-teal-50'}`}>
+      <MemberSidebar />
       <div className={`p-6 max-w-7xl mx-auto min-h-screen ${theme === 'dark' ? 'bg-gradient-to-br from-teal-900 via-teal-800 to-teal-900 text-white' : 'bg-gradient-to-br from-teal-50 via-slate-50 to-teal-100'}`}>
         <header className="mb-8 text-center">
           <h1 className={`text-4xl font-extrabold ${theme === 'dark' ? 'text-teal-100' : 'text-teal-900'}`}>
@@ -588,7 +590,8 @@ const BMICalculator = () => {
           </div>
         )}
       </div>
-    </Layout>
+     </div>
+      
   );
 };
 

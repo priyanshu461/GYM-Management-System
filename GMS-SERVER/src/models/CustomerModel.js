@@ -1,76 +1,53 @@
-// models/Customer.js
+// backend/models/CustomerModel.js
 const mongoose = require("mongoose");
-const Schema = mongoose.Schema;
 
-// Define Customer Schema
-const customerSchema = new Schema(
+const customerSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required: [true, "Customer name is required"],
+      required: true,
       trim: true,
     },
     mobile: {
       type: String,
-      required: [true, "Mobile number is required"],
+      required: true,
       unique: true,
-      match: [/^[0-9]{10}$/, "Please enter a valid 10-digit mobile number"],
+      match: /^[0-9]{10}$/, // only 10-digit numbers allowed
     },
     email: {
       type: String,
       trim: true,
       lowercase: true,
-      match: [
-        /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
-        "Please enter a valid email address",
-      ],
+      default: "", // ✅ important (instead of null)
     },
-    aadharNo: {
+    password: {
       type: String,
-      required: [true, "Aadhar number is required"],
-      unique: true,
-      match: [/^[0-9]{12}$/, "Aadhar number must be 12 digits"],
+      required: true,
     },
     address: {
       type: String,
-      trim: true,
-    },
-    profileImage: {
-      type: String, // Can store URL or file path
       default: "",
     },
-    emergencyContact: {
+    image: {
       type: String,
-      match: [/^[0-9]{10}$/, "Please enter a valid 10-digit contact number"],
+      default: "",
     },
-    dob: {
+    height: {
+      type: Number, // in centimeters
+      default: null,
+    },
+    joinedAt: {
       type: Date,
-    },
-    gender: {
-      type: String,
-      enum: ["Male", "Female", "Other"],
-    },
-    occupation: {
-      type: String,
-      trim: true,
-    },
-    // Optional: track if customer is active or deleted
-    status: {
-      type: String,
-      enum: ["Active", "Inactive"],
-      default: "Active",
+      default: Date.now,
     },
   },
-  {
-    timestamps: true, // Adds createdAt and updatedAt
-    versionKey: false, // Removes "__v" field
-  }
+  { versionKey: false }
 );
 
-// Optional: virtual field for full info
-customerSchema.virtual("fullInfo").get(function () {
-  return `${this.name} (${this.mobile})`;
-});
+// ✅ Unique index only if email is non-empty
+customerSchema.index(
+  { email: 1 },
+  { unique: true, partialFilterExpression: { email: { $ne: "" } } }
+);
 
-// Export Model
 module.exports = mongoose.model("Customer", customerSchema);

@@ -67,12 +67,6 @@ export const menuConfig = [
         icon: BsClockHistory,
       },
       {
-        id: 'bmi-calculator',
-        label: 'BMI Calculator',
-        path: '/bmi-calculator',
-        icon: TbReportAnalytics,
-      },
-      {
         id: 'diet-plan',
         label: 'Diet Plans',
         path: '/diet-plan',

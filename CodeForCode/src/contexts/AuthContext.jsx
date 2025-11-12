@@ -1,13 +1,16 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { BASE_API_URL } from "../Utils/data";
+import { useNavigate } from "react-router-dom";
 
 // Create Auth Context
 const AuthContext = createContext();
 
 // Auth Provider Component
 export const AuthProvider = ({ children }) => {
+  const navigate = useNavigate();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
+  const [member, setMember] = useState(null);
   const [loading, setLoading] = useState(true);
 
   // Check for existing token on app load
@@ -16,15 +19,16 @@ export const AuthProvider = ({ children }) => {
     if (token) {
       // Verify token with backend
       fetch(`${BASE_API_URL}auth/verify`, {
-        method: "GET",
+        method: "POST",
         headers: {
+          "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`,
         },
       })
         .then((response) => response.json())
         .then((data) => {
           if (data.user) {
-            setUser(data.user);
+            setMember(data.user);
             setIsAuthenticated(true);
           } else {
             // Invalid token, clear localStorage
@@ -76,6 +80,64 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Member login function
+  const memberLogin = async (mobile, password) => {
+    try {
+      const response = await fetch(`${BASE_API_URL}auth/member/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ mobile, password }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setMember(data.user);
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("member", JSON.stringify(data.user));
+        setIsAuthenticated(true);
+        navigate("/member-dashboard");
+        return true;
+      } else {
+        throw new Error(data.message || "Member login failed");
+      }
+    } catch (error) {
+      console.error("Member login error:", error);
+      return false;
+    }
+  };
+
+// Inside AuthContext.jsx
+const memberSignup = async (name, mobile, email, password) => {
+  try {
+    console.log("Signup data being sent:", { name, mobile, email, password });
+
+    const response = await fetch(`${BASE_API_URL}auth/member/signup`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, mobile, email, password }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      console.error("Member signup failed:", data);
+      throw new Error(data.message || "Member signup failed");
+    }
+
+    setMember(data.user);
+    localStorage.setItem("token", data.token);
+    localStorage.setItem("member", JSON.stringify(data.user));
+    setIsAuthenticated(true);
+    return true;
+  } catch (error) {
+    console.error("Member signup error:", error);
+    return false;
+  }
+};
+
   // Signup function
   const signup = async (name, email, password) => {
     try {
@@ -112,8 +174,10 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     setIsAuthenticated(false);
     setUser(null);
+    setMember(null);
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+    localStorage.removeItem("member");
   };
 
   return (
@@ -121,7 +185,10 @@ export const AuthProvider = ({ children }) => {
       value={{
         isAuthenticated,
         user,
+        member,
         login,
+        memberLogin,
+        memberSignup,
         signup,
         logout,
         updateUser,

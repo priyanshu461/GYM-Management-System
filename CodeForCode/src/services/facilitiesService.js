@@ -1,37 +1,31 @@
-import { BASE_API_URL, getToken } from "@/utils/data";
+import { BASE_API_URL, getToken } from "@/Utils/data";
 
 const facilitiesService = {};
 
 facilitiesService.getAllFacilities = async () => {
   try {
-    const res = await fetch(`${BASE_API_URL}management/facilities`, {
+    const res = await fetch(`${BASE_API_URL}facilities`, {
       headers: { Authorization: `Bearer ${getToken()}` },
     });
     if (!res.ok) {
       throw new Error('Failed to fetch facilities');
     }
-    const facilities = await res.json();
-    return { facilities };
+    return await res.json();
   } catch (error) {
     console.error('Error fetching facilities:', error);
-    // Return empty array if API fails
-    return { facilities: [] };
+    throw error;
   }
 };
 
-facilitiesService.addFacility = async (facilityData) => {
+facilitiesService.addFacility = async (data = {}) => {
   try {
-    const headers = {
-      'Content-Type': 'application/json',
-    };
-    const token = getToken();
-    if (token) {
-      headers.Authorization = `Bearer ${token}`;
-    }
-    const res = await fetch(`${BASE_API_URL}management/facilities`, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify(facilityData),
+    const res = await fetch(`${BASE_API_URL}facilities`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${getToken()}`,
+      },
+      body: JSON.stringify(data),
     });
     if (!res.ok) {
       throw new Error('Failed to add facility');
@@ -43,19 +37,15 @@ facilitiesService.addFacility = async (facilityData) => {
   }
 };
 
-facilitiesService.updateFacility = async (id, facilityData) => {
+facilitiesService.updateFacility = async (data = {}) => {
   try {
-    const headers = {
-      'Content-Type': 'application/json',
-    };
-    const token = getToken();
-    if (token) {
-      headers.Authorization = `Bearer ${token}`;
-    }
-    const res = await fetch(`${BASE_API_URL}management/facilities/${id}`, {
-      method: 'PUT',
-      headers,
-      body: JSON.stringify(facilityData),
+    const res = await fetch(`${BASE_API_URL}facilities/${data.id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${getToken()}`,
+      },
+      body: JSON.stringify(data),
     });
     if (!res.ok) {
       throw new Error('Failed to update facility');
@@ -67,11 +57,15 @@ facilitiesService.updateFacility = async (id, facilityData) => {
   }
 };
 
-facilitiesService.deleteFacility = async (id) => {
+facilitiesService.deleteFacility = async (data = {}) => {
   try {
-    const res = await fetch(`${BASE_API_URL}management/facilities/${id}`, {
-      method: 'DELETE',
-      headers: { Authorization: `Bearer ${getToken()}` },
+    const res = await fetch(`${BASE_API_URL}facilities/${data.id}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${getToken()}`,
+      },
+      body: JSON.stringify(data),
     });
     if (!res.ok) {
       throw new Error('Failed to delete facility');

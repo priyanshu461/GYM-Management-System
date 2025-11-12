@@ -29,21 +29,21 @@ const Layout = ({children}) => {
           onClose={() => setIsMobileSidebarOpen(false)}
           collapsed={sidebarCollapsed}
           onToggleCollapse={handleToggleCollapse}
-          className={`fixed inset-y-0 left-0 z-50 h-screen transform transition-all duration-300 ease-in-out bg-teal-100 dark:bg-teal-900 shadow-xl ${
+          className={`sticky top-0 left-0 z-50 h-screen transform transition-all duration-300 ease-in-out bg-teal-100 dark:bg-teal-900 shadow-xl ${
             isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'
           } md:translate-x-0 md:shadow-lg ${sidebarCollapsed ? 'md:w-20' : 'md:w-64'}`}
         />
         
         {/* Main Content Area - with proper margin for fixed sidebar */}
         <main className={`flex-1 w-full min-w-0 transition-all duration-300 ${
-          sidebarCollapsed ? 'md:ml-20' : 'md:ml-64'
+          sidebarCollapsed ? '' : ''
         }`}>
           <Header
             onMobileMenuToggle={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
             sidebarCollapsed={sidebarCollapsed}
             onToggleSidebar={handleToggleCollapse}
           />
-          <div className="mt-16 md:mt-20 px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+          <div className="mt-16 md:mt-20 px-8 sm:px-6 lg:px-4 py- sm:py-6">
             {children}
           </div>
           <Footer/>

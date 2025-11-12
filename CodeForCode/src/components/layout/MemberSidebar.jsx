@@ -2,21 +2,21 @@ import React, { useState, useEffect } from 'react'
 import { LogOut, Dumbbell, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { menuConfig, getDropdownPaths } from '../../config/menuConfig';
+import { memberMenuConfig, getMemberDropdownPaths } from '../../config/memberMenuConfig';
 
-const Sidebar = ({ demo = false, isOpen, onClose, collapsed, onToggleCollapse, className }) => {
+const MemberSidebar = ({ demo = false, isOpen, onClose, collapsed, onToggleCollapse, className }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { logout } = useAuth();
-  
+  const { member, logout } = useAuth();
+
   // Dynamic state for dropdowns
   const [openDropdowns, setOpenDropdowns] = useState({});
-  const dropdownPaths = getDropdownPaths();
+  const dropdownPaths = getMemberDropdownPaths();
 
   // Helper function to check if a route is active
   const isActive = (path) => {
-    if (path === '/dashboard') {
-      return location.pathname === '/dashboard';
+    if (path === '/member-dashboard') {
+      return location.pathname === '/member-dashboard';
     }
     return location.pathname.startsWith(path);
   };
@@ -48,11 +48,11 @@ const Sidebar = ({ demo = false, isOpen, onClose, collapsed, onToggleCollapse, c
   const renderIcon = (IconComponent, size = 18, isActive = false) => {
     if (!IconComponent) return null;
     return (
-      <IconComponent 
-        size={size} 
+      <IconComponent
+        size={size}
         className={`sm:w-5 sm:h-5 flex-shrink-0 group-hover:scale-110 transition-transform ${
           isActive ? 'text-white' : 'text-teal-900 dark:text-white'
-        }`} 
+        }`}
       />
     );
   };
@@ -64,8 +64,8 @@ const Sidebar = ({ demo = false, isOpen, onClose, collapsed, onToggleCollapse, c
     
     if (demo) {
       return (
-        <div 
-          onClick={() => alert('This is a demo. Please login to access.')} 
+        <div
+          onClick={() => alert('This is a demo. Please login to access.')}
           className={`flex items-center gap-2 sm:gap-3 p-2 ${isSubItem ? '' : 'sm:p-3'} rounded-lg hover:bg-teal-50 dark:hover:bg-teal-800 cursor-pointer text-sm text-teal-900 dark:text-white transition-all duration-200 group`}
         >
           {renderIcon(IconComponent, isSubItem ? 16 : 18, false)}
@@ -75,8 +75,8 @@ const Sidebar = ({ demo = false, isOpen, onClose, collapsed, onToggleCollapse, c
     }
 
     return (
-      <Link 
-        to={item.path} 
+      <Link
+        to={item.path}
         className={`flex items-center gap-2 sm:gap-3 p-2 ${isSubItem ? '' : 'sm:p-3'} rounded-lg cursor-pointer text-sm transition-all duration-200 group ${
           active
             ? isSubItem
@@ -147,21 +147,21 @@ const Sidebar = ({ demo = false, isOpen, onClose, collapsed, onToggleCollapse, c
   };
 
   return (
-    <div>
+    <div className="shadow-xl">
       <aside
-        className={`${className} flex flex-col h-screen top-0 overflow-hidden`}
+        className={`${className} flex flex-col h-screen overflow-hidden bg-white dark:bg-teal-800 border-r border-teal-200 dark:border-teal-700 shadow-2xl`}
       >
         {/* Header */}
-        <div className="h-16 sm:h-17 flex items-center px-3 sm:px-4 justify-between border-b border-teal-300/50 dark:border-teal-700/50 bg-teal-50/50 dark:bg-teal-900/50 backdrop-blur-sm">
-          <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
+        <div className="h-16 sm:h-17 flex items-center px-4 sm:px-6 justify-between border-b border-teal-200 dark:border-teal-700 bg-gradient-to-r from-teal-50 to-teal-100 dark:from-teal-900 dark:to-teal-800">
+          <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
             {/* Logo Icon */}
-            <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-gradient-to-br from-teal-500 to-teal-600 dark:from-teal-600 dark:to-teal-700 shadow-md flex-shrink-0">
-              <Dumbbell size={20} className="text-white" />
+            <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-teal-500 to-teal-600 dark:from-teal-600 dark:to-teal-700 shadow-lg flex-shrink-0">
+              <Dumbbell size={24} className="text-white" />
             </div>
             {(isOpen || !collapsed) && (
-              <h1 className="font-extrabold text-lg sm:text-xl text-teal-600 dark:text-white select-none truncate">
-                <span className="hidden sm:inline">Admin </span>
-                <span className='text-teal-900 dark:text-white'>Panel</span>
+              <h1 className="font-extrabold text-xl sm:text-2xl text-teal-700 dark:text-white select-none truncate">
+                <span className="hidden sm:inline">Member </span>
+                <span className='text-teal-600 dark:text-teal-200'>Panel</span>
               </h1>
             )}
           </div>
@@ -169,57 +169,62 @@ const Sidebar = ({ demo = false, isOpen, onClose, collapsed, onToggleCollapse, c
             {/* Collapse Toggle Button */}
             <button
               onClick={onToggleCollapse}
-              className="p-2 rounded-lg hover:bg-teal-200 dark:hover:bg-teal-800 transition-colors duration-200 flex-shrink-0"
+              className="p-2 rounded-lg hover:bg-teal-200 dark:hover:bg-teal-700 transition-colors duration-200 flex-shrink-0"
               aria-label="Toggle sidebar collapse"
             >
               {collapsed ? (
-                <ChevronRight size={20} className="text-teal-900 dark:text-white" />
+                <ChevronRight size={20} className="text-teal-700 dark:text-white" />
               ) : (
-                <ChevronLeft size={20} className="text-teal-900 dark:text-white" />
+                <ChevronLeft size={20} className="text-teal-700 dark:text-white" />
               )}
             </button>
             {isOpen && (
               <button
                 onClick={onClose}
-                className="md:hidden p-2 rounded-lg hover:bg-teal-200 dark:hover:bg-teal-800 transition-colors duration-200 flex-shrink-0"
+                className="md:hidden p-2 rounded-lg hover:bg-teal-200 dark:hover:bg-teal-700 transition-colors duration-200 flex-shrink-0"
                 aria-label="Close sidebar"
               >
-                <X size={20} className="text-teal-900 dark:text-white" />
+                <X size={20} className="text-teal-700 dark:text-white" />
               </button>
             )}
           </div>
         </div>
 
         {/* Navigation */}
-        <nav className="p-2 sm:p-3 mt-2 sm:mt-4 flex-1 overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-thumb-teal-300 dark:scrollbar-thumb-teal-700 scrollbar-track-transparent">
-          {menuConfig.map(item => renderMenuItem(item))}
+        <nav className="p-3 sm:p-4 mt-4 sm:mt-6 flex-1 overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-thumb-teal-300 dark:scrollbar-thumb-teal-600 scrollbar-track-transparent">
+          <div className="space-y-2">
+            {memberMenuConfig.map(item => renderMenuItem(item))}
+          </div>
         </nav>
 
         {/* Footer */}
-        <div className="mt-auto p-4 border-t border-teal-300 dark:border-teal-700">
-          <div className={`${collapsed ? 'flex justify-center' : 'flex items-center gap-3'}`}>
+        <div className="mt-auto p-4 border-t border-teal-200 dark:border-teal-700 bg-teal-50/50 dark:bg-teal-900/50">
+          <div className={`${collapsed ? 'flex justify-center' : 'flex items-center gap-4'}`}>
             {(isOpen || !collapsed) && (
-              <img
-                src="https://i.pravatar.cc/40"
-                alt="User Avatar"
-                className="w-10 h-10 rounded-full object-cover"
-              />
+              <div className="relative">
+                <img
+                  src="https://i.pravatar.cc/40"
+                  alt="User Avatar"
+                  className="w-12 h-12 rounded-full object-cover ring-2 ring-teal-200 dark:ring-teal-600"
+                />
+                <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white dark:border-teal-800"></div>
+              </div>
             )}
             {(isOpen || !collapsed) && (
-              <div>
-                <p className="text-sm font-semibold text-teal-800 dark:text-teal-200">Priyanshu Gautam</p>
-                <p className="text-xs text-teal-500 dark:text-teal-400">Admin</p>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-teal-800 dark:text-teal-200 truncate">{member?.name || 'Member'}</p>
+                <p className="text-xs text-teal-600 dark:text-teal-400">Member</p>
               </div>
             )}
             <button
               onClick={() => {
                 logout();
-                navigate('/login');
+                navigate('/member-login');
               }}
-              className={`${collapsed ? '' : 'ml-auto'} p-2 rounded-md hover:bg-teal-200 dark:hover:bg-teal-800 transition-colors duration-200`}
+              className={`${collapsed ? '' : 'ml-auto'} p-3 rounded-xl hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors duration-200 group`}
               aria-label="Logout"
             >
-              <LogOut size={20} className="text-teal-900 dark:text-white" />
+              <LogOut size={20} className="text-red-500 group-hover:text-red-600" />
             </button>
           </div>
         </div>
@@ -228,4 +233,4 @@ const Sidebar = ({ demo = false, isOpen, onClose, collapsed, onToggleCollapse, c
   )
 }
 
-export default Sidebar
+export default React.memo(MemberSidebar);

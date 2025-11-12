@@ -1,15 +1,17 @@
 const express = require('express');
 const router = express.Router();
-const { login, signup, verify } = require('../controllers/AuthController');
+const { login, memberLogin, memberSignup, signup, verify } = require('../controllers/AuthController');
 const { authenticateToken } = require('../middlewares/auth');
 
-// Login route
+// Admin routes
 router.post('/login', login);
-
-// Signup route
 router.post('/signup', signup);
 
+// Member routes
+router.post('/member/login', memberLogin);
+router.post('/member/signup', memberSignup);
+
 // Verify token route
-router.get('/verify', authenticateToken, verify);
+router.post('/verify', authenticateToken, verify);
 
 module.exports = router;
