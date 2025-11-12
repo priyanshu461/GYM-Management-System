@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { BASE_API_URL } from "../Utils/data";
+import { BASE_API_URL } from "@/Utils/data";
 
 // Create Auth Context
 const AuthContext = createContext();

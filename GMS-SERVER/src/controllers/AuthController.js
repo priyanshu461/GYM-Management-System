@@ -45,32 +45,21 @@ const login = async (req, res) => {
 
 const verify = async (req, res) => {
   try {
-    const token = req.body.token;
-    if (!token) {
-      return res.status(401).json({ message: "No token provided" });
-    }
-
-    const decoded = jwt.verify(
-      token,
-      process.env.JWT_SECRET || "7c892230e8994de8b59b604e"
-    );
-    const user = await User.findById(decoded.id);
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
+    // Token already verified by authenticateToken middleware
     return res.status(200).json({
       message: "Token valid",
       user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        roleId: user.roleId,
+        id: req.user.id,
+        name: req.user.name,
+        email: req.user.email,
+        roleId: req.user.roleId,
+        user_type: req.user.user_type,
+        gymId: req.user.gymId,
       },
     });
   } catch (error) {
     console.error(error);
-    return res.status(401).json({ message: "Invalid token" });
+    return res.status(500).json({ message: "Internal server error" });
   }
 };
 

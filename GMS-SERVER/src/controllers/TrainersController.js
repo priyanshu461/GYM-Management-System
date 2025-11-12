@@ -4,13 +4,14 @@ const Role = require("../models/RoleModel");
 // Get all trainers (filter by Trainer role)
 const getAllTrainers = async (req, res) => {
   try {
-    const trainerRole = await Role.findOne({ name: "Trainer" });
-    if (!trainerRole) {
-      return res.status(500).json({ message: "Trainer role not found" });
+    const params = { user_type: "Trainer" };
+    const gymId = req?.user?.gymId;
+    if (gymId) {
+      params.gymId = gymId;
     }
 
-    const trainers = await User.find({ roleId: trainerRole._id }).populate("roleId", "name").select("name email profile image certifications specializations rating");
-    const formattedTrainers = trainers.map(trainer => ({
+    const trainers = await User.find(params).populate("roleId", "name").select("name email profile image certifications specializations rating");
+    const formattedTrainers = (trainers || []).map(trainer => ({
       id: trainer._id,
       name: trainer.name,
       expertise: trainer.profile.spacialization || "General",
@@ -50,6 +51,8 @@ const addTrainer = async (req, res) => {
       specializations: specializations || [],
       rating: rating || 0,
       roleId: trainerRole._id,
+      user_type: "Trainer",
+      gymId: req.user.gymId || req.body.gymId || null
     });
     await trainer.save();
     res.status(201).json({ message: "Trainer added successfully" });
@@ -70,6 +73,7 @@ const updateTrainer = async (req, res) => {
       rating: rating || 0,
       certifications: certifications || [],
       specializations: specializations || [],
+      gymId: req.user.gymId || req.body.gymId || null,
     });
     res.status(200).json({ message: "Trainer updated successfully" });
   } catch (error) {

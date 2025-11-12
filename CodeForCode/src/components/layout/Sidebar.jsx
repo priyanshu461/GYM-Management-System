@@ -193,7 +193,7 @@ const Sidebar = ({ demo = false, isOpen, onClose, collapsed, onToggleCollapse, c
             )}
             {(isOpen || !collapsed) && (
               <div>
-                <p className="text-sm font-semibold text-teal-800 dark:text-teal-200">Priyanshu Gautam</p>
+                <p className="text-sm font-semibold text-teal-800 dark:text-teal-200">GMS</p>
                 <p className="text-xs text-teal-500 dark:text-teal-400">Admin</p>
               </div>
             )}

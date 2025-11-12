@@ -41,7 +41,7 @@ app.use("/api/management/facilities", facilitiesRoutes);
 
 // Trainers routes
 const trainersRoutes = require("./src/routes/trainersRoutes");
-app.use("/api/management/trainers", trainersRoutes);
+app.use("/api/management/trainers",authenticateToken, trainersRoutes);
 
 // Finance routes
 const financeRoutes = require("./src/routes/financeRoutes");
