@@ -224,33 +224,11 @@ function App() {
               <Route path='/gymblog' element={<AdminProtectedRoute><GymBlog /></AdminProtectedRoute>} />
               <Route path='/notificationcommunication' element={<AdminProtectedRoute><NotificationsCommunication /></AdminProtectedRoute>} />
               <Route path='/profile' element={<AdminProtectedRoute><Profile /></AdminProtectedRoute>} />
-              <Route path="/members" element={<ProtectedRoute><MemberManagement /></ProtectedRoute>} />
-              <Route path="/members/add" element={<ProtectedRoute><AddMember /></ProtectedRoute>} />
-              <Route path="/members/edit/:id" element={<ProtectedRoute><EditMember /></ProtectedRoute>} />
-              <Route path="/finance" element={<ProtectedRoute><Finance /></ProtectedRoute>} />
-              <Route path="/trainers" element={<ProtectedRoute><Trainer /></ProtectedRoute>} />
-              <Route path="/trainers/add" element={<ProtectedRoute><AddTrainer /></ProtectedRoute>} />
-              <Route path="/trainers/edit/:id" element={<ProtectedRoute><EditTrainer /></ProtectedRoute>} />
-              <Route path="/facilities" element={<ProtectedRoute><Facilities /></ProtectedRoute>} />
-              <Route path="/workout-routine" element={<ProtectedRoute><WorkoutRoutine /></ProtectedRoute>} />
-              <Route path="/diet-plan" element={<ProtectedRoute><DietPlan /></ProtectedRoute>} />
-              <Route path="/bmi-calculator" element={<ProtectedRoute><BMICalculator /></ProtectedRoute>} />
-              <Route path="/progress-tracking" element={<ProtectedRoute><ProgressTracker /></ProtectedRoute>} />
-              <Route path="/reports-analytics" element={<ProtectedRoute><ReportsAnalytics /></ProtectedRoute>} />
-              <Route path="/classes-schedule" element={<ProtectedRoute><ClassesSchedule /></ProtectedRoute>} />
-              <Route path="/courses" element={<ProtectedRoute><Courses /></ProtectedRoute>} />
-              <Route path="/franchises-and-membership" element={<ProtectedRoute><FranchiseAndMembership /></ProtectedRoute>} />
-              <Route path="/products" element={<ProtectedRoute><Product /></ProtectedRoute>} />
-              <Route path="/products/create" element={<ProtectedRoute><ProductCreate /></ProtectedRoute>} />
-              <Route path="/gyms" element={<ProtectedRoute><GymsManagement /></ProtectedRoute>} />
-              <Route path="/gyms/add" element={<ProtectedRoute><AddGym /></ProtectedRoute>} />
-              <Route path="/gyms/edit/:id" element={<ProtectedRoute><EditGym /></ProtectedRoute>} />
-              <Route path="/gyms/view/:id" element={<ProtectedRoute><ViewGym /></ProtectedRoute>} />
-              <Route path='/settings' element={<ProtectedRoute><Settings /></ProtectedRoute>} />
-              <Route path='/supporttickets' element={<ProtectedRoute><SupportTickets /></ProtectedRoute>} />
-              <Route path='/gymblog' element={<ProtectedRoute><GymBlog /></ProtectedRoute>} />
-              <Route path='/notificationcommunication' element={<ProtectedRoute><NotificationsCommunication /></ProtectedRoute>} />
-              <Route path='/profile' element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+              <Route path="/gyms" element={<AdminProtectedRoute><GymsManagement /></AdminProtectedRoute>} />
+              <Route path="/gyms/add" element={<AdminProtectedRoute><AddGym /></AdminProtectedRoute>} />
+              <Route path="/gyms/edit/:id" element={<AdminProtectedRoute><EditGym /></AdminProtectedRoute>} />
+              <Route path="/gyms/view/:id" element={<AdminProtectedRoute><ViewGym /></AdminProtectedRoute>} />
+              {/* Redirect unknown routes to home */}
             </Routes>
           </div>
         </ProductProvider>
