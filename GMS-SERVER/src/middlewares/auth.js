@@ -33,7 +33,8 @@ const authenticateToken = async (req, res, next) => {
       roleId: user.roleId || null,
       email: user.email || user.mobile,
       name: user.name,
-      type: decoded.type || "admin",
+      user_type: user.user_type,
+      gymId: user.gymId,
     };
 
     next();
@@ -44,7 +45,9 @@ const authenticateToken = async (req, res, next) => {
     if (error.name === "TokenExpiredError") {
       return res.status(401).json({ message: "Token expired" });
     }
-    return res.status(500).json({ message: "Authentication error", error: error.message });
+    return res
+      .status(500)
+      .json({ message: "Authentication error", error: error.message });
   }
 };
 
@@ -65,4 +68,3 @@ module.exports = {
   authenticateToken,
   authorizeRole,
 };
-

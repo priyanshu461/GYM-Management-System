@@ -32,7 +32,8 @@ const login = async (req, res) => {
         name: user.name,
         email: user.email,
         roleId: user.roleId,
-        type: "admin",
+        user_type: user.user_type,
+        gymId: user.gymId,
       },
     });
   } catch (error) {
@@ -54,7 +55,7 @@ const memberLogin = async (req, res) => {
       return res.status(401).json({ message: "Invalid credentials" });
 
     const token = jwt.sign(
-      { id: customer._id, type: "member" },
+      { id: customer._id, user_type: "member" },
       process.env.JWT_SECRET || "7c892230e8994de8b59b604e",
       { expiresIn: "1h" }
     );
@@ -67,7 +68,7 @@ const memberLogin = async (req, res) => {
         name: customer.name,
         mobile: customer.mobile,
         email: customer.email,
-        type: "member",
+        user_type: "member",
       },
     });
   } catch (error) {
@@ -126,7 +127,7 @@ const memberSignup = async (req, res) => {
     await newCustomer.save();
 
     const token = jwt.sign(
-      { id: newCustomer._id, type: "member" },
+      { id: newCustomer._id, user_type: "member" },
       process.env.JWT_SECRET || "7c892230e8994de8b59b604e",
       { expiresIn: "1h" }
     );
@@ -139,7 +140,7 @@ const memberSignup = async (req, res) => {
         name: newCustomer.name,
         mobile: newCustomer.mobile,
         email: newCustomer.email,
-        type: "member",
+        user_type: "member",
       },
     });
   } catch (error) {
@@ -167,7 +168,7 @@ const verify = async (req, res) => {
     );
 
     let user;
-    if (decoded.type === "member") {
+    if (decoded.user_type === "member") {
       user = await Customer.findById(decoded.id);
     } else {
       user = await User.findById(decoded.id);
@@ -182,7 +183,7 @@ const verify = async (req, res) => {
         name: user.name,
         email: user.email || user.mobile,
         roleId: user.roleId || null,
-        type: decoded.type || "admin",
+        user_type: decoded.user_type || "admin",
       },
     });
   } catch (error) {
@@ -190,8 +191,8 @@ const verify = async (req, res) => {
     return res.status(401).json({ message: "Invalid token" });
   }
 };
-
 // ------------------ ADMIN SIGNUP ------------------
+
 const signup = async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -229,7 +230,7 @@ const signup = async (req, res) => {
         name: newUser.name,
         email: newUser.email,
         roleId: newUser.roleId,
-        type: "admin",
+        user_type: "admin",
       },
     });
   } catch (error) {

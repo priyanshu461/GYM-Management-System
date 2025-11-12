@@ -9,10 +9,19 @@ const Progress = require("../models/ProgressModel");
 // Get all members
 const getAllMembers = async (req, res) => {
   try {
-    const members = await Customer.find({ status: "Active" });
+    const params = { status: "Active" };
+    const gymId = req.user.gymId;
+    if (gymId) {
+      params.gymId = gymId;
+    }
+    
+    const members = await Customer.find(params);
     const membersWithPlans = await Promise.all(
       members.map(async (member) => {
-        const membership = await Membership.findOne({ customer: member._id, status: "Active" }).populate("plan", "name");
+        const membership = await Membership.findOne({
+          customer: member._id,
+          status: "Active",
+        }).populate("plan", "name");
         return {
           ...member.toObject(),
           plan: membership ? membership.plan.name : "Basic",
@@ -21,7 +30,9 @@ const getAllMembers = async (req, res) => {
     );
     res.status(200).json(membersWithPlans);
   } catch (error) {
-    res.status(500).json({ message: "Error fetching members", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Error fetching members", error: error.message });
   }
 };
 
@@ -33,21 +44,37 @@ const getMemberById = async (req, res) => {
     if (!member || member.status !== "Active") {
       return res.status(404).json({ message: "Member not found" });
     }
-    const membership = await Membership.findOne({ customer: member._id, status: "Active" }).populate("plan", "name");
+    const membership = await Membership.findOne({
+      customer: member._id,
+      status: "Active",
+    }).populate("plan", "name");
     const memberWithPlan = {
       ...member.toObject(),
       plan: membership ? membership.plan.name : "Basic",
     };
     res.status(200).json(memberWithPlan);
   } catch (error) {
-    res.status(500).json({ message: "Error fetching member", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Error fetching member", error: error.message });
   }
 };
 
 // Add member
 const addMember = async (req, res) => {
   try {
-    const { name, email, mobile, aadharNo, address, emergencyContact, dob, gender, occupation, plan } = req.body;
+    const {
+      name,
+      email,
+      mobile,
+      aadharNo,
+      address,
+      emergencyContact,
+      dob,
+      gender,
+      occupation,
+      plan,
+    } = req.body;
     const customer = new Customer({
       name,
       email,
@@ -58,7 +85,8 @@ const addMember = async (req, res) => {
       dob,
       gender,
       occupation,
-      status: "Active"
+      gymId: req.user.gymId || req.body.gymId || null,
+      status: "Active",
     });
     await customer.save();
     // Find plan by name if provided
@@ -69,14 +97,18 @@ const addMember = async (req, res) => {
           customer: customer._id,
           plan: planDoc._id,
           startDate: new Date(),
-          endDate: new Date(Date.now() + planDoc.duration * 30 * 24 * 60 * 60 * 1000)
+          endDate: new Date(
+            Date.now() + planDoc.duration * 30 * 24 * 60 * 60 * 1000
+          ),
         });
         await membership.save();
       }
     }
     res.status(201).json({ message: "Member added successfully" });
   } catch (error) {
-    res.status(500).json({ message: "Error adding member", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Error adding member", error: error.message });
   }
 };
 
@@ -84,7 +116,18 @@ const addMember = async (req, res) => {
 const updateMember = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, mobile, email, aadharNo, address, emergencyContact, dob, gender, occupation, plan } = req.body;
+    const {
+      name,
+      mobile,
+      email,
+      aadharNo,
+      address,
+      emergencyContact,
+      dob,
+      gender,
+      occupation,
+      plan,
+    } = req.body;
     await Customer.findByIdAndUpdate(id, {
       name,
       mobile,
@@ -94,18 +137,24 @@ const updateMember = async (req, res) => {
       emergencyContact,
       dob,
       gender,
-      occupation
+      occupation,
+      gymId: req.user.gymId || req.body.gymId || null,
     });
     // Update membership if plan changed
     if (plan) {
       const planDoc = await Plans.findOne({ name: plan });
       if (planDoc) {
-        await Membership.findOneAndUpdate({ customer: id, status: "Active" }, { plan: planDoc._id });
+        await Membership.findOneAndUpdate(
+          { customer: id, status: "Active" },
+          { plan: planDoc._id }
+        );
       }
     }
     res.status(200).json({ message: "Member updated successfully" });
   } catch (error) {
-    res.status(500).json({ message: "Error updating member", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Error updating member", error: error.message });
   }
 };
 
@@ -117,7 +166,9 @@ const deleteMember = async (req, res) => {
     await Membership.updateMany({ customer: id }, { status: "Cancelled" });
     res.status(200).json({ message: "Member deleted successfully" });
   } catch (error) {
-    res.status(500).json({ message: "Error deleting member", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Error deleting member", error: error.message });
   }
 };
 

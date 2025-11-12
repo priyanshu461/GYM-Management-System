@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { BASE_API_URL } from "../Utils/data";
 import { useNavigate } from "react-router-dom";
+import { BASE_API_URL } from "@/Utils/data";
 
 // Create Auth Context
 const AuthContext = createContext();

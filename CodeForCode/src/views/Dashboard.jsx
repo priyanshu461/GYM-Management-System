@@ -18,7 +18,7 @@ import { useNavigate } from "react-router-dom";
 import Layout from "../components/Layout";
 import { useTheme } from "../contexts/ThemeContext";
 import gymServices from "@/services/gymServices";
-import { BASE_API_URL, getToken } from "@/utils/data";
+import { BASE_API_URL, getToken } from "@/Utils/data";
 
 const Dashboard = () => {
   // Sample token for demonstration
@@ -145,10 +145,10 @@ const Dashboard = () => {
                 className={`text-2xl sm:text-3xl md:text-4xl font-extrabold mb-2 sm:mb-3 tracking-tight bg-gradient-to-r from-teal-300 via-teal-200 to-teal-100 bg-clip-text text-transparent`}
               >
                 <Home className="inline-block w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 mr-2 sm:mr-3 text-teal-500 dark:text-teal-400" />
-                Dashboard
-                <span className="text-teal-500 dark:text-teal-400">
+                <span className="text-teal-800">Dashboard</span>
+                <span className="text-teal-700 dark:text-teal-400">
                   {" "}
-                  Overview
+                <span className="text-teal-500"> Overview </span>
                 </span>
               </h1>
               <p className={`text-sm sm:text-base md:text-lg text-teal-600 dark:text-teal-400`}>
@@ -196,7 +196,7 @@ const Dashboard = () => {
                     {s.title}
                   </div>
                   <div
-                    className={`text-2xl sm:text-3xl font-bold mt-2 bg-gradient-to-r from-teal-300 via-teal-200 to-teal-100 bg-clip-text text-transparent`}
+                    className={`text-2xl sm:text-3xl font-bold mt-2 bg-gradient-to-r from-teal-600 via-teal-700 to-teal-600 bg-clip-text text-transparent`}
                   >
                     {s.value}
                   </div>
@@ -217,8 +217,8 @@ const Dashboard = () => {
                 <h3
                   className={`text-lg sm:text-xl font-semibold flex items-center gap-2 bg-gradient-to-r from-teal-300 via-teal-200 to-teal-100 bg-clip-text text-transparent`}
                 >
-                  <BarChart className="w-4 h-4 sm:w-5 sm:h-5 text-teal-500 dark:text-teal-400" />
-                  Sales Overview
+                  <BarChart className="w-4 h-4 sm:w-5 sm:h-5 text-teal-700 dark:text-teal-400" />
+                  <span className="text-teal-700">Sales Overview </span>
                 </h3>
                 <div className="text-xs sm:text-sm text-muted-foreground bg-muted px-2 sm:px-3 py-1 rounded-full self-start sm:self-auto">
                   Last 30 days
@@ -287,8 +287,8 @@ const Dashboard = () => {
                   <h4
                     className={`text-base sm:text-lg font-semibold mb-3 sm:mb-4 flex items-center gap-2 bg-gradient-to-r from-teal-300 via-teal-200 to-teal-100 bg-clip-text text-transparent`}
                   >
-                    <Box className="w-4 h-4 sm:w-5 sm:h-5 text-teal-500 dark:text-teal-400" />
-                    Recent Orders
+                    <Box className="w-4 h-4 sm:w-5 sm:h-5 text-teal-700 dark:text-teal-400" />
+                    <span className="text-teal-700">Recent Orders </span>
                   </h4>
                   <div className="space-y-2 sm:space-y-3">
                     {orders.slice(0, 4).map((o, index) => (
@@ -332,8 +332,8 @@ const Dashboard = () => {
                   <h4
                     className={`text-lg font-semibold mb-4 flex items-center gap-2 bg-gradient-to-r from-teal-300 via-teal-200 to-teal-100 bg-clip-text text-transparent`}
                   >
-                    <TrendingUp className="w-5 h-5 text-teal-500 dark:text-teal-400" />
-                    Top Products
+                    <TrendingUp className="w-5 h-5 text-teal-700 dark:text-teal-400" />
+                   <span className="text-teal-700"> Top Products </span>
                   </h4>
                   <ul className="space-y-3">
                     {topProducts.map((p, index) => (
@@ -379,8 +379,8 @@ const Dashboard = () => {
               <h3
                 className={`text-xl font-semibold mb-6 flex items-center gap-2 bg-gradient-to-r from-teal-300 via-teal-200 to-teal-100 bg-clip-text text-transparent`}
               >
-                <Package className="w-5 h-5 text-teal-500 dark:text-teal-400" />
-                Quick Actions
+                <Package className="w-5 h-5 text-teal-700 dark:text-teal-400" />
+                <span className="text-teal-700">Quick Actions </span>
               </h3>
               <div className="grid grid-cols-1 gap-4">
                 {quickActions.map((action, index) => (
@@ -437,8 +437,8 @@ const Dashboard = () => {
               <h3
                 className={`text-lg sm:text-xl font-semibold flex items-center gap-2 bg-gradient-to-r from-teal-300 via-teal-200 to-teal-100 bg-clip-text text-transparent`}
               >
-                <Box className="w-4 h-4 sm:w-5 sm:h-5 text-teal-500 dark:text-teal-400" />
-                All Orders
+                <Box className="w-4 h-4 sm:w-5 sm:h-5 text-teal-700 dark:text-teal-400" />
+                <span className="text-teal-700">All Orders </span>
               </h3>
               <div className="text-xs sm:text-sm text-muted-foreground bg-muted px-2 sm:px-3 py-1 rounded-full self-start sm:self-auto">
                 Showing latest 50 orders
