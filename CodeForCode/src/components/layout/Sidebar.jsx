@@ -7,7 +7,7 @@ import { menuConfig, getDropdownPaths } from '../../config/menuConfig';
 const Sidebar = ({ demo = false, isOpen, onClose, collapsed, onToggleCollapse, className }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
   
   // Dynamic state for dropdowns
   const [openDropdowns, setOpenDropdowns] = useState({});
@@ -160,24 +160,13 @@ const Sidebar = ({ demo = false, isOpen, onClose, collapsed, onToggleCollapse, c
             </div>
             {(isOpen || !collapsed) && (
               <h1 className="font-extrabold text-lg sm:text-xl text-teal-600 dark:text-white select-none truncate">
-                <span className="hidden sm:inline">Admin </span>
+                <span className="hidden sm:inline">{user.user_type} </span>
                 <span className='text-teal-900 dark:text-white'>Panel</span>
               </h1>
             )}
           </div>
           <div className="flex items-center gap-2">
             {/* Collapse Toggle Button */}
-            <button
-              onClick={onToggleCollapse}
-              className="p-2 rounded-lg hover:bg-teal-200 dark:hover:bg-teal-800 transition-colors duration-200 flex-shrink-0"
-              aria-label="Toggle sidebar collapse"
-            >
-              {collapsed ? (
-                <ChevronRight size={20} className="text-teal-900 dark:text-white" />
-              ) : (
-                <ChevronLeft size={20} className="text-teal-900 dark:text-white" />
-              )}
-            </button>
             {isOpen && (
               <button
                 onClick={onClose}
@@ -192,7 +181,7 @@ const Sidebar = ({ demo = false, isOpen, onClose, collapsed, onToggleCollapse, c
 
         {/* Navigation */}
         <nav className="p-2 sm:p-3 mt-2 sm:mt-4 flex-1 overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-thumb-teal-300 dark:scrollbar-thumb-teal-700 scrollbar-track-transparent">
-          {menuConfig.map(item => renderMenuItem(item))}
+          {menuConfig[user.user_type].map(item => renderMenuItem(item))}
         </nav>
 
         {/* Footer */}
@@ -200,15 +189,15 @@ const Sidebar = ({ demo = false, isOpen, onClose, collapsed, onToggleCollapse, c
           <div className={`${collapsed ? 'flex justify-center' : 'flex items-center gap-3'}`}>
             {(isOpen || !collapsed) && (
               <img
-                src="https://i.pravatar.cc/40"
+                src={user.avatar || "https://i.pravatar.cc/40"}
                 alt="User Avatar"
                 className="w-10 h-10 rounded-full object-cover"
               />
             )}
             {(isOpen || !collapsed) && (
               <div>
-                <p className="text-sm font-semibold text-teal-800 dark:text-teal-200">GMS</p>
-                <p className="text-xs text-teal-500 dark:text-teal-400">Admin</p>
+                <p className="text-sm font-semibold text-teal-800 dark:text-teal-200">{user.name}</p>
+                <p className="text-xs text-teal-500 dark:text-teal-400">{user.user_type}</p>
               </div>
             )}
             <button

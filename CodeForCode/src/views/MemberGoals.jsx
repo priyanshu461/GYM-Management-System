@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
-import MemberSidebar from '../components/layout/MemberSidebar';
 import { Target, Plus, Edit, Trash2, CheckCircle, Clock, TrendingUp, Calendar } from 'lucide-react';
+import Layout from '@/components/Layout';
 
 const MemberGoals = () => {
   const { member } = useAuth();
@@ -169,8 +169,8 @@ const MemberGoals = () => {
   const completedGoals = goals.filter(g => g.status === 'completed');
 
   return (
+    <Layout>
     <div className={`min-h-screen flex ${theme === 'dark' ? 'bg-teal-900' : 'bg-gradient-to-br from-teal-50 via-teal-100 to-teal-50'}`}>
-      <MemberSidebar />
 
       <div className="flex-1 p-6">
         {/* Header */}
@@ -408,6 +408,7 @@ const MemberGoals = () => {
         </div>
       </div>
     </div>
+    </Layout>
   );
 };
 

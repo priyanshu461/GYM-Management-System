@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
-import MemberSidebar from '../components/layout/MemberSidebar';
 import { Settings, User, Bell, Shield, Palette, Save, Eye, EyeOff } from 'lucide-react';
+import Layout from '@/components/Layout';
 
 const MemberSettings = () => {
   const { member } = useAuth();
@@ -100,9 +100,8 @@ const MemberSettings = () => {
   ];
 
   return (
+    <Layout>
     <div className={`min-h-screen flex ${theme === 'dark' ? 'bg-teal-900' : 'bg-gradient-to-br from-teal-50 via-teal-100 to-teal-50'}`}>
-      <MemberSidebar />
-
       <div className="flex-1 p-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
@@ -624,6 +623,7 @@ const MemberSettings = () => {
         </div>
       </div>
     </div>
+    </Layout>
   );
 };
 

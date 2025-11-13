@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
-import MemberSidebar from '../components/layout/MemberSidebar';
 import memberServices from '../services/memberServices';
 import { User, Mail, Phone, MapPin, Calendar, Edit3, Save, X, Award, Target, Activity, Heart, Loader2 } from 'lucide-react';
+import Layout from '@/components/Layout';
 
 const MemberProfile = () => {
   const { member, updateMember } = useAuth();
@@ -110,7 +110,6 @@ const MemberProfile = () => {
   if (loading) {
     return (
       <div className={`min-h-screen flex ${theme === 'dark' ? 'bg-teal-900' : 'bg-gradient-to-br from-teal-50 via-teal-100 to-teal-50'}`}>
-        <MemberSidebar />
         <div className="flex-1 flex items-center justify-center">
           <div className="flex items-center gap-3">
             <Loader2 size={24} className="animate-spin text-teal-500" />
@@ -122,8 +121,8 @@ const MemberProfile = () => {
   }
 
   return (
+    <Layout>
     <div className={`min-h-screen flex ${theme === 'dark' ? 'bg-teal-900' : 'bg-gradient-to-br from-teal-50 via-teal-100 to-teal-50'}`}>
-      <MemberSidebar />
 
       <div className="flex-1 p-6">
         {/* Header */}
@@ -288,7 +287,9 @@ const MemberProfile = () => {
         </div>
       </div>
     </div>
+    </Layout>
   );
 };
+
 
 export default MemberProfile;

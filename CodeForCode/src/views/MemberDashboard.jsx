@@ -3,7 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import memberServices from '../services/memberServices';
 import { User, Calendar, Dumbbell, TrendingUp, Award, Clock, Target, Activity, Moon, Sun } from 'lucide-react';
-import MemberLayout from '@/components/layout/MemberLayout';
+import Layout from '@/components/Layout';
 
 const MemberDashboard = () => {
   const { member, logout } = useAuth();
@@ -69,7 +69,7 @@ const MemberDashboard = () => {
   }, []);
 
   return (
-      <MemberLayout >
+      <Layout>
     <div className={`min-h-screen flex ${theme === 'dark' ? 'bg-teal-900' : 'bg-gradient-to-br from-teal-50 via-teal-100 to-teal-50'}`}>
 
       <div className="flex-1 p-6">
@@ -226,7 +226,7 @@ const MemberDashboard = () => {
         </div>
       </div>
     </div>
-    </MemberLayout>
+    </Layout>
   );
 };
 

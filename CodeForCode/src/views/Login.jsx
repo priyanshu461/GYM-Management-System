@@ -106,7 +106,7 @@ const Login = () => {
               <div className="relative">
                 <Mail className={`absolute left-3 top-1/2 transform -translate-y-1/2 text-teal-500 ${theme === 'dark' ? 'text-teal-300' : ''} w-4 h-4 sm:w-5 sm:h-5`} />
                 <input
-                  type="email"
+                  type="text"
                   id="email"
                   value={email}
                   onChange={(e) => {

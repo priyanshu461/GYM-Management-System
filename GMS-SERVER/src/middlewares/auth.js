@@ -33,6 +33,7 @@ const authenticateToken = async (req, res, next) => {
       roleId: user.roleId || null,
       email: user.email || user.mobile,
       name: user.name,
+      type: decoded.type,
       user_type: user.user_type,
       gymId: user.gymId,
     };

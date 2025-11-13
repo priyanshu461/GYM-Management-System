@@ -15,8 +15,7 @@ import {
   Users,
   Trophy
 } from 'lucide-react';
-import MemberSidebar from '@/components/layout/MemberSidebar';
-import MemberLayout from '@/components/layout/MemberLayout';
+import Layout from '@/components/Layout';
 
 const MemberActivity = () => {
   const { theme } = useTheme();
@@ -68,7 +67,7 @@ const MemberActivity = () => {
   const goalCount = useMemo(() => activities.filter(a => a.type === 'goal').length, [activities]);
 
   return (
-      <MemberLayout>
+      <Layout>
     <div className={`min-h-screen flex w-full ${theme === 'dark' ? 'bg-teal-950' : 'bg-gradient-to-br from-teal-50 via-teal-100 to-teal-50'}`}>
       <div className={`flex-1 p-8 w-full min-h-screen relative overflow-hidden ${theme === 'dark'
           ? 'bg-gradient-to-br from-teal-950 via-teal-900 to-teal-950 text-white'
@@ -256,7 +255,7 @@ const MemberActivity = () => {
         </div>
       </div>
     </div>
-    </MemberLayout>
+    </Layout>
   );
 };
 

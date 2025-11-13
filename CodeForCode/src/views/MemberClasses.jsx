@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
-import MemberSidebar from '../components/layout/MemberSidebar';
 import { Calendar, Clock, MapPin, Users, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
-import MemberLayout from '@/components/layout/MemberLayout';
+import Layout from '@/components/Layout';
 
 const MemberClasses = () => {
   const { member } = useAuth();
@@ -98,7 +97,7 @@ const MemberClasses = () => {
   };
 
   return (
-      <MemberLayout>
+      <Layout>
     <div className={`min-h-screen flex ${theme === 'dark' ? 'bg-teal-900' : 'bg-gradient-to-br from-teal-50 via-teal-100 to-teal-50'}`}>
 
       <div className="flex-1 p-6">
@@ -194,7 +193,7 @@ const MemberClasses = () => {
         )}
       </div>
     </div>
-    </MemberLayout>
+    </Layout>
   );
 };
 

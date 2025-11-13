@@ -4,7 +4,6 @@ import { AuthProvider, useAuth } from './contexts/AuthContext'
 import { ThemeProvider } from './contexts/ThemeContext'
 import { ProductProvider } from './contexts/ProductContext'
 import Login from './views/Login'
-import MemberLogin from './views/MemberLogin'
 import MemberDashboard from './views/MemberDashboard'
 import MemberProfile from './views/MemberProfile'
 import MemberClasses from './views/MemberClasses'
@@ -44,10 +43,9 @@ import SupportTickets from './views/SupportTickets'
 import GymBlog from './views/GymBlog'
 import NotificationsCommunication from './views/NotificationCommunication'
 import Profile from './views/Profile'
-import MemberLayout from './components/layout/MemberLayout'
 
 // Protected Route for Admin
-function AdminProtectedRoute({ children }) {
+function ProtectedRoute({ children }) {
   const { isAuthenticated, user, loading } = useAuth();
 
   if (loading) {
@@ -64,27 +62,9 @@ function AdminProtectedRoute({ children }) {
   return isAuthenticated && user ? children : <Navigate to="/login" replace />;
 }
 
-// Protected Route for Member
-function MemberProtectedRoute({ children }) {
-  const { isAuthenticated, member, loading } = useAuth();
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-500 mx-auto"></div>
-          <p className="mt-4 text-muted-foreground">Loading...</p>
-        </div>
-      </div>
-    );
-  }
-
-  return isAuthenticated && member ? children : <Navigate to="/member-login" replace />;
-}
-
 // Check Auth for Login Pages
 function CheckAuth({ children }) {
-  const { isAuthenticated, user, member, loading } = useAuth();
+  const { isAuthenticated, user, loading } = useAuth();
 
   if (loading) {
     return (
@@ -98,10 +78,11 @@ function CheckAuth({ children }) {
   }
 
   if (isAuthenticated && user) {
-    return <Navigate to="/dashboard" replace />;
-  }
-  if (isAuthenticated && member) {
-    return <Navigate to="/member-dashboard" replace />;
+    return user.user_type === "Trainer" ?
+    <Navigate to="/trainer-dashboard" replace /> : 
+    user.user_type === "Member" ?
+    <Navigate to="/member-dashboard" replace /> :
+    <Navigate to="/dashboard" replace />;
   }
 
   return children;
@@ -118,116 +99,116 @@ function App() {
               <Route path="/" element={<Home />} />
 
               {/* Member Routes */}
-              <Route path="/member-login" element={<CheckAuth><MemberLogin /></CheckAuth>} />
+              <Route path="/member-login" element={<CheckAuth><Login /></CheckAuth>} />
               <Route
                 path="/member-dashboard"
                 element={
-                  <MemberProtectedRoute>
+                  <ProtectedRoute>
                       <MemberDashboard />
-                  </MemberProtectedRoute>
+                  </ProtectedRoute>
                 }
               />
               <Route
                 path="/member-profile"
                 element={
-                  <MemberProtectedRoute>
+                  <ProtectedRoute>
                       <MemberProfile />
-                  </MemberProtectedRoute>
+                  </ProtectedRoute>
                 }
               />
               <Route
                 path="/member-classes"
                 element={
-                  <MemberProtectedRoute>
+                  <ProtectedRoute>
                       <MemberClasses />
-                  </MemberProtectedRoute>
+                  </ProtectedRoute>
                 }
               />
               <Route
                 path="/member-workouts"
                 element={
-                  <MemberProtectedRoute>
+                  <ProtectedRoute>
                       <MemberWorkouts />
-                  </MemberProtectedRoute>
+                  </ProtectedRoute>
                 }
               />
               <Route
                 path="/member-progress"
                 element={
-                  <MemberProtectedRoute>
+                  <ProtectedRoute>
                       <MemberProgress />
-                  </MemberProtectedRoute>
+                  </ProtectedRoute>
                 }
               />
               <Route
                 path="/member-achievements"
                 element={
-                  <MemberProtectedRoute>
+                  <ProtectedRoute>
                       <MemberAchievements />
-                  </MemberProtectedRoute>
+                  </ProtectedRoute>
                 }
               />
               <Route
                 path="/member-goals"
                 element={
-                  <MemberProtectedRoute>
+                  <ProtectedRoute>
                       <MemberGoals />
-                  </MemberProtectedRoute>
+                  </ProtectedRoute>
                 }
               />
               <Route
                 path="/member-settings"
                 element={
-                  <MemberProtectedRoute>
+                  <ProtectedRoute>
                       <MemberSettings />
-                  </MemberProtectedRoute>
+                  </ProtectedRoute>
                 }
               />
               <Route
                 path="/bmi-calculator"
                 element={
-                  <MemberProtectedRoute>
+                  <ProtectedRoute>
                       <BMICalculator />
-                  </MemberProtectedRoute>
+                  </ProtectedRoute>
                 }
               />
               <Route
                 path="/member-activity"
                 element={
-                  <MemberProtectedRoute>
+                  <ProtectedRoute>
                       <MemberActivity />
-                  </MemberProtectedRoute>
+                  </ProtectedRoute>
                 }
               />
               {/* Admin Routes */}
               <Route path="/login" element={<CheckAuth><Login /></CheckAuth>} />
-              <Route path="/dashboard" element={<AdminProtectedRoute><Dashboard /></AdminProtectedRoute>} />
-              <Route path="/members" element={<AdminProtectedRoute><MemberManagement /></AdminProtectedRoute>} />
-              <Route path="/members/add" element={<AdminProtectedRoute><AddMember /></AdminProtectedRoute>} />
-              <Route path="/members/edit/:id" element={<AdminProtectedRoute><EditMember /></AdminProtectedRoute>} />
-              <Route path="/finance" element={<AdminProtectedRoute><Finance /></AdminProtectedRoute>} />
-              <Route path="/trainers" element={<AdminProtectedRoute><Trainer /></AdminProtectedRoute>} />
-              <Route path="/trainers/add" element={<AdminProtectedRoute><AddTrainer /></AdminProtectedRoute>} />
-              <Route path="/trainers/edit/:id" element={<AdminProtectedRoute><EditTrainer /></AdminProtectedRoute>} />
-              <Route path="/facilities" element={<AdminProtectedRoute><Facilities /></AdminProtectedRoute>} />
-              <Route path="/workout-routine" element={<AdminProtectedRoute><WorkoutRoutine /></AdminProtectedRoute>} />
-              <Route path="/diet-plan" element={<AdminProtectedRoute><DietPlan /></AdminProtectedRoute>} />
-              <Route path="/progress-tracking" element={<AdminProtectedRoute><ProgressTracker /></AdminProtectedRoute>} />
-              <Route path="/reports-analytics" element={<AdminProtectedRoute><ReportsAnalytics /></AdminProtectedRoute>} />
-              <Route path="/classes-schedule" element={<AdminProtectedRoute><ClassesSchedule /></AdminProtectedRoute>} />
-              <Route path="/courses" element={<AdminProtectedRoute><Courses /></AdminProtectedRoute>} />
-              <Route path="/franchises-and-membership" element={<AdminProtectedRoute><FranchiseAndMembership /></AdminProtectedRoute>} />
-              <Route path="/products" element={<AdminProtectedRoute><Product /></AdminProtectedRoute>} />
-              <Route path="/products/create" element={<AdminProtectedRoute><ProductCreate /></AdminProtectedRoute>} />
-              <Route path='/settings' element={<AdminProtectedRoute><Settings /></AdminProtectedRoute>} />
-              <Route path='/supporttickets' element={<AdminProtectedRoute><SupportTickets /></AdminProtectedRoute>} />
-              <Route path='/gymblog' element={<AdminProtectedRoute><GymBlog /></AdminProtectedRoute>} />
-              <Route path='/notificationcommunication' element={<AdminProtectedRoute><NotificationsCommunication /></AdminProtectedRoute>} />
-              <Route path='/profile' element={<AdminProtectedRoute><Profile /></AdminProtectedRoute>} />
-              <Route path="/gyms" element={<AdminProtectedRoute><GymsManagement /></AdminProtectedRoute>} />
-              <Route path="/gyms/add" element={<AdminProtectedRoute><AddGym /></AdminProtectedRoute>} />
-              <Route path="/gyms/edit/:id" element={<AdminProtectedRoute><EditGym /></AdminProtectedRoute>} />
-              <Route path="/gyms/view/:id" element={<AdminProtectedRoute><ViewGym /></AdminProtectedRoute>} />
+              <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+              <Route path="/members" element={<ProtectedRoute><MemberManagement /></ProtectedRoute>} />
+              <Route path="/members/add" element={<ProtectedRoute><AddMember /></ProtectedRoute>} />
+              <Route path="/members/edit/:id" element={<ProtectedRoute><EditMember /></ProtectedRoute>} />
+              <Route path="/finance" element={<ProtectedRoute><Finance /></ProtectedRoute>} />
+              <Route path="/trainers" element={<ProtectedRoute><Trainer /></ProtectedRoute>} />
+              <Route path="/trainers/add" element={<ProtectedRoute><AddTrainer /></ProtectedRoute>} />
+              <Route path="/trainers/edit/:id" element={<ProtectedRoute><EditTrainer /></ProtectedRoute>} />
+              <Route path="/facilities" element={<ProtectedRoute><Facilities /></ProtectedRoute>} />
+              <Route path="/workout-routine" element={<ProtectedRoute><WorkoutRoutine /></ProtectedRoute>} />
+              <Route path="/diet-plan" element={<ProtectedRoute><DietPlan /></ProtectedRoute>} />
+              <Route path="/progress-tracking" element={<ProtectedRoute><ProgressTracker /></ProtectedRoute>} />
+              <Route path="/reports-analytics" element={<ProtectedRoute><ReportsAnalytics /></ProtectedRoute>} />
+              <Route path="/classes-schedule" element={<ProtectedRoute><ClassesSchedule /></ProtectedRoute>} />
+              <Route path="/courses" element={<ProtectedRoute><Courses /></ProtectedRoute>} />
+              <Route path="/franchises-and-membership" element={<ProtectedRoute><FranchiseAndMembership /></ProtectedRoute>} />
+              <Route path="/products" element={<ProtectedRoute><Product /></ProtectedRoute>} />
+              <Route path="/products/create" element={<ProtectedRoute><ProductCreate /></ProtectedRoute>} />
+              <Route path='/settings' element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+              <Route path='/supporttickets' element={<ProtectedRoute><SupportTickets /></ProtectedRoute>} />
+              <Route path='/gymblog' element={<ProtectedRoute><GymBlog /></ProtectedRoute>} />
+              <Route path='/notificationcommunication' element={<ProtectedRoute><NotificationsCommunication /></ProtectedRoute>} />
+              <Route path='/profile' element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+              <Route path="/gyms" element={<ProtectedRoute><GymsManagement /></ProtectedRoute>} />
+              <Route path="/gyms/add" element={<ProtectedRoute><AddGym /></ProtectedRoute>} />
+              <Route path="/gyms/edit/:id" element={<ProtectedRoute><EditGym /></ProtectedRoute>} />
+              <Route path="/gyms/view/:id" element={<ProtectedRoute><ViewGym /></ProtectedRoute>} />
               {/* Redirect unknown routes to home */}
             </Routes>
           </div>

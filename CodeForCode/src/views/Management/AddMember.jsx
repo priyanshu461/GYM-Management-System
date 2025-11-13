@@ -1,5 +1,5 @@
 import Layout from "@/components/Layout";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { UserPlus, User, Mail, Phone, MapPin, Calendar, AlertCircle, CheckCircle, ArrowLeft, Save } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -8,6 +8,7 @@ import gymServices from "@/services/gymServices";
 export default function AddMember() {
   const navigate = useNavigate();
   const [newMember, setNewMember] = useState({
+    gymId: "",
     name: "",
     mobile: "",
     email: "",
@@ -18,6 +19,22 @@ export default function AddMember() {
     gender: "",
     occupation: ""
   });
+
+  console.log(newMember);
+  
+  const [gyms, setGyms] = useState([]);
+
+  const getGyms = async () => {
+    try {
+      const gymsData = await gymServices.getAllGyms(); // Fetch gyms from the service
+      setGyms(gymsData);
+    } catch (error) {
+      console.error("Error fetching gyms:", error);
+    }
+  };
+  useEffect(() => {
+    getGyms();
+  }, []);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
 
@@ -142,6 +159,19 @@ export default function AddMember() {
               <form onSubmit={addMember} className="relative z-10">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                   {/* Name */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-semibold text-foreground">Gym</label>
+                    <select
+                      value={newMember.gymId}
+                      onChange={(e) => setNewMember({ ...newMember, gymId: e.target.value })}
+                      className="w-full bg-background/50 dark:bg-teal-800/30 border border-input text-foreground rounded-xl px-4 py-3 focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all"
+                    >
+                      <option value="">Select Gym</option>
+                      {gyms.map((gym) => (
+                        <option key={gym.id} value={gym._id}>{gym.name}</option>
+                      ))}
+                    </select>
+                  </div>
                   <div className="space-y-2">
                     <label className="text-sm font-semibold text-foreground flex items-center gap-2">
                       <User className="w-4 h-4 text-teal-500" />

@@ -5,6 +5,8 @@ const WorkoutCompletion = require("../models/WorkoutCompletionModel");
 const ClassAttendance = require("../models/ClassAttendanceModel");
 const Class = require("../models/ClassModel");
 const Progress = require("../models/ProgressModel");
+const User = require("../models/UserModel");
+const bcrypt = require("bcryptjs");
 
 // Get all members
 const getAllMembers = async (req, res) => {
@@ -14,7 +16,7 @@ const getAllMembers = async (req, res) => {
     if (gymId) {
       params.gymId = gymId;
     }
-    
+
     const members = await Customer.find(params);
     const membersWithPlans = await Promise.all(
       members.map(async (member) => {
@@ -75,16 +77,20 @@ const addMember = async (req, res) => {
       occupation,
       plan,
     } = req.body;
-    const customer = new Customer({
+    const customer = new User({
       name,
       email,
       mobile,
-      aadharNo,
-      address,
-      emergencyContact,
-      dob,
-      gender,
-      occupation,
+      password: bcrypt.hashSync(mobile, 10), // Default password is mobile number
+      profile: {
+        aadharNo,
+        address,
+        emergencyContact,
+        dob,
+        gender,
+        occupation,
+      },
+      user_type: "Member",
       gymId: req.user.gymId || req.body.gymId || null,
       status: "Active",
     });
@@ -177,7 +183,9 @@ const getMemberProfile = async (req, res) => {
   try {
     // Only allow members to access their own profile
     if (req.user.type !== "member") {
-      return res.status(403).json({ message: "Access denied. Member access required." });
+      return res
+        .status(403)
+        .json({ message: "Access denied. Member access required." });
     }
 
     const member = await Customer.findById(req.user.id);
@@ -185,7 +193,10 @@ const getMemberProfile = async (req, res) => {
       return res.status(404).json({ message: "Member not found" });
     }
 
-    const membership = await Membership.findOne({ customer: member._id, status: "Active" }).populate("plan", "name");
+    const membership = await Membership.findOne({
+      customer: member._id,
+      status: "Active",
+    }).populate("plan", "name");
     const memberWithPlan = {
       ...member.toObject(),
       plan: membership ? membership.plan.name : "Basic",
@@ -193,7 +204,9 @@ const getMemberProfile = async (req, res) => {
 
     res.status(200).json(memberWithPlan);
   } catch (error) {
-    res.status(500).json({ message: "Error fetching member profile", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Error fetching member profile", error: error.message });
   }
 };
 
@@ -202,7 +215,9 @@ const updateMemberProfile = async (req, res) => {
   try {
     // Only allow members to update their own profile
     if (req.user.type !== "member") {
-      return res.status(403).json({ message: "Access denied. Member access required." });
+      return res
+        .status(403)
+        .json({ message: "Access denied. Member access required." });
     }
 
     const { name, mobile, email, address, image } = req.body;
@@ -214,15 +229,23 @@ const updateMemberProfile = async (req, res) => {
 
     // Check if mobile is being changed and if it's already taken
     if (mobile) {
-      const existingCustomer = await Customer.findOne({ mobile, _id: { $ne: req.user.id } });
+      const existingCustomer = await Customer.findOne({
+        mobile,
+        _id: { $ne: req.user.id },
+      });
       if (existingCustomer) {
-        return res.status(400).json({ message: "Mobile number already exists" });
+        return res
+          .status(400)
+          .json({ message: "Mobile number already exists" });
       }
     }
 
     // Check if email is being changed and if it's already taken
     if (email) {
-      const existingCustomer = await Customer.findOne({ email: email.toLowerCase(), _id: { $ne: req.user.id } });
+      const existingCustomer = await Customer.findOne({
+        email: email.toLowerCase(),
+        _id: { $ne: req.user.id },
+      });
       if (existingCustomer) {
         return res.status(400).json({ message: "Email already exists" });
       }
@@ -231,7 +254,8 @@ const updateMemberProfile = async (req, res) => {
     const updateData = {};
     if (name) updateData.name = name;
     if (mobile) updateData.mobile = mobile;
-    if (email !== undefined) updateData.email = email ? email.toLowerCase() : "";
+    if (email !== undefined)
+      updateData.email = email ? email.toLowerCase() : "";
     if (address !== undefined) updateData.address = address;
     if (image !== undefined) updateData.image = image;
 
@@ -254,10 +278,12 @@ const updateMemberProfile = async (req, res) => {
         email: updatedMember.email,
         address: updatedMember.address,
         image: updatedMember.image,
-      }
+      },
     });
   } catch (error) {
-    res.status(500).json({ message: "Error updating member profile", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Error updating member profile", error: error.message });
   }
 };
 
@@ -266,7 +292,9 @@ const getMemberStats = async (req, res) => {
   try {
     // Only allow members to access their own stats
     if (req.user.type !== "member") {
-      return res.status(403).json({ message: "Access denied. Member access required." });
+      return res
+        .status(403)
+        .json({ message: "Access denied. Member access required." });
     }
 
     const memberId = req.user.id;
@@ -279,10 +307,14 @@ const getMemberStats = async (req, res) => {
 
     // Calculate BMI if height and weight are available
     let bmi = null;
-    const latestProgress = await Progress.findOne({ customer: memberId }).sort({ date: -1 });
+    const latestProgress = await Progress.findOne({ customer: memberId }).sort({
+      date: -1,
+    });
     if (member.height && latestProgress && latestProgress.weight) {
       const heightInMeters = member.height / 100;
-      bmi = (latestProgress.weight / (heightInMeters * heightInMeters)).toFixed(1);
+      bmi = (latestProgress.weight / (heightInMeters * heightInMeters)).toFixed(
+        1
+      );
     }
 
     // Count workouts completed this month
@@ -292,37 +324,42 @@ const getMemberStats = async (req, res) => {
 
     const workoutsCompleted = await WorkoutCompletion.countDocuments({
       customer: memberId,
-      completedDate: { $gte: startOfMonth }
+      completedDate: { $gte: startOfMonth },
     });
 
     // Count classes attended this month
     const classesAttended = await ClassAttendance.countDocuments({
       customer: memberId,
       attendedDate: { $gte: startOfMonth },
-      status: "Present"
+      status: "Present",
     });
 
     // Calculate progress points (simplified: 10 points per workout + 15 per class)
-    const progressPoints = (workoutsCompleted * 10) + (classesAttended * 15);
+    const progressPoints = workoutsCompleted * 10 + classesAttended * 15;
 
     // Calculate total training hours from workouts this month
     const workoutResults = await WorkoutCompletion.aggregate([
       { $match: { customer: memberId, completedDate: { $gte: startOfMonth } } },
-      { $group: { _id: null, totalMinutes: { $sum: "$duration" } } }
+      { $group: { _id: null, totalMinutes: { $sum: "$duration" } } },
     ]);
-    const totalHours = workoutResults.length > 0 ? Math.round(workoutResults[0].totalMinutes / 60) : 0;
+    const totalHours =
+      workoutResults.length > 0
+        ? Math.round(workoutResults[0].totalMinutes / 60)
+        : 0;
 
     const stats = {
       bmi: bmi || 0,
       workoutsCompleted,
       classesAttended,
       progressPoints,
-      totalHours
+      totalHours,
     };
 
     res.status(200).json(stats);
   } catch (error) {
-    res.status(500).json({ message: "Error fetching member stats", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Error fetching member stats", error: error.message });
   }
 };
 
@@ -331,7 +368,9 @@ const getRecentActivities = async (req, res) => {
   try {
     // Only allow members to access their own activities
     if (req.user.type !== "member") {
-      return res.status(403).json({ message: "Access denied. Member access required." });
+      return res
+        .status(403)
+        .json({ message: "Access denied. Member access required." });
     }
 
     const memberId = req.user.id;
@@ -359,32 +398,39 @@ const getRecentActivities = async (req, res) => {
 
     // Combine and sort all activities
     const activities = [
-      ...workouts.map(w => ({
+      ...workouts.map((w) => ({
         type: "workout",
         date: w.completedDate,
         title: `Completed ${w.workoutRoutine?.name || "Workout"}`,
         description: `${w.duration} minutes`,
-        icon: "🏋️‍♂️"
+        icon: "🏋️‍♂️",
       })),
-      ...classes.map(c => ({
+      ...classes.map((c) => ({
         type: "class",
         date: c.attendedDate,
         title: `Attended ${c.class?.name || "Class"}`,
         description: `with ${c.class?.instructor || "Instructor"}`,
-        icon: "📅"
+        icon: "📅",
       })),
-      ...progress.map(p => ({
+      ...progress.map((p) => ({
         type: "progress",
         date: p.date,
         title: "Progress Update",
         description: `Weight: ${p.weight}kg${p.notes ? ` - ${p.notes}` : ""}`,
-        icon: "📊"
-      }))
-    ].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, limit);
+        icon: "📊",
+      })),
+    ]
+      .sort((a, b) => new Date(b.date) - new Date(a.date))
+      .slice(0, limit);
 
     res.status(200).json(activities);
   } catch (error) {
-    res.status(500).json({ message: "Error fetching recent activities", error: error.message });
+    res
+      .status(500)
+      .json({
+        message: "Error fetching recent activities",
+        error: error.message,
+      });
   }
 };
 
@@ -393,7 +439,9 @@ const getUpcomingClasses = async (req, res) => {
   try {
     // Only allow members to access upcoming classes
     if (req.user.type !== "member") {
-      return res.status(403).json({ message: "Access denied. Member access required." });
+      return res
+        .status(403)
+        .json({ message: "Access denied. Member access required." });
     }
 
     const limit = parseInt(req.query.limit) || 5;
@@ -408,18 +456,23 @@ const getUpcomingClasses = async (req, res) => {
       .select("name instructor time days image description");
 
     // Format for dashboard display
-    const upcomingClasses = classes.map(cls => ({
+    const upcomingClasses = classes.map((cls) => ({
       id: cls._id,
       name: cls.name,
       instructor: cls.instructor,
       time: cls.time,
       days: cls.days,
-      image: cls.image || "🏋️‍♂️"
+      image: cls.image || "🏋️‍♂️",
     }));
 
     res.status(200).json(upcomingClasses);
   } catch (error) {
-    res.status(500).json({ message: "Error fetching upcoming classes", error: error.message });
+    res
+      .status(500)
+      .json({
+        message: "Error fetching upcoming classes",
+        error: error.message,
+      });
   }
 };
 

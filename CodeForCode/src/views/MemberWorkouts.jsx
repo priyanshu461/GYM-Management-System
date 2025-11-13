@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
-import MemberSidebar from '../components/layout/MemberSidebar';
 import { Dumbbell, Clock, Target, TrendingUp, Play, Pause, CheckCircle, Calendar } from 'lucide-react';
+import Layout from '@/components/Layout';
 
 const MemberWorkouts = () => {
   const { member } = useAuth();
@@ -92,8 +92,8 @@ const MemberWorkouts = () => {
   };
 
   return (
+    <Layout>
     <div className={`min-h-screen flex ${theme === 'dark' ? 'bg-teal-900' : 'bg-gradient-to-br from-teal-50 via-teal-100 to-teal-50'}`}>
-      <MemberSidebar />
 
       <div className="flex-1 p-6">
         {/* Header */}
@@ -195,6 +195,7 @@ const MemberWorkouts = () => {
         )}
       </div>
     </div>
+    </Layout>
   );
 };
 

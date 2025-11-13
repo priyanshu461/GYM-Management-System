@@ -11,15 +11,23 @@ const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const user = await User.findOne({ email: email.toLowerCase() });
-    if (!user) return res.status(404).json({ message: "User not found" });
+    let user;
 
+    if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      user = await User.findOne({ email: email });
+    } else {
+      user = await User.findOne({ mobile: email });
+    }
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
     const isValid = bcrypt.compareSync(password, user.password);
     if (!isValid)
       return res.status(401).json({ message: "Invalid credentials" });
 
     const token = jwt.sign(
-      { id: user._id, roleId: user.roleId },
+      { id: user._id },
       process.env.JWT_SECRET || "7c892230e8994de8b59b604e",
       { expiresIn: "1h" }
     );
@@ -38,41 +46,6 @@ const login = async (req, res) => {
     });
   } catch (error) {
     console.error("Admin login error:", error.message);
-    return res.status(500).json({ message: "Internal server error" });
-  }
-};
-
-// ------------------ MEMBER LOGIN ------------------
-const memberLogin = async (req, res) => {
-  try {
-    const { mobile, password } = req.body;
-
-    const customer = await Customer.findOne({ mobile });
-    if (!customer) return res.status(404).json({ message: "Member not found" });
-
-    const isValid = bcrypt.compareSync(password, customer.password);
-    if (!isValid)
-      return res.status(401).json({ message: "Invalid credentials" });
-
-    const token = jwt.sign(
-      { id: customer._id, user_type: "member" },
-      process.env.JWT_SECRET || "7c892230e8994de8b59b604e",
-      { expiresIn: "1h" }
-    );
-
-    return res.status(200).json({
-      message: "Member login successful",
-      token,
-      user: {
-        id: customer._id,
-        name: customer.name,
-        mobile: customer.mobile,
-        email: customer.email,
-        user_type: "member",
-      },
-    });
-  } catch (error) {
-    console.error("Member login error:", error.message);
     return res.status(500).json({ message: "Internal server error" });
   }
 };
@@ -167,12 +140,8 @@ const verify = async (req, res) => {
       process.env.JWT_SECRET || "7c892230e8994de8b59b604e"
     );
 
-    let user;
-    if (decoded.user_type === "member") {
-      user = await Customer.findById(decoded.id);
-    } else {
-      user = await User.findById(decoded.id);
-    }
+    let user = await User.findById(decoded.id);
+    console.log(user);
 
     if (!user) return res.status(404).json({ message: "User not found" });
 
@@ -183,7 +152,7 @@ const verify = async (req, res) => {
         name: user.name,
         email: user.email || user.mobile,
         roleId: user.roleId || null,
-        user_type: decoded.user_type || "admin",
+        user_type: user.user_type || "",
       },
     });
   } catch (error) {
@@ -239,4 +208,4 @@ const signup = async (req, res) => {
   }
 };
 
-module.exports = { login, memberLogin, memberSignup, signup, verify };
+module.exports = { login, memberSignup, signup, verify };
