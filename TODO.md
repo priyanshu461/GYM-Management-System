@@ -1,2 +1,0 @@
-- [x] Update Sidebar header title to be dynamic based on user.user_type
-- [x] Update Sidebar footer to use user.name, user.user_type, and user.avatar with fallback

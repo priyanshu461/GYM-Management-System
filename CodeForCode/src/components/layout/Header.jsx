@@ -50,7 +50,7 @@ const Header = ({ onMobileMenuToggle, sidebarCollapsed, onToggleSidebar }) => {
               
               
               {/* Search Bar - Responsive */}
-              <div className="hidden sm:flex rounded-xl bg-gray-50 dark:bg-teal-800/50 p-2 shadow-sm border border-gray-200/50 dark:border-teal-700/50 flex items-center gap-2 flex-1 max-w-md ml-2">
+              <div className=" sm:flex rounded-xl bg-gray-50 dark:bg-teal-800/50 p-2 shadow-sm border border-gray-200/50 dark:border-teal-700/50 flex items-center gap-2 flex-1 max-w-md ml-2">
                 <Search size={16} className="text-gray-400 dark:text-teal-300 flex-shrink-0" />
                 <input 
                   value={query} 
@@ -89,7 +89,7 @@ const Header = ({ onMobileMenuToggle, sidebarCollapsed, onToggleSidebar }) => {
                   <button className="flex items-center gap-2 sm:gap-3 cursor-pointer p-1.5 sm:p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-teal-800 transition-colors duration-200 flex-shrink-0">
                     <div className="hidden sm:block text-right">
                       <div className="text-xs sm:text-sm font-medium text-gray-700 dark:text-white leading-tight">{user?.name?.split(' ')[0] || 'User'}</div>
-                      <div className="text-[10px] sm:text-xs text-gray-500 dark:text-teal-400 leading-tight">{user?.role || 'Admin'}</div>
+                      <div className="text-[10px] sm:text-xs text-gray-500 dark:text-teal-400 leading-tight">{user?user.user_type : 'Admin'}</div>
                     </div>
                     <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gradient-to-br from-teal-500 to-teal-600 dark:from-teal-600 dark:to-teal-700 flex items-center justify-center text-white font-semibold text-xs sm:text-sm shadow-md">
                       {(user?.name || 'U').split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}

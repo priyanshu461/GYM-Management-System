@@ -123,9 +123,7 @@ const Home = () => {
               <Link to="/login" className="bg-gradient-to-r from-teal-600 to-teal-500 text-white px-4 py-2 rounded-lg font-semibold hover:from-teal-100 hover:to-teal-200 hover:text-teal-600 shadow">
                 Login
               </Link>
-              <Link to="/member-login" className="bg-teal-100 text-teal-900 px-4 py-2 rounded-lg font-semibold hover:bg-teal-200 border border-teal-200 shadow">
-                Member Login
-              </Link>
+             
               {/* <Link to="/dashboard" className="bg-teal-100 text-teal-900 px-4 py-2 rounded-lg font-semibold hover:bg-teal-200 border border-teal-200 shadow">
                 Dashboard
               </Link> */}
