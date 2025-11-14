@@ -7,7 +7,7 @@ const membershipSchema = new Schema(
   {
     customer: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Customer",
+      ref: "User",
       required: [true, "Customer reference is required"],
     },
     plan: {

@@ -30,7 +30,7 @@ export default function EditMember() {
   const fetchMember = async () => {
     try {
       setIsLoading(true);
-      const res = await gymServices.getCustomerById(id);
+      const res = await gymServices.getUserById(id);
       if (res.customer) {
         setMember({
           name: res.customer.name || "",

@@ -1,6 +1,5 @@
 // backend/controllers/AuthController.js
 const User = require("../models/UserModel");
-const Customer = require("../models/CustomerModel");
 const Role = require("../models/RoleModel");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
@@ -73,14 +72,14 @@ const memberSignup = async (req, res) => {
     }
 
     // Check if mobile exists
-    const existingMobileCustomer = await Customer.findOne({ mobile });
+    const existingMobileCustomer = await User.findOne({ mobile });
     if (existingMobileCustomer) {
       return res.status(400).json({ message: "Mobile number already exists" });
     }
 
     // Check if email exists (only if provided)
     if (email) {
-      const existingEmailCustomer = await Customer.findOne({
+      const existingEmailCustomer = await User.findOne({
         email: email.toLowerCase().trim(),
       });
       if (existingEmailCustomer) {
@@ -90,7 +89,7 @@ const memberSignup = async (req, res) => {
 
     const hashedPassword = bcrypt.hashSync(password, 10);
 
-    const newCustomer = new Customer({
+    const newCustomer = new User({
       name: name.trim(),
       mobile,
       email: email ? email.toLowerCase().trim() : "", // ✅ changed from null to ""
@@ -100,7 +99,7 @@ const memberSignup = async (req, res) => {
     await newCustomer.save();
 
     const token = jwt.sign(
-      { id: newCustomer._id, user_type: "member" },
+      { id: newCustomer._id, user_type: "Member" },
       process.env.JWT_SECRET || "7c892230e8994de8b59b604e",
       { expiresIn: "1h" }
     );
@@ -113,7 +112,7 @@ const memberSignup = async (req, res) => {
         name: newCustomer.name,
         mobile: newCustomer.mobile,
         email: newCustomer.email,
-        user_type: "member",
+        user_type: "Member",
       },
     });
   } catch (error) {

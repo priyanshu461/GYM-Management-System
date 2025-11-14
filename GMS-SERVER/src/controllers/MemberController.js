@@ -1,4 +1,3 @@
-const Customer = require("../models/CustomerModel");
 const Membership = require("../models/MembershipModel");
 const Plans = require("../models/PlansModel");
 const WorkoutCompletion = require("../models/WorkoutCompletionModel");
@@ -7,17 +6,17 @@ const Class = require("../models/ClassModel");
 const Progress = require("../models/ProgressModel");
 const User = require("../models/UserModel");
 const bcrypt = require("bcryptjs");
-
+const UserModel = require("../models/UserModel");
 // Get all members
 const getAllMembers = async (req, res) => {
   try {
-    const params = { status: "Active" };
+    const params = { user_type: "Member" };
     const gymId = req.user.gymId;
     if (gymId) {
       params.gymId = gymId;
     }
 
-    const members = await Customer.find(params);
+    const members = await User.find(params);
     const membersWithPlans = await Promise.all(
       members.map(async (member) => {
         const membership = await Membership.findOne({
@@ -42,11 +41,11 @@ const getAllMembers = async (req, res) => {
 const getMemberById = async (req, res) => {
   try {
     const { id } = req.params;
-    const member = await Customer.findById(id);
-    if (!member || member.status !== "Active") {
+    const member = await User.findById(id);
+    if (!member) {
       return res.status(404).json({ message: "Member not found" });
     }
-    const membership = await Membership.findOne({
+    const membership = await User.findOne({
       customer: member._id,
       status: "Active",
     }).populate("plan", "name");
@@ -82,9 +81,9 @@ const addMember = async (req, res) => {
       email,
       mobile,
       password: bcrypt.hashSync(mobile, 10), // Default password is mobile number
+      address,
       profile: {
         aadharNo,
-        address,
         emergencyContact,
         dob,
         gender,
@@ -134,7 +133,7 @@ const updateMember = async (req, res) => {
       occupation,
       plan,
     } = req.body;
-    await Customer.findByIdAndUpdate(id, {
+    await User.findByIdAndUpdate(id, {
       name,
       mobile,
       email,
@@ -168,9 +167,11 @@ const updateMember = async (req, res) => {
 const deleteMember = async (req, res) => {
   try {
     const { id } = req.params;
-    await Customer.findByIdAndUpdate(id, { status: "Inactive" });
+    const customer = await User.findByIdAndDelete(id);
     await Membership.updateMany({ customer: id }, { status: "Cancelled" });
-    res.status(200).json({ message: "Member deleted successfully" });
+    res
+      .status(200)
+      .json({ message: "Member deleted successfully", data: customer });
   } catch (error) {
     res
       .status(500)
@@ -182,13 +183,13 @@ const deleteMember = async (req, res) => {
 const getMemberProfile = async (req, res) => {
   try {
     // Only allow members to access their own profile
-    if (req.user.type !== "member") {
+    if (req.user.type !== "Member") {
       return res
         .status(403)
         .json({ message: "Access denied. Member access required." });
     }
 
-    const member = await Customer.findById(req.user.id);
+    const member = await User.findById(req.user.id);
     if (!member) {
       return res.status(404).json({ message: "Member not found" });
     }
@@ -214,7 +215,7 @@ const getMemberProfile = async (req, res) => {
 const updateMemberProfile = async (req, res) => {
   try {
     // Only allow members to update their own profile
-    if (req.user.type !== "member") {
+    if (req.user.type !== "Member") {
       return res
         .status(403)
         .json({ message: "Access denied. Member access required." });
@@ -229,7 +230,7 @@ const updateMemberProfile = async (req, res) => {
 
     // Check if mobile is being changed and if it's already taken
     if (mobile) {
-      const existingCustomer = await Customer.findOne({
+      const existingCustomer = await User.findOne({
         mobile,
         _id: { $ne: req.user.id },
       });
@@ -242,7 +243,7 @@ const updateMemberProfile = async (req, res) => {
 
     // Check if email is being changed and if it's already taken
     if (email) {
-      const existingCustomer = await Customer.findOne({
+      const existingCustomer = await User.findOne({
         email: email.toLowerCase(),
         _id: { $ne: req.user.id },
       });
@@ -259,7 +260,7 @@ const updateMemberProfile = async (req, res) => {
     if (address !== undefined) updateData.address = address;
     if (image !== undefined) updateData.image = image;
 
-    const updatedMember = await Customer.findByIdAndUpdate(
+    const updatedMember = await User.findByIdAndUpdate(
       req.user.id,
       updateData,
       { new: true }
@@ -291,7 +292,7 @@ const updateMemberProfile = async (req, res) => {
 const getMemberStats = async (req, res) => {
   try {
     // Only allow members to access their own stats
-    if (req.user.type !== "member") {
+    if (req.user.type !== "Member") {
       return res
         .status(403)
         .json({ message: "Access denied. Member access required." });
@@ -300,7 +301,7 @@ const getMemberStats = async (req, res) => {
     const memberId = req.user.id;
 
     // Get member details for BMI calculation
-    const member = await Customer.findById(memberId);
+    const member = await User.findById(memberId);
     if (!member) {
       return res.status(404).json({ message: "Member not found" });
     }
@@ -367,7 +368,7 @@ const getMemberStats = async (req, res) => {
 const getRecentActivities = async (req, res) => {
   try {
     // Only allow members to access their own activities
-    if (req.user.type !== "member") {
+    if (req.user.type !== "Member") {
       return res
         .status(403)
         .json({ message: "Access denied. Member access required." });
@@ -425,12 +426,10 @@ const getRecentActivities = async (req, res) => {
 
     res.status(200).json(activities);
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        message: "Error fetching recent activities",
-        error: error.message,
-      });
+    res.status(500).json({
+      message: "Error fetching recent activities",
+      error: error.message,
+    });
   }
 };
 
@@ -438,7 +437,7 @@ const getRecentActivities = async (req, res) => {
 const getUpcomingClasses = async (req, res) => {
   try {
     // Only allow members to access upcoming classes
-    if (req.user.type !== "member") {
+    if (req.user.type !== "Member") {
       return res
         .status(403)
         .json({ message: "Access denied. Member access required." });
@@ -467,12 +466,10 @@ const getUpcomingClasses = async (req, res) => {
 
     res.status(200).json(upcomingClasses);
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        message: "Error fetching upcoming classes",
-        error: error.message,
-      });
+    res.status(500).json({
+      message: "Error fetching upcoming classes",
+      error: error.message,
+    });
   }
 };
 

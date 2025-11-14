@@ -1,6 +1,5 @@
 const Notification = require("../models/NotificationModel");
 const User = require("../models/UserModel");
-const Customer = require("../models/CustomerModel");
 
 // Get all notifications for a user
 const getNotifications = async (req, res) => {
@@ -242,9 +241,9 @@ const getSegments = async (req, res) => {
     // Calculate segments based on users/customers
     const allUsers = await User.countDocuments();
     const newUsers = await User.countDocuments({ createdAt: { $gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) } });
-    const inactiveUsers = await Customer.countDocuments({ status: "Inactive" });
-    const trialUsers = await Customer.countDocuments(); // Placeholder
-    const vipUsers = await Customer.countDocuments(); // Placeholder
+    const inactiveUsers = await User.countDocuments({ status: "Inactive" });
+    const trialUsers = await User .countDocuments(); // Placeholder
+    const vipUsers = await User.countDocuments(); // Placeholder
 
     const segments = [
       { id: "all", name: "All members", count: allUsers },

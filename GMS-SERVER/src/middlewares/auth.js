@@ -1,6 +1,5 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/UserModel");
-const Customer = require("../models/CustomerModel");
 require("dotenv").config();
 
 const authenticateToken = async (req, res, next) => {
@@ -17,12 +16,7 @@ const authenticateToken = async (req, res, next) => {
       process.env.JWT_SECRET || "7c892230e8994de8b59b604e"
     );
 
-    let user;
-    if (decoded.type === "member") {
-      user = await Customer.findById(decoded.id);
-    } else {
-      user = await User.findById(decoded.id);
-    }
+    const user = await User.findById(decoded.id);
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
@@ -33,7 +27,6 @@ const authenticateToken = async (req, res, next) => {
       roleId: user.roleId || null,
       email: user.email || user.mobile,
       name: user.name,
-      type: decoded.type,
       user_type: user.user_type,
       gymId: user.gymId,
     };

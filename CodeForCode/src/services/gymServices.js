@@ -7,7 +7,7 @@ const gymServices = {};
 gymServices.getStats = async () => {
   try {
     const token = getToken();
-    const res = await fetch(`${BASE_API_URL}dashboard/stats`, {
+    const res = await fetch(`${BASE_API_URL}gyms/dashboard/stats`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     if (!res.ok) {
@@ -17,10 +17,10 @@ gymServices.getStats = async () => {
     // Map backend stats to frontend expected format
     const mappedStats = stats.map(stat => {
       let icon = 'Users';
-      if (stat.title === 'Total Sales') icon = 'DollarSign';
-      else if (stat.title === 'Orders') icon = 'Box';
-      else if (stat.title === 'Customers') icon = 'Users';
-      else if (stat.title === 'Traffic') icon = 'TrendingUp';
+      if (stat.title === 'Membership Revenue') icon = 'DollarSign';
+      else if (stat.title === 'Active Members') icon = 'Users';
+      else if (stat.title === 'Total Members') icon = 'UserCheck';
+      else if (stat.title === 'Monthly Attendance') icon = 'TrendingUp';
       return { ...stat, icon };
     });
     return { stats: mappedStats };
@@ -29,10 +29,10 @@ gymServices.getStats = async () => {
     // Return mock data if API fails
     return {
       stats: [
-        { id: 1, title: 'Total Sales', value: '₹0', change: '+0%', changeType: 'positive', icon: 'DollarSign' },
-        { id: 2, title: 'Orders', value: '0', change: '+0%', changeType: 'positive', icon: 'Box' },
-        { id: 3, title: 'Customers', value: '0', change: '+0%', changeType: 'positive', icon: 'Users' },
-        { id: 4, title: 'Traffic', value: '0', change: '+0%', changeType: 'positive', icon: 'TrendingUp' },
+        { id: 1, title: 'Membership Revenue', value: '₹0', change: '+0%', changeType: 'positive', icon: 'DollarSign' },
+        { id: 2, title: 'Active Members', value: '0', change: '+0%', changeType: 'positive', icon: 'Users' },
+        { id: 3, title: 'Total Members', value: '0', change: '+0%', changeType: 'positive', icon: 'UserCheck' },
+        { id: 4, title: 'Monthly Attendance', value: '0', change: '+0%', changeType: 'positive', icon: 'TrendingUp' },
       ]
     };
   }
@@ -159,7 +159,7 @@ gymServices.deleteRoutine = async (id) => {
   }
 };
 
-gymServices.getCustomers = async () => {
+gymServices.getUser = async () => {
   try {
     const token = getToken();
     const res = await fetch(`${BASE_API_URL}management/members`, {
@@ -182,7 +182,7 @@ gymServices.getCustomers = async () => {
   }
 };
 
-gymServices.addCustomer = async (customerData) => {
+gymServices.addUser = async (customerData) => {
   try {
     const headers = {
       'Content-Type': 'application/json',
@@ -206,7 +206,7 @@ gymServices.addCustomer = async (customerData) => {
   }
 };
 
-gymServices.getCustomerById = async (id) => {
+gymServices.getUserById = async (id) => {
   try {
     const token = getToken();
     const res = await fetch(`${BASE_API_URL}management/members/${id}`, {
@@ -223,7 +223,7 @@ gymServices.getCustomerById = async (id) => {
   }
 };
 
-gymServices.updateCustomer = async (id, customerData) => {
+gymServices.updateUser = async (id, customerData) => {
   try {
     const headers = {
       'Content-Type': 'application/json',
@@ -247,7 +247,7 @@ gymServices.updateCustomer = async (id, customerData) => {
   }
 };
 
-gymServices.deleteCustomer = async (id) => {
+gymServices.deleteUser = async (id) => {
   try {
     const token = getToken();
     const res = await fetch(`${BASE_API_URL}management/members/${id}`, {

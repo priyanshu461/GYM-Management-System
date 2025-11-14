@@ -20,7 +20,6 @@ GMS-SERVER/
 │   │   └── ... (other routes)
 │   ├── models/                 # Mongoose data models
 │   │   ├── UserModel.js
-│   │   ├── CustomerModel.js
 │   │   └── ... (other models)
 │   ├── middlewares/            # Custom middleware functions
 │   │   └── auth.js             # Authentication middleware

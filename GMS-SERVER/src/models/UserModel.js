@@ -25,6 +25,7 @@ const userSchema = new Schema(
       aadharNo: { type: String },
       emergencyContact: { type: String },
       spacialization: { type: String },
+      occupation: { type: String },
     },
     roleId: {
       type: mongoose.Schema.Types.ObjectId,

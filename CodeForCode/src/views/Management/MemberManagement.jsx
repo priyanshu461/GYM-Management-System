@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { UserPlus, Search, Users, Trash2, AlertCircle, Edit2, Eye, Phone, Mail, Calendar, Filter, Download } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import gymServices from "@/services/gymServices";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function Member() {
   const navigate = useNavigate();
@@ -20,7 +21,7 @@ export default function Member() {
   const fetchMembers = async () => {
     try {
       setLoading(true);
-      const res = await gymServices.getCustomers();
+      const res = await gymServices.getUser();
       setMembers(res.customers || []);
     } catch (err) {
       setError(err.message);
@@ -34,7 +35,7 @@ export default function Member() {
     if (!window.confirm("Are you sure you want to delete this member?")) return;
 
     try {
-      await gymServices.deleteCustomer(id);
+      await gymServices.deleteUser(id);
       await fetchMembers(); // Refresh the list
     } catch (err) {
       alert("Failed to delete member: " + err.message);
