@@ -169,7 +169,7 @@ export default function AddMember() {
                     >
                       <option value="">Select Gym</option>
                       {gyms.map((gym) => (
-                        <option key={gym.id} value={gym._id}>{gym.name}</option>
+                        <option key={gym._id} value={gym._id}>{gym.name}</option>
                       ))}
                     </select>
                   </div>

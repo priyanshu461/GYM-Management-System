@@ -31,6 +31,7 @@ router.get('/top-products', getTopProducts);
 router.get('/recent-orders', getRecentOrders);
 router.get('/all-orders', getAllOrders);
 router.get('/sales-overview', getSalesOverview);
+router.get('/attendance-overview', getStats); // Temporary: use getStats for attendance
 
 // Product creation route under dashboard
 router.post('/product/create', createProduct);
