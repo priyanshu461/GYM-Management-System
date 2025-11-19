@@ -168,10 +168,118 @@ const getTrainerById = async (req, res) => {
   }
 };
 
+// Get trainer salary
+const getTrainerSalary = async (req, res) => {
+  try {
+    // For now, return mock data. In future, integrate with SalaryModel or calculate from database.
+    const salaryData = {
+      monthlySalary: 3000,
+      hourlyRate: 25,
+      currentMonthEarnings: 2800,
+      baseSalary: 2500,
+      performanceBonus: 300,
+      clientCommissions: 200,
+      paymentHistory: [
+        {
+          period: "October 2023",
+          amount: 3000,
+          date: "2023-10-31",
+          status: "Paid"
+        },
+        {
+          period: "September 2023",
+          amount: 2900,
+          date: "2023-09-30",
+          status: "Paid"
+        }
+      ]
+    };
+    res.status(200).json(salaryData);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching salary", error: error.message });
+  }
+};
+
+// Get trainer schedules
+const getTrainerSchedules = async (req, res) => {
+  try {
+    // Mock data for schedules
+    const schedules = [
+      {
+        id: 1,
+        date: "2023-10-15",
+        time: "10:00 AM",
+        client: "John Doe",
+        type: "Personal Training"
+      }
+    ];
+    res.status(200).json(schedules);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching schedules", error: error.message });
+  }
+};
+
+// Get trainer clients
+const getTrainerClients = async (req, res) => {
+  try {
+    // Mock data for clients
+    const clients = [
+      {
+        id: 1,
+        name: "John Doe",
+        email: "john@example.com",
+        membership: "Premium"
+      }
+    ];
+    res.status(200).json(clients);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching clients", error: error.message });
+  }
+};
+
+// Create workout
+const createWorkout = async (req, res) => {
+  try {
+    const { name, description, exercises } = req.body;
+    // Mock response
+    res.status(201).json({ message: "Workout created successfully", workoutId: 1 });
+  } catch (error) {
+    res.status(500).json({ message: "Error creating workout", error: error.message });
+  }
+};
+
+// Assign workout to client
+const assignWorkoutToClient = async (req, res) => {
+  try {
+    const { clientId, workoutId } = req.body;
+    // Mock response
+    res.status(200).json({ message: "Workout assigned successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Error assigning workout", error: error.message });
+  }
+};
+
+// Reset password
+const resetPassword = async (req, res) => {
+  try {
+    const { newPassword } = req.body;
+    // Mock response
+    res.status(200).json({ message: "Password reset successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Error resetting password", error: error.message });
+  }
+};
+
 module.exports = {
   getAllTrainers,
   getTrainerById,
   addTrainer,
   updateTrainer,
-  deleteTrainer, 
+  deleteTrainer,
+  getTrainerSalary,
+  getTrainerSchedules,
+  getTrainerClients,
+  createWorkout,
+  assignWorkoutToClient,
+  resetPassword,
 };

@@ -44,6 +44,12 @@ import SupportTickets from './views/SupportTickets'
 import GymBlog from './views/GymBlog'
 import NotificationsCommunication from './views/NotificationCommunication'
 import Profile from './views/Profile'
+import MySchedules from './views/Trainer/MySchedules'
+import MyClients from './views/Trainer/MyClients'
+import CreateWorkout from './views/Trainer/CreateWorkout'
+import AssignWorkout from './views/Trainer/AssignWorkout'
+import Salary from './views/Trainer/Salary'
+import ResetPassword from './views/Trainer/ResetPassword'
 
 // Protected Route for Admin
 function ProtectedRoute({ children }) {
@@ -98,6 +104,65 @@ function App() {
             <Routes>
               {/* Public Routes */}
               <Route path="/" element={<Home />} />
+
+              {/* Trainer Routes */}
+              <Route 
+                path="/trainer/clients"
+                element={
+                  <ProtectedRoute>
+                      <MyClients />
+                  </ProtectedRoute>
+                }
+              />
+              <Route 
+                path='/trainer/schedules'
+                element={
+                  <ProtectedRoute>
+                      <MySchedules />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path='/trainer/workouts/create'
+                element={
+                  <ProtectedRoute>
+                      <CreateWorkout />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path='/trainer/workouts/assign'
+                element={
+                  <ProtectedRoute>
+                      <AssignWorkout />
+                  </ProtectedRoute>
+                }
+              />
+              <Route 
+                path="/trainer/salary"
+                element={
+                  <ProtectedRoute>
+                      <Salary />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path='/trainer/reset/password'
+                element={
+                  <ProtectedRoute>
+                      <ResetPassword />
+                  </ProtectedRoute>
+                }
+              />
+              <Route 
+              path="/trainer/dashboard" 
+              element={
+              <ProtectedRoute>
+                <TrainerDashboard />
+                </ProtectedRoute>
+              } 
+              />
+
 
               {/* Member Routes */}
               <Route path="/member/login" element={<CheckAuth><Login /></CheckAuth>} />
@@ -191,7 +256,6 @@ function App() {
               <Route path="/trainers" element={<ProtectedRoute><Trainer /></ProtectedRoute>} />
               <Route path="/trainers/add" element={<ProtectedRoute><AddTrainer /></ProtectedRoute>} />
               <Route path="/trainers/edit/:id" element={<ProtectedRoute><EditTrainer /></ProtectedRoute>} />
-              <Route path="/trainer/dashboard" element={<ProtectedRoute><TrainerDashboard /></ProtectedRoute>} />
               <Route path="/facilities" element={<ProtectedRoute><Facilities /></ProtectedRoute>} />
               <Route path="/workout/routine" element={<ProtectedRoute><WorkoutRoutine /></ProtectedRoute>} />
               <Route path="/diet/plan" element={<ProtectedRoute><DietPlan /></ProtectedRoute>} />

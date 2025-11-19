@@ -19,10 +19,12 @@ export default function AddMember() {
     emergencyContact: "",
     dob: "",
     gender: "",
-    occupation: ""
+    occupation: "",
+    assignedTrainer: ""
   });
   
   const [gyms, setGyms] = useState([]);
+  const [trainers, setTrainers] = useState([]);
 
   const getGyms = async () => {
     try {
@@ -32,8 +34,19 @@ export default function AddMember() {
       console.error("Error fetching gyms:", error);
     }
   };
+
+  const getTrainers = async () => {
+    try {
+      const trainersData = await gymServices.getAllTrainers(); // Fetch trainers from the service
+      setTrainers(trainersData);
+    } catch (error) {
+      console.error("Error fetching trainers:", error);
+    }
+  };
+
   useEffect(() => {
     getGyms();
+    getTrainers();
   }, []);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState({});

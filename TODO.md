@@ -1,1 +1,0 @@
-- [ ] Update TrainersManagement.jsx to remove pagination and display all trainers

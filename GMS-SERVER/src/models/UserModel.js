@@ -32,6 +32,10 @@ const userSchema = new Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Role", // name of the referenced model
     },
+    assignedTrainer: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User", // Reference to Trainer (User with user_type: "Trainer")
+    },
     isActive: { type: Boolean, default: true },
   },
   { timestamps: true }

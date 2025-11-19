@@ -11,6 +11,8 @@ import {
   Award,
   Target,
   Activity,
+  Users,
+  UserCheck,
 } from "lucide-react";
 import {
   MdGroup,
@@ -388,6 +390,54 @@ export const menuConfig = {
       label: "Dashboard",
       path: "/trainer/dashboard",
       icon: Home,
+      type: "link",
+    },
+        {
+      id: "my-clients",
+      label: "My Clients",
+      path: "/trainer/clients",
+      icon: Users,
+      type: "link",
+    },
+    {
+      id: "my-schedules",
+      label: "My Schedules",
+      path: "/trainer/schedules",
+      icon: Calendar,
+      type: "link",
+    },
+    {
+      id: "workouts",
+      label: "Workouts",
+      icon: Dumbbell,
+      type: "dropdown",
+      children: [
+        {
+          id: "create-workout",
+          label: "Create Workout",
+          path: "/trainer/workouts/create",
+          icon: Dumbbell,
+        },
+        {
+          id: "assign-workout",
+          label: "Assign to Client",
+          path: "/trainer/workouts/assign",
+          icon: UserCheck,
+        },
+      ],
+    },
+    {
+      id: "salary",
+      label: "Salary",
+      path: "/trainer/salary",
+      icon: TfiWallet,
+      type: "link",
+    },
+    {
+      id: "reset-password",
+      label: "Reset Password",
+      path: "/trainer/reset/password",
+      icon: SlSettings,
       type: "link",
     },
   ],

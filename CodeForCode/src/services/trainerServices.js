@@ -59,4 +59,61 @@ trainerServices.getTrainerById = async (id) => {
   return await res.json();
 };
 
+trainerServices.getTrainerSchedules = async () => {
+  const res = await fetch(`${BASE_API_URL}trainers/schedules`, {
+    headers: { Authorization: `Bearer ${getToken()}` },
+  });
+  return await res.json();
+};
+
+trainerServices.getTrainerClients = async () => {
+  const res = await fetch(`${BASE_API_URL}trainers/clients`, {
+    headers: { Authorization: `Bearer ${getToken()}` },
+  });
+  return await res.json();
+};
+
+trainerServices.createWorkout = async (data = {}) => {
+  const res = await fetch(`${BASE_API_URL}trainers/workouts/create`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${getToken()}`,
+    },
+    body: JSON.stringify(data),
+  });
+  return await res.json();
+};
+
+trainerServices.assignWorkoutToClient = async (data = {}) => {
+  const res = await fetch(`${BASE_API_URL}trainers/workouts/assign`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${getToken()}`,
+    },
+    body: JSON.stringify(data),
+  });
+  return await res.json();
+};
+
+trainerServices.getTrainerSalary = async () => {
+  const res = await fetch(`${BASE_API_URL}trainers/salary`, {
+    headers: { Authorization: `Bearer ${getToken()}` },
+  });
+  return await res.json();
+};
+
+trainerServices.resetPassword = async (data = {}) => {
+  const res = await fetch(`${BASE_API_URL}trainers/password/reset`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${getToken()}`,
+    },
+    body: JSON.stringify(data),
+  });
+  return await res.json();
+};
+
 export default trainerServices;

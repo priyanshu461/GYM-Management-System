@@ -17,11 +17,27 @@ export default function EditMember() {
     emergencyContact: "",
     dob: "",
     gender: "",
-    occupation: ""
+    occupation: "",
+    assignedTrainer: ""
   });
+  const [trainers, setTrainers] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [errors, setErrors] = useState({});
+
+  const getTrainers = async () => {
+    try {
+      const trainersData = await gymServices.getAllTrainers();
+      setTrainers(trainersData);
+    } catch (error) {
+      console.error("Error fetching trainers:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchMember();
+    getTrainers();
+  }, [id]);
 
   useEffect(() => {
     fetchMember();
@@ -41,7 +57,8 @@ export default function EditMember() {
           emergencyContact: res.customer.emergencyContact || "",
           dob: res.customer.dob || "",
           gender: res.customer.gender || "",
-          occupation: res.customer.occupation || ""
+          occupation: res.customer.occupation || "",
+          assignedTrainer: res.customer.assignedTrainer || ""
         });
       } else {
         setErrors({ fetch: "Member not found" });
@@ -339,7 +356,7 @@ export default function EditMember() {
                   </div>
 
                   {/* Occupation */}
-                  <div className="space-y-2 md:col-span-2">
+                  <div className="space-y-2">
                     <label className="text-sm font-semibold text-foreground">Occupation</label>
                     <input
                       type="text"
@@ -348,6 +365,26 @@ export default function EditMember() {
                       className="w-full bg-background/50 dark:bg-teal-800/30 border border-input text-foreground rounded-xl px-4 py-3 focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all placeholder:text-muted-foreground"
                       placeholder="Enter occupation"
                     />
+                  </div>
+
+                  {/* Assigned Trainer */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-semibold text-foreground flex items-center gap-2">
+                      <User className="w-4 h-4 text-teal-500" />
+                      Assigned Trainer
+                    </label>
+                    <select
+                      value={member.assignedTrainer}
+                      onChange={(e) => setMember({ ...member, assignedTrainer: e.target.value })}
+                      className="w-full bg-background/50 dark:bg-teal-800/30 border border-input text-foreground rounded-xl px-4 py-3 focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all"
+                    >
+                      <option value="">Select Trainer</option>
+                      {trainers.map((trainer) => (
+                        <option key={trainer.id} value={trainer.id}>
+                          {trainer.name} ({trainer.expertise})
+                        </option>
+                      ))}
+                    </select>
                   </div>
                 </div>
 

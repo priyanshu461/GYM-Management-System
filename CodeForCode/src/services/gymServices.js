@@ -366,4 +366,20 @@ gymServices.deleteGym = async (id) => {
   }
 };
 
+gymServices.getAllTrainers = async () => {
+  try {
+    const token = getToken();
+    const res = await fetch(`${BASE_API_URL}management/trainers/all`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!res.ok) {
+      throw new Error('Failed to fetch trainers');
+    }
+    return await res.json();
+  } catch (error) {
+    console.error('Error fetching trainers:', error);
+    throw error;
+  }
+};
+
 export default gymServices;
