@@ -63,12 +63,27 @@ async function seedDatabase() {
     const trainerUser = await User.findOneAndUpdate(
       { email: "trainer@gym.com" },
       {
+        employeeId: "TR001",
         name: "Test Trainer",
         email: "trainer@gym.com",
         password: trainerPassword,
+        profile: {
+          exp: "5 years",
+          spacialization: "Fitness Training",
+        },
+        rating: 4.5,
+        certifications: ["CPT"],
+        specializations: ["Weight Loss", "Muscle Building"],
+        user_type: "Trainer",
         roleId: trainerRole._id,
       },
       { upsert: true, new: true }
+    );
+
+    // Update existing trainers to have user_type: "Trainer"
+    await User.updateMany(
+      { roleId: trainerRole._id, user_type: { $ne: "Trainer" } },
+      { $set: { user_type: "Trainer", isActive: true } }
     );
 
     console.log("Users created/updated:");

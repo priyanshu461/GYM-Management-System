@@ -95,7 +95,7 @@ export default function EditMember() {
       setIsSubmitting(true);
       setErrors({});
 
-      await gymServices.updateCustomer(id, member);
+      await gymServices.updateUser(id, member);
 
       alert("Member updated successfully!");
       navigate("/members");

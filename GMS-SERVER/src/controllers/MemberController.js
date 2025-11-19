@@ -76,9 +76,24 @@ const addMember = async (req, res) => {
       occupation,
       plan,
     } = req.body;
+
+    // Check if email already exists
+    const existingEmail = await User.findOne({ email: email.toLowerCase() });
+    if (existingEmail) {
+      return res.status(400).json({ message: "Email already exists" });
+    }
+
+    // Check if mobile already exists (optional, but consistent with update profile)
+    if (mobile) {
+      const existingMobile = await User.findOne({ mobile });
+      if (existingMobile) {
+        return res.status(400).json({ message: "Mobile number already exists" });
+      }
+    }
+
     const customer = new User({
       name,
-      email,
+      email: email.toLowerCase(),
       mobile,
       password: bcrypt.hashSync(mobile, 10), // Default password is mobile number
       address,
@@ -86,7 +101,7 @@ const addMember = async (req, res) => {
         aadharNo,
         emergencyContact,
         dob,
-        gender,
+        ...(gender && gender !== "" && { gender }),
         occupation,
       },
       user_type: "Member",
@@ -133,18 +148,29 @@ const updateMember = async (req, res) => {
       occupation,
       plan,
     } = req.body;
-    await User.findByIdAndUpdate(id, {
+
+    const updateData = {
       name,
       mobile,
       email,
-      aadharNo,
       address,
-      emergencyContact,
-      dob,
-      gender,
-      occupation,
       gymId: req.user.gymId || req.body.gymId || null,
-    });
+    };
+
+    // Update profile fields using $set to avoid overwriting the entire profile
+    const profileUpdates = {};
+    if (aadharNo !== undefined) profileUpdates['profile.aadharNo'] = aadharNo;
+    if (emergencyContact !== undefined) profileUpdates['profile.emergencyContact'] = emergencyContact;
+    if (dob !== undefined) profileUpdates['profile.dob'] = dob;
+    if (gender && gender !== "") profileUpdates['profile.gender'] = gender;
+    if (occupation !== undefined) profileUpdates['profile.occupation'] = occupation;
+
+    if (Object.keys(profileUpdates).length > 0) {
+      updateData.$set = profileUpdates;
+    }
+
+    await User.findByIdAndUpdate(id, updateData);
+
     // Update membership if plan changed
     if (plan) {
       const planDoc = await Plans.findOne({ name: plan });

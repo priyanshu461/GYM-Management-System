@@ -1,13 +1,20 @@
 import Layout from "../../components/Layout";
-import React, { useState } from "react";
-import { UserPlus, User, Award, Calendar, Star, AlertCircle, CheckCircle, ArrowLeft, X } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { UserPlus, User, Award, Calendar, Star, AlertCircle, CheckCircle, ArrowLeft, X, Mail, Phone, IdCard } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import trainerServices from "../../services/trainerServices";
+import gymServices from "../../services/gymServices";
+import { useAuth } from "../../contexts/AuthContext";
 
 export default function AddTrainer() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [newTrainer, setNewTrainer] = useState({
+    gymId: "",
+    employeeId: "",
     name: "",
+    email: "",
+    mobile: "",
     expertise: "",
     experience: "",
     image: "",
@@ -15,14 +22,44 @@ export default function AddTrainer() {
     certifications: "",
     specializations: "",
   });
+  const [gyms, setGyms] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
+
+  const getGyms = async () => {
+    try {
+      const gymsData = await gymServices.getAllGyms();
+      setGyms(gymsData);
+    } catch (error) {
+      console.error("Error fetching gyms:", error);
+    }
+  };
+
+  useEffect(() => {
+    getGyms();
+  }, []);
 
   const validateForm = () => {
     const newErrors = {};
 
     if (!newTrainer.name.trim()) {
       newErrors.name = "Full name is required";
+    }
+
+    if (!newTrainer.employeeId.trim()) {
+      newErrors.employeeId = "Employee ID is required";
+    }
+
+    if (!newTrainer.email.trim()) {
+      newErrors.email = "Email is required";
+    } else if (!/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(newTrainer.email)) {
+      newErrors.email = "Please enter a valid email address";
+    }
+
+    if (!newTrainer.mobile.trim()) {
+      newErrors.mobile = "Mobile number is required";
+    } else if (!/^[0-9]{10}$/.test(newTrainer.mobile)) {
+      newErrors.mobile = "Mobile number must be 10 digits";
     }
 
     if (!newTrainer.expertise.trim()) {
@@ -53,7 +90,11 @@ export default function AddTrainer() {
       setErrors({});
 
       const trainerData = {
+        gymId: newTrainer.gymId,
+        employeeId: newTrainer.employeeId,
         name: newTrainer.name,
+        email: newTrainer.email,
+        mobile: newTrainer.mobile,
         expertise: newTrainer.expertise,
         experience: newTrainer.experience,
         image: newTrainer.image,
@@ -68,7 +109,11 @@ export default function AddTrainer() {
 
       // Reset form
       setNewTrainer({
+        gymId: "",
+        employeeId: "",
         name: "",
+        email: "",
+        mobile: "",
         expertise: "",
         experience: "",
         image: "",
@@ -123,6 +168,40 @@ export default function AddTrainer() {
 
               <div className="relative z-10">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Gym Selection - Admin Only */}
+                  {user.user_type === "Admin" && (
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-foreground">Gym</label>
+                      <select
+                        value={newTrainer.gymId}
+                        onChange={(e) => setNewTrainer({ ...newTrainer, gymId: e.target.value })}
+                        className="w-full bg-background border border-input text-foreground rounded-xl px-4 py-3 focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all"
+                      >
+                        <option value="">Select Gym</option>
+                        {gyms.map((gym) => (
+                          <option key={gym._id} value={gym._id}>{gym.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+
+                  {/* Employee ID */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-foreground flex items-center gap-2">
+                      <IdCard className="w-4 h-4" />
+                      Employee ID *
+                    </label>
+                    <input
+                      type="text"
+                      value={newTrainer.employeeId}
+                      onChange={(e) => setNewTrainer({ ...newTrainer, employeeId: e.target.value })}
+                      className={`w-full bg-background border text-foreground rounded-xl px-4 py-3 focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all ${errors.employeeId ? 'border-red-500' : 'border-input'}`}
+                      placeholder="Enter employee ID"
+                      required
+                    />
+                    {errors.employeeId && <p className="text-red-500 text-xs">{errors.employeeId}</p>}
+                  </div>
+
                   {/* Name */}
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-foreground flex items-center gap-2">
@@ -138,6 +217,40 @@ export default function AddTrainer() {
                       required
                     />
                     {errors.name && <p className="text-red-500 text-xs">{errors.name}</p>}
+                  </div>
+
+                  {/* Email */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-foreground flex items-center gap-2">
+                      <Mail className="w-4 h-4" />
+                      Email Address *
+                    </label>
+                    <input
+                      type="email"
+                      value={newTrainer.email}
+                      onChange={(e) => setNewTrainer({ ...newTrainer, email: e.target.value })}
+                      className={`w-full bg-background border text-foreground rounded-xl px-4 py-3 focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all ${errors.email ? 'border-red-500' : 'border-input'}`}
+                      placeholder="Enter email address"
+                      required
+                    />
+                    {errors.email && <p className="text-red-500 text-xs">{errors.email}</p>}
+                  </div>
+
+                  {/* Mobile */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-foreground flex items-center gap-2">
+                      <Phone className="w-4 h-4" />
+                      Mobile Number *
+                    </label>
+                    <input
+                      type="tel"
+                      value={newTrainer.mobile}
+                      onChange={(e) => setNewTrainer({ ...newTrainer, mobile: e.target.value })}
+                      className={`w-full bg-background border text-foreground rounded-xl px-4 py-3 focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all ${errors.mobile ? 'border-red-500' : 'border-input'}`}
+                      placeholder="Enter 10-digit mobile number"
+                      required
+                    />
+                    {errors.mobile && <p className="text-red-500 text-xs">{errors.mobile}</p>}
                   </div>
 
                   {/* Expertise */}

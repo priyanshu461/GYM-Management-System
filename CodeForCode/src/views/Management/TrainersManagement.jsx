@@ -42,7 +42,7 @@ export default function TrainersManagement() {
     if (!confirm("Are you sure you want to delete this trainer?")) return;
 
     try {
-      await trainerServices.deleteTrainer({ id });
+      await trainerServices.deleteTrainer(id);
       await fetchTrainers(); // Refresh the list
     } catch (err) {
       alert("Failed to delete trainer: " + err.message);

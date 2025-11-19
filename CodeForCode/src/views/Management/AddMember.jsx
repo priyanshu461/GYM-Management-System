@@ -57,7 +57,9 @@ export default function AddMember() {
       newErrors.aadharNo = "Aadhar number must be 12 digits";
     }
 
-    if (newMember.email && !/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(newMember.email)) {
+    if (!newMember.email.trim()) {
+      newErrors.email = "Email is required";
+    } else if (!/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(newMember.email)) {
       newErrors.email = "Please enter a valid email address";
     }
 
@@ -169,7 +171,7 @@ export default function AddMember() {
                     >
                       <option value="">Select Gym</option>
                       {gyms.map((gym) => (
-                        <option key={gym.id} value={gym._id}>{gym.name}</option>
+                        <option key={gym._id} value={gym._id}>{gym.name}</option>
                       ))}
                     </select>
                   </div>
@@ -221,7 +223,7 @@ export default function AddMember() {
                   <div className="space-y-2">
                     <label className="text-sm font-semibold text-foreground flex items-center gap-2">
                       <Mail className="w-4 h-4 text-teal-500" />
-                      Email Address
+                      Email Address *
                     </label>
                     <input
                       type="email"
@@ -231,6 +233,7 @@ export default function AddMember() {
                         errors.email ? 'border-red-500' : 'border-input'
                       }`}
                       placeholder="Enter email address"
+                      required
                     />
                     {errors.email && <p className="text-red-500 text-xs flex items-center gap-1">
                       <AlertCircle className="w-3 h-3" />

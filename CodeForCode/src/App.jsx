@@ -22,6 +22,7 @@ import Finance from './views/Management/FinanceManagement'
 import Trainer from './views/Management/TrainersManagement'
 import AddTrainer from './views/Management/AddTrainer'
 import EditTrainer from './views/Management/EditTrainer'
+import TrainerDashboard from './views/TrainerDashboard'
 import Facilities from './views/Management/FacilitiesManagement'
 import WorkoutRoutine from './views/workout-and-diet-plan/WorkoutRoutine'
 import DietPlan from './views/Workout& Diet Plan/CoustumDietPlan'
@@ -79,9 +80,9 @@ function CheckAuth({ children }) {
 
   if (isAuthenticated && user) {
     return user.user_type === "Trainer" ?
-    <Navigate to="/trainer-dashboard" replace /> : 
+    <Navigate to="/trainer/dashboard" replace /> :
     user.user_type === "Member" ?
-    <Navigate to="/member-dashboard" replace /> :
+    <Navigate to="/member/dashboard" replace /> :
     <Navigate to="/dashboard" replace />;
   }
 
@@ -99,9 +100,9 @@ function App() {
               <Route path="/" element={<Home />} />
 
               {/* Member Routes */}
-              <Route path="/member-login" element={<CheckAuth><Login /></CheckAuth>} />
+              <Route path="/member/login" element={<CheckAuth><Login /></CheckAuth>} />
               <Route
-                path="/member-dashboard"
+                path="/member/dashboard"
                 element={
                   <ProtectedRoute>
                       <MemberDashboard />
@@ -109,7 +110,7 @@ function App() {
                 }
               />
               <Route
-                path="/member-profile"
+                path="/member/profile"
                 element={
                   <ProtectedRoute>
                       <MemberProfile />
@@ -117,7 +118,7 @@ function App() {
                 }
               />
               <Route
-                path="/member-classes"
+                path="/member/classes"
                 element={
                   <ProtectedRoute>
                       <MemberClasses />
@@ -125,7 +126,7 @@ function App() {
                 }
               />
               <Route
-                path="/member-workouts"
+                path="/member/workouts"
                 element={
                   <ProtectedRoute>
                       <MemberWorkouts />
@@ -133,7 +134,7 @@ function App() {
                 }
               />
               <Route
-                path="/member-progress"
+                path="/member/progress"
                 element={
                   <ProtectedRoute>
                       <MemberProgress />
@@ -141,7 +142,7 @@ function App() {
                 }
               />
               <Route
-                path="/member-achievements"
+                path="/member/achievements"
                 element={
                   <ProtectedRoute>
                       <MemberAchievements />
@@ -149,7 +150,7 @@ function App() {
                 }
               />
               <Route
-                path="/member-goals"
+                path="/member/goals"
                 element={
                   <ProtectedRoute>
                       <MemberGoals />
@@ -157,7 +158,7 @@ function App() {
                 }
               />
               <Route
-                path="/member-settings"
+                path="/member/settings"
                 element={
                   <ProtectedRoute>
                       <MemberSettings />
@@ -165,7 +166,7 @@ function App() {
                 }
               />
               <Route
-                path="/bmi-calculator"
+                path="/bmi/calculator"
                 element={
                   <ProtectedRoute>
                       <BMICalculator />
@@ -173,7 +174,7 @@ function App() {
                 }
               />
               <Route
-                path="/member-activity"
+                path="/member/activity"
                 element={
                   <ProtectedRoute>
                       <MemberActivity />
@@ -190,18 +191,19 @@ function App() {
               <Route path="/trainers" element={<ProtectedRoute><Trainer /></ProtectedRoute>} />
               <Route path="/trainers/add" element={<ProtectedRoute><AddTrainer /></ProtectedRoute>} />
               <Route path="/trainers/edit/:id" element={<ProtectedRoute><EditTrainer /></ProtectedRoute>} />
+              <Route path="/trainer/dashboard" element={<ProtectedRoute><TrainerDashboard /></ProtectedRoute>} />
               <Route path="/facilities" element={<ProtectedRoute><Facilities /></ProtectedRoute>} />
-              <Route path="/workout-routine" element={<ProtectedRoute><WorkoutRoutine /></ProtectedRoute>} />
-              <Route path="/diet-plan" element={<ProtectedRoute><DietPlan /></ProtectedRoute>} />
-              <Route path="/progress-tracking" element={<ProtectedRoute><ProgressTracker /></ProtectedRoute>} />
-              <Route path="/reports-analytics" element={<ProtectedRoute><ReportsAnalytics /></ProtectedRoute>} />
-              <Route path="/classes-schedule" element={<ProtectedRoute><ClassesSchedule /></ProtectedRoute>} />
+              <Route path="/workout/routine" element={<ProtectedRoute><WorkoutRoutine /></ProtectedRoute>} />
+              <Route path="/diet/plan" element={<ProtectedRoute><DietPlan /></ProtectedRoute>} />
+              <Route path="/progress/tracking" element={<ProtectedRoute><ProgressTracker /></ProtectedRoute>} />
+              <Route path="/reports/analytics" element={<ProtectedRoute><ReportsAnalytics /></ProtectedRoute>} />
+              <Route path="/classes/schedule" element={<ProtectedRoute><ClassesSchedule /></ProtectedRoute>} />
               <Route path="/courses" element={<ProtectedRoute><Courses /></ProtectedRoute>} />
-              <Route path="/franchises-and-membership" element={<ProtectedRoute><FranchiseAndMembership /></ProtectedRoute>} />
+              <Route path="/franchisesandmembership" element={<ProtectedRoute><FranchiseAndMembership /></ProtectedRoute>} />
               <Route path="/products" element={<ProtectedRoute><Product /></ProtectedRoute>} />
               <Route path="/products/create" element={<ProtectedRoute><ProductCreate /></ProtectedRoute>} />
               <Route path='/settings' element={<ProtectedRoute><Settings /></ProtectedRoute>} />
-              <Route path='/supporttickets' element={<ProtectedRoute><SupportTickets /></ProtectedRoute>} />
+              <Route path='/support/tickets' element={<ProtectedRoute><SupportTickets /></ProtectedRoute>} />
               <Route path='/gymblog' element={<ProtectedRoute><GymBlog /></ProtectedRoute>} />
               <Route path='/notificationcommunication' element={<ProtectedRoute><NotificationsCommunication /></ProtectedRoute>} />
               <Route path='/profile' element={<ProtectedRoute><Profile /></ProtectedRoute>} />

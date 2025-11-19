@@ -196,10 +196,11 @@ gymServices.addUser = async (customerData) => {
       headers,
       body: JSON.stringify(customerData),
     });
+    const responseData = await res.json();
     if (!res.ok) {
-      throw new Error('Failed to add customer');
+      throw new Error(responseData.message || 'Failed to add customer');
     }
-    return await res.json();
+    return responseData;
   } catch (error) {
     console.error('Error adding customer:', error);
     throw error;

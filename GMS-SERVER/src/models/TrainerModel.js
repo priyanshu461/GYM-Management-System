@@ -1,21 +1,16 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-const userSchema = new Schema(
+const trainerSchema = new Schema(
   {
+    employeeId: { type: String, unique: true },
     gymId: { type: mongoose.Schema.Types.ObjectId, ref: "Gym" },
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    employeeId: { type: String },
     mobile: { type: String },
     address: { type: String },
     image: { type: String },
-    user_type: {
-      type: String,
-      enum: ["Admin", "Gym", "Trainer", "Staff", "Member"],
-      required: true,
-    },
     certifications: [{ type: String }],
     specializations: [{ type: String }],
     rating: { type: Number, default: 0 },
@@ -30,11 +25,11 @@ const userSchema = new Schema(
     },
     roleId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Role", // name of the referenced model
+      ref: "Role",
     },
     isActive: { type: Boolean, default: true },
   },
   { timestamps: true }
 );
 
-module.exports = mongoose.model("User", userSchema);
+module.exports = mongoose.model("Trainer", trainerSchema);

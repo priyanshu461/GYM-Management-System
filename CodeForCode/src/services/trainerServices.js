@@ -41,22 +41,18 @@ trainerServices.updateTrainer = async (data = {}) => {
   return await res.json();
 };
 
-trainerServices.deleteTrainer = async (data = {}) => {
-  // Simulate fetching all trainers
-  const res = await fetch(`${BASE_API_URL}management/trainers/${data.id}`, {
+trainerServices.deleteTrainer = async (id) => {
+  const res = await fetch(`${BASE_API_URL}management/trainers/${id}`, {
     method: "DELETE",
     headers: {
-      "Content-Type": "application/json",
       Authorization: `Bearer ${getToken()}`
     },
-    body: JSON.stringify(data),
   });
   return await res.json();
 };
 
-trainerServices.getTrainer = async () => {
-  // Simulate fetching all trainers
-  const res = await fetch(`${BASE_API_URL}dashboard/trainer/get`, {
+trainerServices.getTrainerById = async (id) => {
+  const res = await fetch(`${BASE_API_URL}management/trainers/${id}`, {
     method: "GET",
     headers: { Authorization: `Bearer ${getToken()}` },
   });
