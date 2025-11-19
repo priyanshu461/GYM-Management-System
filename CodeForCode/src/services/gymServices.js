@@ -7,7 +7,7 @@ const gymServices = {};
 gymServices.getStats = async () => {
   try {
     const token = getToken();
-    const res = await fetch(`${BASE_API_URL}gyms/dashboard/stats`, {
+    const res = await fetch(`${BASE_API_URL}dashboard/stats`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     if (!res.ok) {
@@ -17,10 +17,10 @@ gymServices.getStats = async () => {
     // Map backend stats to frontend expected format
     const mappedStats = stats.map(stat => {
       let icon = 'Users';
-      if (stat.title === 'Membership Revenue') icon = 'DollarSign';
-      else if (stat.title === 'Active Members') icon = 'Users';
-      else if (stat.title === 'Total Members') icon = 'UserCheck';
-      else if (stat.title === 'Monthly Attendance') icon = 'TrendingUp';
+      if (stat.title === 'Total Sales') icon = 'DollarSign';
+      else if (stat.title === 'Orders') icon = 'Users';
+      else if (stat.title === 'Customers') icon = 'UserCheck';
+      else if (stat.title === 'Traffic') icon = 'TrendingUp';
       return { ...stat, icon };
     });
     return { stats: mappedStats };
@@ -181,6 +181,8 @@ gymServices.getUser = async () => {
     };
   }
 };
+
+gymServices.getCustomers = gymServices.getUser;
 
 gymServices.addUser = async (customerData) => {
   try {
