@@ -162,8 +162,8 @@ export default function TrainersManagement() {
               >
                 <div className="p-6">
                   <div className="flex items-center gap-4 mb-4">
-                    <img
-                      src={trainer.image || "https://via.placeholder.com/150"}
+                <img
+                      src={trainer.image || "https://picsum.photos/150/150?random=1&text=No+Image"}
                       alt={trainer.name}
                       className="w-16 h-16 rounded-full object-cover border-2 border-teal-500 dark:border-teal-400"
                     />

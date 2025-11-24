@@ -2,6 +2,7 @@ import React, { useMemo, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Layout from "../../components/Layout";
 import { useTheme } from "../../contexts/ThemeContext";
+import { useAuth } from "../../contexts/AuthContext";
 import productService from "../../services/productService";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "../../components/ui/dialog";
 import { Button } from "../../components/ui/button";
@@ -34,9 +35,17 @@ const Rating = ({ value }) => {
 
 const placeholderImage = "https://picsum.photos/300/192?random=1&text=Image+Not+Available";
 
+const getSafeImage = (image) => {
+  if (!image) return placeholderImage;
+  if (image.includes('via.placeholder.com')) return placeholderImage;
+  return image;
+};
+
 export default function Product() {
   const navigate = useNavigate();
   const { theme, toggleHighContrast } = useTheme();
+  const { user } = useAuth();
+  const isAdmin = user?.user_type === "Admin";
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("All");
   const [sort, setSort] = useState("featured");
@@ -272,12 +281,14 @@ export default function Product() {
               <p className={`text-gray-600 dark:text-gray-300 text-sm mt-1 font-medium`}>Protein, Amino Acids, Pre, Intra, Post workout, and Multivitamin supplements</p>
             </div>
             <div className="flex gap-2">
-              <button
-                onClick={() => navigate("/products/create")}
-                className="px-3 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium transition-colors"
-              >
-                Create Product
-              </button>
+              {isAdmin && (
+                <button
+                  onClick={() => navigate("/products/create")}
+                  className="px-3 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium transition-colors"
+                >
+                  Create Product
+                </button>
+              )}
               <button onClick={toggleHighContrast} className="px-3 py-2 rounded-lg bg-teal-100 dark:bg-teal-900 border border-teal-300 text-teal-800 dark:text-white text-sm hover:bg-teal-200">High contrast</button>
               <select
                 value={sort}
@@ -353,7 +364,7 @@ export default function Product() {
               <li key={p.id} className="group">
                 <div className="rounded-2xl overflow-hidden bg-teal-50 dark:bg-teal-900 border border-teal-200 shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-300">
                   <div className="relative">
-                    <img src={p.image} alt={p.name} className="h-48 w-full object-cover" loading="lazy" onError={(e) => e.target.src = placeholderImage} />
+                    <img src={getSafeImage(p.image)} alt={p.name} className="h-48 w-full object-cover" loading="lazy" onError={(e) => e.target.src = placeholderImage} />
                     <div className="absolute top-2 left-2 text-xs px-2 py-1 rounded-full bg-gray-800 text-white border border-gray-600">{p.category}</div>
                     {p.stock === 0 && (
                       <div className="absolute top-2 right-2 text-xs px-2 py-1 rounded-full bg-red-500 text-white">Out of stock</div>
@@ -379,20 +390,22 @@ export default function Product() {
                         >
                           {p.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
                         </button>
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() => handleEditProduct(p)}
-                            className="flex-1 px-3 py-2 text-sm font-medium rounded-lg bg-gradient-to-r from-teal-400 to-teal-500 hover:from-teal-500 hover:to-teal-600 text-white shadow-md hover:shadow-lg transition-all duration-200"
-                          >
-                            Edit
-                          </button>
-                          <button
-                            onClick={() => handleDeleteProduct(p.id)}
-                            className="flex-1 px-3 py-2 text-sm font-medium rounded-lg bg-gradient-to-r from-teal-700 to-teal-800 hover:from-teal-800 hover:to-teal-900 text-white shadow-md hover:shadow-lg transition-all duration-200"
-                          >
-                            Delete
-                          </button>
-                        </div>
+                        {isAdmin && (
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => handleEditProduct(p)}
+                              className="flex-1 px-3 py-2 text-sm font-medium rounded-lg bg-gradient-to-r from-teal-400 to-teal-500 hover:from-teal-500 hover:to-teal-600 text-white shadow-md hover:shadow-lg transition-all duration-200"
+                            >
+                              Edit
+                            </button>
+                            <button
+                              onClick={() => handleDeleteProduct(p.id)}
+                              className="flex-1 px-3 py-2 text-sm font-medium rounded-lg bg-gradient-to-r from-teal-700 to-teal-800 hover:from-teal-800 hover:to-teal-900 text-white shadow-md hover:shadow-lg transition-all duration-200"
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -554,7 +567,7 @@ export default function Product() {
                   return (
                     <div key={item.id} className="flex items-center justify-between p-4 bg-white dark:bg-teal-800 rounded-xl border border-teal-200">
                       <div className="flex items-center gap-4">
-                        <img src={item.image} alt={item.name} className="w-16 h-16 object-cover rounded-lg" onError={(e) => e.target.src = placeholderImage} />
+                        <img src={getSafeImage(item.image)} alt={item.name} className="w-16 h-16 object-cover rounded-lg" onError={(e) => e.target.src = placeholderImage} />
                         <div>
                           <h3 className="font-semibold text-gray-900 dark:text-white">{item.name}</h3>
                           <p className="text-sm text-gray-600 dark:text-gray-300">{item.brand} — ₹{item.price}</p>

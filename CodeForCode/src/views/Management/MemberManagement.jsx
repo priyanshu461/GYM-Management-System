@@ -8,6 +8,8 @@ import { useAuth } from "@/contexts/AuthContext";
 
 export default function Member() {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const isTrainer = user?.user_type === "Trainer";
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -22,7 +24,28 @@ export default function Member() {
     try {
       setLoading(true);
       const res = await gymServices.getUser();
-      setMembers(res.customers || []);
+      let allMembers = res.customers || [];
+
+      // If user is a trainer, filter to show only assigned members
+      if (isTrainer && user?.id) {
+        allMembers = allMembers.filter(member => {
+          if (!member.assignedTrainer) return false;
+
+          // Case 1: assignedTrainer = string
+          if (typeof member.assignedTrainer === "string") {
+            return member.assignedTrainer === user.id;
+          }
+
+          // Case 2: assignedTrainer = object like {_id, name}
+          if (typeof member.assignedTrainer === "object") {
+            return member.assignedTrainer._id === user.id;
+          }
+
+          return false;
+        });
+      }
+
+      setMembers(allMembers);
     } catch (err) {
       setError(err.message);
       setMembers([]);
@@ -68,20 +91,22 @@ export default function Member() {
                   <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-teal-500 to-teal-600 rounded-xl flex items-center justify-center shadow-lg">
                     <Users className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                   </div>
-                  Member <span className="text-teal-500 dark:text-teal-400">Management</span>
+                  {isTrainer ? "My Members" : "Member"} <span className="text-teal-500 dark:text-teal-400">{isTrainer ? "" : "Management"}</span>
                 </h1>
                 <p className="text-sm sm:text-base text-muted-foreground">Manage your gym members efficiently</p>
               </div>
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => navigate("/members/add")}
-                className="group relative overflow-hidden bg-gradient-to-r from-teal-600 via-teal-500 to-teal-600 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2"
-              >
-                <div className="absolute inset-0 bg-gradient-to-r from-teal-400 to-teal-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <UserPlus className="w-4 h-4 sm:w-5 sm:h-5 relative z-10" />
-                <span className="relative z-10 text-sm sm:text-base">Add Member</span>
-              </motion.button>
+              {!isTrainer && (
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => navigate("/members/add")}
+                  className="group relative overflow-hidden bg-gradient-to-r from-teal-600 via-teal-500 to-teal-600 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-r from-teal-400 to-teal-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  <UserPlus className="w-4 h-4 sm:w-5 sm:h-5 relative z-10" />
+                  <span className="relative z-10 text-sm sm:text-base">Add Member</span>
+                </motion.button>
+              )}
             </div>
 
             {/* Stats Cards */}
@@ -202,7 +227,7 @@ export default function Member() {
                         <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-semibold text-white">Contact</th>
                         <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-semibold text-white hidden xl:table-cell">Email</th>
                         <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-semibold text-white hidden xl:table-cell">Gender</th>
-                        <th className="px-4 sm:px-6 py-3 sm:py-4 text-center text-xs sm:text-sm font-semibold text-white">Actions</th>
+                        {!isTrainer && <th className="px-4 sm:px-6 py-3 sm:py-4 text-center text-xs sm:text-sm font-semibold text-white">Actions</th>}
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-border">
@@ -253,42 +278,49 @@ export default function Member() {
                                 <span className="text-muted-foreground text-sm">-</span>
                               )}
                             </td>
-                            <td className="px-4 sm:px-6 py-3 sm:py-4">
-                              <div className="flex items-center justify-center gap-2">
-                                <motion.button
-                                  whileHover={{ scale: 1.1 }}
-                                  whileTap={{ scale: 0.9 }}
-                                  onClick={() => navigate(`/members/edit/${member._id}`)}
-                                  className="p-2 bg-teal-100 dark:bg-teal-800 text-teal-600 dark:text-teal-300 rounded-lg hover:bg-teal-200 dark:hover:bg-teal-700 transition-colors"
-                                  title="Edit Member"
-                                >
-                                  <Edit2 className="w-4 h-4" />
-                                </motion.button>
-                                <motion.button
-                                  whileHover={{ scale: 1.1 }}
-                                  whileTap={{ scale: 0.9 }}
-                                  onClick={() => deleteMember(member._id)}
-                                  className="p-2 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-lg hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors"
-                                  title="Delete Member"
-                                >
-                                  <Trash2 className="w-4 h-4" />
-                                </motion.button>
-                              </div>
+                            <td className="px-4 sm:px-6 py-3 sm:py-4 hidden xl:table-cell">
+                              {member.assignedTrainer ? (
+                                <span className="text-foreground text-sm">
+                                  {typeof member.assignedTrainer === "object"
+                                    ? member.assignedTrainer.name
+                                    : "Assigned"}
+                                </span>
+                              ) : (
+                                <span className="text-muted-foreground text-sm">-</span>
+                              )}
                             </td>
+                            {!isTrainer && (
+                              <td className="px-4 sm:px-6 py-3 sm:py-4">
+                                <div className="flex items-center justify-center gap-2">
+                                  <motion.button
+                                    whileHover={{ scale: 1.1 }}
+                                    whileTap={{ scale: 0.9 }}
+                                    onClick={() => navigate(`/members/edit/${member._id}`)}
+                                    className="p-2 bg-teal-100 dark:bg-teal-800 text-teal-600 dark:text-teal-300 rounded-lg hover:bg-teal-200 dark:hover:bg-teal-700 transition-colors"
+                                    title="Edit Member"
+                                  >
+                                    <Edit2 className="w-4 h-4" />
+                                  </motion.button>
+                                  <motion.button
+                                    whileHover={{ scale: 1.1 }}
+                                    whileTap={{ scale: 0.9 }}
+                                    onClick={() => deleteMember(member._id)}
+                                    className="p-2 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-lg hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors"
+                                    title="Delete Member"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </motion.button>
+                                </div>
+                              </td>
+                            )}
                           </motion.tr>
                         ))
-                      ) : (
+                      ) :  (
                         <tr>
-                          <td colSpan="5" className="px-4 sm:px-6 py-12 text-center">
+                          <td colSpan={isTrainer ? "4" : "6"} className="px-4 sm:px-6 py-12 text-center">
                             <div className="flex flex-col items-center gap-3">
                               <Users className="w-12 h-12 text-muted-foreground opacity-50" />
                               <p className="text-muted-foreground">No members found</p>
-                              <button
-                                onClick={() => navigate("/members/add")}
-                                className="text-teal-600 dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 font-medium"
-                              >
-                                Add your first member
-                              </button>
                             </div>
                           </td>
                         </tr>
@@ -344,24 +376,28 @@ export default function Member() {
                       </div>
 
                       <div className="flex items-center gap-2 pt-4 border-t border-border">
-                        <motion.button
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                          onClick={() => navigate(`/members/edit/${member._id}`)}
-                          className="flex-1 px-3 py-2 bg-teal-100 dark:bg-teal-800 text-teal-600 dark:text-teal-300 rounded-lg hover:bg-teal-200 dark:hover:bg-teal-700 transition-colors flex items-center justify-center gap-2 text-sm font-medium"
-                        >
-                          <Edit2 className="w-4 h-4" />
-                          Edit
-                        </motion.button>
-                        <motion.button
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                          onClick={() => deleteMember(member._id)}
-                          className="flex-1 px-3 py-2 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-lg hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors flex items-center justify-center gap-2 text-sm font-medium"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                          Delete
-                        </motion.button>
+                        {!isTrainer && (
+                          <>
+                            <motion.button
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                              onClick={() => navigate(`/members/edit/${member._id}`)}
+                              className="flex-1 px-3 py-2 bg-teal-100 dark:bg-teal-800 text-teal-600 dark:text-teal-300 rounded-lg hover:bg-teal-200 dark:hover:bg-teal-700 transition-colors flex items-center justify-center gap-2 text-sm font-medium"
+                            >
+                              <Edit2 className="w-4 h-4" />
+                              Edit
+                            </motion.button>
+                            <motion.button
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                              onClick={() => deleteMember(member._id)}
+                              className="flex-1 px-3 py-2 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-lg hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors flex items-center justify-center gap-2 text-sm font-medium"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                              Delete
+                            </motion.button>
+                          </>
+                        )}
                       </div>
                     </motion.div>
                   ))
@@ -369,12 +405,7 @@ export default function Member() {
                   <div className="col-span-2 bg-white/90 dark:bg-teal-900/50 backdrop-blur-sm border border-teal-200/50 dark:border-teal-700/30 rounded-xl p-12 text-center">
                     <Users className="w-16 h-16 text-muted-foreground opacity-50 mx-auto mb-4" />
                     <p className="text-muted-foreground mb-4">No members found</p>
-                    <button
-                      onClick={() => navigate("/members/add")}
-                      className="text-teal-600 dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 font-medium"
-                    >
-                      Add your first member
-                    </button>
+                   
                   </div>
                 )}
               </div>

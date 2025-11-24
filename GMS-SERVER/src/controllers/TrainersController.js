@@ -203,17 +203,27 @@ const getTrainerSalary = async (req, res) => {
 // Get trainer schedules
 const getTrainerSchedules = async (req, res) => {
   try {
-    // Mock data for schedules
-    const schedules = [
-      {
-        id: 1,
-        date: "2023-10-15",
-        time: "10:00 AM",
-        client: "John Doe",
-        type: "Personal Training"
-      }
-    ];
-    res.status(200).json(schedules);
+    const trainerId = req.user.id;
+    const Class = require("../models/ClassModel");
+
+    const schedules = await Class.find({
+      instructor: trainerId,
+      isActive: true
+    }).select('_id title date time location capacity enrolled category difficulty');
+
+    const formattedSchedules = schedules.map(schedule => ({
+      _id: schedule._id,
+      title: schedule.title,
+      date: schedule.date.toISOString().split('T')[0],
+      time: schedule.time,
+      location: schedule.location,
+      enrolled: schedule.enrolled,
+      capacity: schedule.capacity,
+      category: schedule.category,
+      difficulty: schedule.difficulty
+    }));
+
+    res.status(200).json(formattedSchedules);
   } catch (error) {
     res.status(500).json({ message: "Error fetching schedules", error: error.message });
   }
@@ -222,27 +232,81 @@ const getTrainerSchedules = async (req, res) => {
 // Get trainer clients
 const getTrainerClients = async (req, res) => {
   try {
-    // Mock data for clients
-    const clients = [
-      {
-        id: 1,
-        name: "John Doe",
-        email: "john@example.com",
-        membership: "Premium"
-      }
-    ];
-    res.status(200).json(clients);
+    const trainerId = req.user.id;
+
+    const clients = await User.find({
+      assignedTrainer: trainerId,
+      user_type: "Member",
+      isActive: true
+    }).select('_id name email mobile profile goal');
+
+    const formattedClients = clients.map(client => ({
+      _id: client._id,
+      name: client.name,
+      email: client.email,
+      phone: client.mobile || "N/A",
+      goal: client.profile?.goal || "Not specified",
+      createdAt: client.createdAt
+    }));
+
+    res.status(200).json(formattedClients);
   } catch (error) {
     res.status(500).json({ message: "Error fetching clients", error: error.message });
+  }
+};
+
+// Get assigned members for trainer dashboard
+const getAssignedMembers = async (req, res) => {
+  try {
+    const trainerId = req.user.id;
+
+    const members = await User.find({
+      assignedTrainer: trainerId,
+      user_type: "Member",
+      isActive: true
+    }).select('_id name email mobile profile createdAt');
+
+    const formattedMembers = members.map(member => ({
+      _id: member._id,
+      name: member.name,
+      progress: 85, // Mock progress, integrate with ProgressModel later
+      lastWorkout: member.createdAt.toISOString().split('T')[0], // Mock last workout date
+      membershipStatus: "Active"
+    }));
+
+    res.status(200).json(formattedMembers);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching assigned members", error: error.message });
   }
 };
 
 // Create workout
 const createWorkout = async (req, res) => {
   try {
-    const { name, description, exercises } = req.body;
-    // Mock response
-    res.status(201).json({ message: "Workout created successfully", workoutId: 1 });
+    const { title, description, difficulty, duration, exercises } = req.body;
+    const trainerId = req.user.id;
+    const WorkoutRoutine = require("../models/WorkoutRoutineModel");
+
+    const workout = new WorkoutRoutine({
+      name: title,
+      goal: "General", // Default, can be updated
+      difficulty: difficulty || "Beginner",
+      days: [
+        {
+          day: "Day 1",
+          exercises: exercises.map(ex => ({
+            name: ex.name,
+            sets: parseInt(ex.sets),
+            reps: ex.reps,
+            rest: ex.rest
+          }))
+        }
+      ],
+      createdBy: trainerId
+    });
+
+    await workout.save();
+    res.status(201).json({ message: "Workout created successfully", workoutId: workout._id });
   } catch (error) {
     res.status(500).json({ message: "Error creating workout", error: error.message });
   }
@@ -252,7 +316,20 @@ const createWorkout = async (req, res) => {
 const assignWorkoutToClient = async (req, res) => {
   try {
     const { clientId, workoutId } = req.body;
-    // Mock response
+    const trainerId = req.user.id;
+    const WorkoutCompletion = require("../models/WorkoutCompletionModel");
+
+    const assignment = new WorkoutCompletion({
+      userId: clientId,
+      workoutId: workoutId,
+      assignedBy: trainerId,
+      completionDate: new Date(),
+      duration: 0, // Will be updated when completed
+      exercisesCompleted: [], // Will be updated when completed
+      overallNotes: "Assigned by trainer"
+    });
+
+    await assignment.save();
     res.status(200).json({ message: "Workout assigned successfully" });
   } catch (error) {
     res.status(500).json({ message: "Error assigning workout", error: error.message });
@@ -270,6 +347,89 @@ const resetPassword = async (req, res) => {
   }
 };
 
+// Get workouts created by trainer
+const getWorkouts = async (req, res) => {
+  try {
+    const trainerId = req.user.id;
+    const WorkoutRoutine = require("../models/WorkoutRoutineModel");
+
+    const workouts = await WorkoutRoutine.find({
+      createdBy: trainerId,
+      isActive: true
+    }).select('_id name difficulty goal days');
+
+    const formattedWorkouts = workouts.map(workout => ({
+      _id: workout._id,
+      title: workout.name,
+      difficulty: workout.difficulty,
+      exercises: workout.days[0]?.exercises || []
+    }));
+
+    res.status(200).json(formattedWorkouts);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching workouts", error: error.message });
+  }
+};
+
+// Get trainer dashboard data
+const getTrainerDashboard = async (req, res) => {
+  try {
+    const trainerId = req.user.id;
+
+    // Get total clients
+    const totalClients = await User.countDocuments({
+      assignedTrainer: trainerId,
+      user_type: "Member",
+      isActive: true
+    });
+
+    // Get total schedules (classes)
+    const Class = require("../models/ClassModel");
+    const totalSchedules = await Class.countDocuments({
+      instructor: trainerId,
+      isActive: true
+    });
+
+    // Get total workouts created
+    const WorkoutRoutine = require("../models/WorkoutRoutineModel");
+    const totalWorkouts = await WorkoutRoutine.countDocuments({
+      createdBy: trainerId,
+      isActive: true
+    });
+
+    // Mock monthly earnings (integrate with SalaryModel later)
+    const monthlyEarnings = 2800;
+
+    // Get recent activities (mock for now)
+    const recentActivities = [
+      {
+        type: "workout",
+        title: "Created Upper Body Workout",
+        description: "New workout routine for strength training",
+        date: new Date().toISOString().split('T')[0],
+        time: "10:00 AM"
+      },
+      {
+        type: "schedule",
+        title: "Yoga Class Scheduled",
+        description: "Morning yoga session for beginners",
+        date: new Date().toISOString().split('T')[0],
+        time: "8:00 AM"
+      }
+    ];
+
+    res.status(200).json({
+      totalClients,
+      totalSchedules,
+      totalWorkouts,
+      monthlyEarnings,
+      recentActivities
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching dashboard data", error: error.message });
+  }
+};
+
 module.exports = {
   getAllTrainers,
   getTrainerById,
@@ -279,7 +439,10 @@ module.exports = {
   getTrainerSalary,
   getTrainerSchedules,
   getTrainerClients,
+  getAssignedMembers,
   createWorkout,
   assignWorkoutToClient,
   resetPassword,
+  getWorkouts,
+  getTrainerDashboard,
 };

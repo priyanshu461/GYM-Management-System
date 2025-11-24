@@ -377,6 +377,13 @@ export const menuConfig = {
       type: "link",
     },
     {
+      id: "all-products",
+      label: "All Products",
+      path: "/products",
+      icon: FaCartPlus,
+      type: "link",
+    },
+    {
       id: "settings",
       label: "Settings",
       path: "/member/settings",
@@ -392,7 +399,7 @@ export const menuConfig = {
       icon: Home,
       type: "link",
     },
-        {
+    {
       id: "my-clients",
       label: "My Clients",
       path: "/trainer/clients",
@@ -425,6 +432,13 @@ export const menuConfig = {
           icon: UserCheck,
         },
       ],
+    },
+    {
+      id: "all-products",
+      label: "All Products",
+      path: "/products",
+      icon: FaCartPlus,
+      type: "link",
     },
     {
       id: "salary",

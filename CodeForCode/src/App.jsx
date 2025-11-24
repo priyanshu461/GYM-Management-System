@@ -45,7 +45,6 @@ import GymBlog from './views/GymBlog'
 import NotificationsCommunication from './views/NotificationCommunication'
 import Profile from './views/Profile'
 import MySchedules from './views/Trainer/MySchedules'
-import MyClients from './views/Trainer/MyClients'
 import CreateWorkout from './views/Trainer/CreateWorkout'
 import AssignWorkout from './views/Trainer/AssignWorkout'
 import Salary from './views/Trainer/Salary'
@@ -110,7 +109,7 @@ function App() {
                 path="/trainer/clients"
                 element={
                   <ProtectedRoute>
-                      <MyClients />
+                      <MemberManagement />
                   </ProtectedRoute>
                 }
               />

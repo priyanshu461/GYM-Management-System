@@ -146,7 +146,7 @@ export default function GymsManagement() {
                 <div className="p-6">
                   <div className="flex items-center gap-4 mb-4">
                     <img
-                      src={gym.image || "https://via.placeholder.com/150"}
+                      src={gym.image || "https://picsum.photos/150/150?random=1&text=No+Image"}
                       alt={gym.name}
                       className="w-16 h-16 rounded-full object-cover border-2 border-teal-500 dark:border-teal-400"
                     />
@@ -232,7 +232,7 @@ export default function GymsManagement() {
               <div className="space-y-6">
                 <div className="flex items-center gap-6">
                   <img
-                    src={selectedGym.image || "https://via.placeholder.com/150"}
+                    src={selectedGym.image || "https://picsum.photos/150/150?random=1&text=No+Image"}
                     alt={selectedGym.name}
                     className="w-24 h-24 rounded-full object-cover border-4 border-teal-500 dark:border-teal-400"
                   />

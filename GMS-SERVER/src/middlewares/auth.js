@@ -45,20 +45,22 @@ const authenticateToken = async (req, res, next) => {
   }
 };
 
-// Optional: Role-based authorization middleware
-const authorizeRole = (...roles) => {
+// Role-based authorization middleware
+const authorizeRoles = (roles) => {
   return async (req, res, next) => {
     if (!req.user) {
       return res.status(401).json({ message: "Authentication required" });
     }
 
-    // You can extend this to check roles from RoleModel
-    // For now, it's a placeholder that can be extended
+    if (!roles.includes(req.user.user_type)) {
+      return res.status(403).json({ message: "Access denied" });
+    }
+
     next();
   };
 };
 
 module.exports = {
   authenticateToken,
-  authorizeRole,
+  authorizeRoles,
 };

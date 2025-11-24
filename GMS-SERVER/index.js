@@ -10,7 +10,7 @@ const connectDB = require("./src/config/db");
 connectDB();
 
 // Import models to register them
-require("./src/models/RoleModel");
+require("./src/models/RoleModel");  
 require("./src/models/UserModel");
 
 // Middleware

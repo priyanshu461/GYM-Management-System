@@ -101,6 +101,7 @@ export default function AddMember() {
 
       // Reset form
       setNewMember({
+        gymId: "",
         name: "",
         mobile: "",
         email: "",
@@ -109,7 +110,8 @@ export default function AddMember() {
         emergencyContact: "",
         dob: "",
         gender: "",
-        occupation: ""
+        occupation: "",
+        assignedTrainer: ""
       });
 
       // Navigate back to members list
@@ -351,6 +353,26 @@ export default function AddMember() {
                       className="w-full bg-background/50 dark:bg-teal-800/30 border border-input text-foreground rounded-xl px-4 py-3 focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all placeholder:text-muted-foreground"
                       placeholder="Enter occupation"
                     />
+                  </div>
+
+                  {/* Assigned Trainer */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-semibold text-foreground flex items-center gap-2">
+                      <User className="w-4 h-4 text-teal-500" />
+                      Assigned Trainer
+                    </label>
+                    <select
+                      value={newMember.assignedTrainer}
+                      onChange={(e) => setNewMember({ ...newMember, assignedTrainer: e.target.value })}
+                      className="w-full bg-background/50 dark:bg-teal-800/30 border border-input text-foreground rounded-xl px-4 py-3 focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all"
+                    >
+                      <option value="">Select Trainer</option>
+                      {trainers.map((trainer) => (
+                        <option key={trainer.id} value={trainer.id}>
+                          {trainer.name} ({trainer.expertise})
+                        </option>
+                      ))}
+                    </select>
                   </div>
                 </div>
 

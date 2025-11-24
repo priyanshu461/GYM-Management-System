@@ -1,20 +1,40 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
 const {
+  getAllTrainers,
+  getTrainerById,
+  addTrainer,
+  updateTrainer,
+  deleteTrainer,
   getTrainerSalary,
   getTrainerSchedules,
   getTrainerClients,
-  createWorkout,
+  getAssignedMembers,
   assignWorkoutToClient,
   resetPassword,
-} = require('../controllers/TrainersController');
+  getTrainerDashboard,
+} = require("../controllers/TrainersController");
+const {
+  createWorkout,
+  getWorkouts,
+} = require("../controllers/WorkoutController");
+const { authenticateToken, authorizeRoles } = require("../middlewares/auth");
 
-// Trainer-specific routes
-router.get('/salary', getTrainerSalary);
-router.get('/schedules', getTrainerSchedules);
-router.get('/clients', getTrainerClients);
-router.post('/workouts/create', createWorkout);
-router.post('/workouts/assign', assignWorkoutToClient);
-router.put('/password/reset', resetPassword);
+// Management routes (for admin/management roles) - these are already defined in management routes, but keeping for reference
+// router.get("/all", authenticateToken, authorizeRoles(["Admin", "Management"]), getAllTrainers);
+// router.post("/add", authenticateToken, authorizeRoles(["Admin", "Management"]), addTrainer);
+// router.put("/:id", authenticateToken, authorizeRoles(["Admin", "Management"]), updateTrainer);
+// router.delete("/:id", authenticateToken, authorizeRoles(["Admin", "Management"]), deleteTrainer);
+// router.get("/:id", authenticateToken, authorizeRoles(["Admin", "Management"]), getTrainerById);
+
+// Trainer-specific routes (accessible by Trainer role only, or Admin for viewing trainer data)
+router.get("/salary", authenticateToken, authorizeRoles(["Trainer", "Gym", "Admin"]), getTrainerSalary);
+router.get("/schedules", authenticateToken, authorizeRoles(["Trainer", "Gym", "Admin"]), getTrainerSchedules);
+router.get("/clients", authenticateToken, authorizeRoles(["Trainer", "Gym", "Admin"]), getTrainerClients);
+router.post("/workouts/create", authenticateToken, authorizeRoles(["Trainer", "Gym", "Admin"]), createWorkout);
+router.post("/workouts/assign", authenticateToken, authorizeRoles(["Trainer", "Gym", "Admin"]), assignWorkoutToClient);
+router.put("/password/reset", authenticateToken, authorizeRoles(["Trainer", "Gym", "Admin"]), resetPassword);
+router.get("/workouts", authenticateToken, authorizeRoles(["Trainer", "Gym", "Admin"]), getWorkouts);
+router.get("/dashboard", authenticateToken, authorizeRoles(["Trainer", "Gym", "Admin"]), getTrainerDashboard);
 
 module.exports = router;

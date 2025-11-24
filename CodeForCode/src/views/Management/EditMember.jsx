@@ -52,12 +52,12 @@ export default function EditMember() {
           name: res.customer.name || "",
           mobile: res.customer.mobile || "",
           email: res.customer.email || "",
-          aadharNo: res.customer.aadharNo || "",
+          aadharNo: res.customer.profile?.aadharNo || "",
           address: res.customer.address || "",
-          emergencyContact: res.customer.emergencyContact || "",
-          dob: res.customer.dob || "",
-          gender: res.customer.gender || "",
-          occupation: res.customer.occupation || "",
+          emergencyContact: res.customer.profile?.emergencyContact || "",
+          dob: res.customer.profile?.dob ? new Date(res.customer.profile.dob).toISOString().split('T')[0] : "",
+          gender: res.customer.profile?.gender || "",
+          occupation: res.customer.profile?.occupation || "",
           assignedTrainer: res.customer.assignedTrainer || ""
         });
       } else {

@@ -1,14 +1,16 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import { useTheme } from "../../contexts/ThemeContext";
 import trainerServices from "../../services/trainerServices";
-import { Dumbbell, Plus, X } from "lucide-react";
+import { Dumbbell, Plus, X, RefreshCw } from "lucide-react";
 import Layout from "@/components/Layout";
 
 const CreateWorkout = () => {
   const { trainer } = useAuth();
   const { theme } = useTheme();
   const [loading, setLoading] = useState(false);
+  const [createdWorkouts, setCreatedWorkouts] = useState([]);
+  const [fetchLoading, setFetchLoading] = useState(true);
   const [workout, setWorkout] = useState({
     title: "",
     description: "",
@@ -16,6 +18,23 @@ const CreateWorkout = () => {
     duration: "",
     exercises: [{ name: "", sets: "", reps: "", rest: "" }],
   });
+
+  useEffect(() => {
+    fetchCreatedWorkouts();
+  }, []);
+
+  const fetchCreatedWorkouts = async () => {
+    try {
+      setFetchLoading(true);
+      const workouts = await trainerServices.getWorkouts();
+      setCreatedWorkouts(workouts || []);
+    } catch (error) {
+      console.error("Error fetching workouts:", error);
+      setCreatedWorkouts([]);
+    } finally {
+      setFetchLoading(false);
+    }
+  };
 
   const handleExerciseChange = (index, field, value) => {
     const updatedExercises = [...workout.exercises];
@@ -195,6 +214,47 @@ const CreateWorkout = () => {
               {loading ? "Creating..." : "Create Workout"}
             </button>
           </form>
+
+          {/* Created Workouts Section */}
+          <div className={`p-8 rounded-xl shadow-lg border ${cardClass}`}>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold">Created Workouts</h2>
+              <button
+                onClick={fetchCreatedWorkouts}
+                disabled={fetchLoading}
+                className="bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 disabled:opacity-50"
+              >
+                <RefreshCw size={16} className={fetchLoading ? "animate-spin" : ""} />
+                Refresh
+              </button>
+            </div>
+
+            {fetchLoading ? (
+              <div className="flex justify-center py-8">
+                <div className="animate-spin h-8 w-8 border-b-2 border-teal-500 rounded-full"></div>
+              </div>
+            ) : createdWorkouts.length === 0 ? (
+              <p className="text-center py-8 text-gray-500">No workouts created yet.</p>
+            ) : (
+              <div className="space-y-4">
+                {createdWorkouts.map((workout) => (
+                  <div key={workout._id} className={`p-4 rounded-lg border ${theme === "dark" ? "bg-teal-700 border-teal-600" : "bg-gray-50 border-gray-200"}`}>
+                    <div className="flex items-center justify-between mb-2">
+                      <h3 className="text-lg font-semibold">{workout.title}</h3>
+                      <span className={`px-2 py-1 rounded text-sm ${workout.difficulty === "Beginner" ? "bg-green-100 text-green-800" : workout.difficulty === "Intermediate" ? "bg-yellow-100 text-yellow-800" : "bg-red-100 text-red-800"}`}>
+                        {workout.difficulty}
+                      </span>
+                    </div>
+                    <p className="text-sm text-gray-600 mb-2">{workout.description}</p>
+                    <div className="flex items-center gap-4 text-sm text-gray-500">
+                      <span>Duration: {workout.duration} min</span>
+                      <span>Exercises: {workout.exercises?.length || 0}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </Layout>

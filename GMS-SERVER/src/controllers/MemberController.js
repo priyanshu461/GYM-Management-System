@@ -7,6 +7,7 @@ const Progress = require("../models/ProgressModel");
 const User = require("../models/UserModel");
 const bcrypt = require("bcryptjs");
 const UserModel = require("../models/UserModel");
+const mongoose = require("mongoose");
 // Get all members
 const getAllMembers = async (req, res) => {
   try {
@@ -15,8 +16,11 @@ const getAllMembers = async (req, res) => {
     if (gymId) {
       params.gymId = gymId;
     }
+    if (req.user.user_type && req.user.user_type.toLowerCase() === "trainer") {
+      params.assignedTrainer = req.user.id; //new mongoose.Types.ObjectId(req.user.id);
+    }
 
-    const members = await User.find(params);
+    const members = await User.find(params).populate("assignedTrainer", "name");
     const membersWithPlans = await Promise.all(
       members.map(async (member) => {
         const membership = await Membership.findOne({
@@ -41,11 +45,15 @@ const getAllMembers = async (req, res) => {
 const getMemberById = async (req, res) => {
   try {
     const { id } = req.params;
-    const member = await User.findById(id);
+    const query = { _id: id, user_type: "Member" };
+    if (req.user.gymId) {
+      query.gymId = req.user.gymId;
+    }
+    const member = await User.findOne(query);
     if (!member) {
       return res.status(404).json({ message: "Member not found" });
     }
-    const membership = await User.findOne({
+    const membership = await Membership.findOne({
       customer: member._id,
       status: "Active",
     }).populate("plan", "name");
@@ -75,7 +83,14 @@ const addMember = async (req, res) => {
       gender,
       occupation,
       plan,
+      gymId,
     } = req.body;
+
+    // Determine gymId: use req.user.gymId if present, otherwise require from body
+    const memberGymId = req.user.gymId || gymId;
+    if (!memberGymId) {
+      return res.status(400).json({ message: "Gym ID is required" });
+    }
 
     // Check if email already exists
     const existingEmail = await User.findOne({ email: email.toLowerCase() });
@@ -87,7 +102,9 @@ const addMember = async (req, res) => {
     if (mobile) {
       const existingMobile = await User.findOne({ mobile });
       if (existingMobile) {
-        return res.status(400).json({ message: "Mobile number already exists" });
+        return res
+          .status(400)
+          .json({ message: "Mobile number already exists" });
       }
     }
 
@@ -97,6 +114,7 @@ const addMember = async (req, res) => {
       mobile,
       password: bcrypt.hashSync(mobile, 10), // Default password is mobile number
       address,
+      assignedTrainer: req.body.assignedTrainer || null,
       profile: {
         aadharNo,
         emergencyContact,
@@ -105,7 +123,7 @@ const addMember = async (req, res) => {
         occupation,
       },
       user_type: "Member",
-      gymId: req.user.gymId || req.body.gymId || null,
+      gymId: memberGymId,
       status: "Active",
     });
     await customer.save();
@@ -149,27 +167,38 @@ const updateMember = async (req, res) => {
       plan,
     } = req.body;
 
+    const query = { _id: id, user_type: "Member" };
+    if (req.user.gymId) {
+      query.gymId = req.user.gymId;
+    }
+
     const updateData = {
       name,
       mobile,
       email,
       address,
+      assignedTrainer: req.body.assignedTrainer || null,
       gymId: req.user.gymId || req.body.gymId || null,
     };
 
     // Update profile fields using $set to avoid overwriting the entire profile
     const profileUpdates = {};
-    if (aadharNo !== undefined) profileUpdates['profile.aadharNo'] = aadharNo;
-    if (emergencyContact !== undefined) profileUpdates['profile.emergencyContact'] = emergencyContact;
-    if (dob !== undefined) profileUpdates['profile.dob'] = dob;
-    if (gender && gender !== "") profileUpdates['profile.gender'] = gender;
-    if (occupation !== undefined) profileUpdates['profile.occupation'] = occupation;
+    if (aadharNo !== undefined) profileUpdates["profile.aadharNo"] = aadharNo;
+    if (emergencyContact !== undefined)
+      profileUpdates["profile.emergencyContact"] = emergencyContact;
+    if (dob !== undefined) profileUpdates["profile.dob"] = dob;
+    if (gender && gender !== "") profileUpdates["profile.gender"] = gender;
+    if (occupation !== undefined)
+      profileUpdates["profile.occupation"] = occupation;
 
     if (Object.keys(profileUpdates).length > 0) {
       updateData.$set = profileUpdates;
     }
 
-    await User.findByIdAndUpdate(id, updateData);
+    const updatedMember = await User.findOneAndUpdate(query, updateData);
+    if (!updatedMember) {
+      return res.status(404).json({ message: "Member not found" });
+    }
 
     // Update membership if plan changed
     if (plan) {
@@ -193,7 +222,14 @@ const updateMember = async (req, res) => {
 const deleteMember = async (req, res) => {
   try {
     const { id } = req.params;
-    const customer = await User.findByIdAndDelete(id);
+    const query = { _id: id, user_type: "Member" };
+    if (req.user.gymId) {
+      query.gymId = req.user.gymId;
+    }
+    const customer = await User.findOneAndDelete(query);
+    if (!customer) {
+      return res.status(404).json({ message: "Member not found" });
+    }
     await Membership.updateMany({ customer: id }, { status: "Cancelled" });
     res
       .status(200)
