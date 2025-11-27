@@ -188,6 +188,10 @@ export default function TrainersManagement() {
                         <span className="font-semibold text-foreground">{trainer.rating}</span>
                       </div>
                     </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground">Gym</span>
+                      <span className="font-semibold text-foreground">{trainer.gymName || 'N/A'}</span>
+                    </div>
                   </div>
 
                   {trainer.certifications.length > 0 && (

@@ -9,10 +9,36 @@ const getAllTrainers = async (req, res) => {
     const params = { user_type: "Trainer", isActive: true };
     // Removed gymId filter to show all trainers
 
-    const trainers = await User.find(params)
-      .select(
-        "employeeId name email profile image certifications specializations rating"
-      );
+    const trainers = await User.aggregate([
+      { $match: params },
+      {
+        $lookup: {
+          from: 'gyms',
+          localField: 'gymId',
+          foreignField: '_id',
+          as: 'gym'
+        }
+      },
+      {
+        $unwind: {
+          path: '$gym',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $project: {
+          employeeId: 1,
+          name: 1,
+          email: 1,
+          profile: 1,
+          image: 1,
+          certifications: 1,
+          specializations: 1,
+          rating: 1,
+          gymName: '$gym.name'
+        }
+      }
+    ]);
     const formattedTrainers = (trainers || []).map((trainer) => ({
       id: trainer._id,
       employeeId: trainer.employeeId || "",
@@ -23,6 +49,7 @@ const getAllTrainers = async (req, res) => {
       rating: trainer.rating || 0,
       certifications: trainer.certifications || [],
       specializations: trainer.specializations || [],
+      gymName: trainer.gymName,
     }));
     res.status(200).json(formattedTrainers);
   } catch (error) {

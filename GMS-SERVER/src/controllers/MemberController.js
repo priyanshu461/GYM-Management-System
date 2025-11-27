@@ -8,6 +8,7 @@ const User = require("../models/UserModel");
 const bcrypt = require("bcryptjs");
 const UserModel = require("../models/UserModel");
 const mongoose = require("mongoose");
+const { pushNotification } = require("../Helpers/helper");
 // Get all members
 const getAllMembers = async (req, res) => {
   try {
@@ -20,7 +21,7 @@ const getAllMembers = async (req, res) => {
       params.assignedTrainer = req.user.id; //new mongoose.Types.ObjectId(req.user.id);
     }
 
-    const members = await User.find(params).populate("assignedTrainer", "name");
+    const members = await User.find(params).populate("assignedTrainer", "name").populate("gymId", "name");
     const membersWithPlans = await Promise.all(
       members.map(async (member) => {
         const membership = await Membership.findOne({
@@ -92,6 +93,17 @@ const addMember = async (req, res) => {
       return res.status(400).json({ message: "Gym ID is required" });
     }
 
+    // If assigning a trainer, validate that trainer and member are from the same gym
+    if (req.body.assignedTrainer) {
+      const trainer = await User.findOne({ _id: req.body.assignedTrainer, user_type: "Trainer" });
+      if (!trainer) {
+        return res.status(404).json({ message: "Trainer not found" });
+      }
+      if (memberGymId.toString() !== trainer.gymId.toString()) {
+        return res.status(400).json({ message: "Trainer and member must belong to the same gym" });
+      }
+    }
+
     // Check if email already exists
     const existingEmail = await User.findOne({ email: email.toLowerCase() });
     if (existingEmail) {
@@ -142,6 +154,13 @@ const addMember = async (req, res) => {
         await membership.save();
       }
     }
+
+    //notification 
+     
+    pushNotification('Trainer', req.body.assignedTrainer, `ADDMEMBER`, `New member ${name} has been added to your list.`);
+    pushNotification('Member', customer._id, `ASSIGN`, `You have been added as a member to the gym.`);
+
+    //end notification
     res.status(201).json({ message: "Member added successfully" });
   } catch (error) {
     res
