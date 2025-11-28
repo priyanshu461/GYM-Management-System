@@ -226,7 +226,7 @@ export default function Member() {
                         <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-semibold text-white">Name</th>
                         <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-semibold text-white">Contact</th>
                         <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-semibold text-white hidden xl:table-cell">Email</th>
-                        <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-semibold text-white hidden xl:table-cell">Gender</th>
+                        <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-semibold text-white hidden xl:table-cell">Gym</th>
                         {!isTrainer && <th className="px-4 sm:px-6 py-3 sm:py-4 text-center text-xs sm:text-sm font-semibold text-white">Actions</th>}
                       </tr>
                     </thead>
@@ -270,9 +270,9 @@ export default function Member() {
                               )}
                             </td>
                             <td className="px-4 sm:px-6 py-3 sm:py-4 hidden xl:table-cell">
-                              {member.gender ? (
+                              {member.gymId?.name ? (
                                 <span className="px-2 py-1 bg-teal-100 dark:bg-teal-800 text-teal-700 dark:text-teal-300 rounded-lg text-xs font-medium">
-                                  {member.gender}
+                                  {member.gymId.name}
                                 </span>
                               ) : (
                                 <span className="text-muted-foreground text-sm">-</span>
@@ -366,10 +366,10 @@ export default function Member() {
                             <span className="truncate">{member.email}</span>
                           </div>
                         )}
-                        {member.gender && (
+                        {member.gymId?.name && (
                           <div>
                             <span className="px-2 py-1 bg-teal-100 dark:bg-teal-800 text-teal-700 dark:text-teal-300 rounded-lg text-xs font-medium">
-                              {member.gender}
+                              {member.gymId.name}
                             </span>
                           </div>
                         )}

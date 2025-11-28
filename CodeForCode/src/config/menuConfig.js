@@ -100,38 +100,6 @@ export const menuConfig = {
           ],
         },
     {
-      id: "workout-diet",
-      label: "Workout & Diet Plans",
-      icon: BiDumbbell,
-      type: "dropdown",
-      children: [
-        {
-          id: "workout-routine",
-          label: "Workout Routines",
-          path: "/workout/routine",
-          icon: BsClockHistory,
-        },
-        {
-          id: "diet-plan",
-          label: "Diet Plans",
-          path: "/diet-plan",
-          icon: GiFruitBowl,
-        },
-        {
-          id: "progress-tracking",
-          label: "Progress Tracking",
-          path: "/progress/tracking",
-          icon: GiProgression,
-        },
-        {
-          id: "reports-analytics",
-          label: "Reports & Analytics",
-          path: "/reports/analytics",
-          icon: TbReportSearch,
-        },
-      ],
-    },
-    {
       id: "services",
       label: "Services",
       icon: LucideFolderCog,
