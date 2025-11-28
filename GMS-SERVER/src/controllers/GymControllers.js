@@ -6,7 +6,7 @@ const User = require("../models/UserModel");
 const getAllGyms = async (req, res) => {
   try {
     const gyms = await Gym.find({ status: "Active" });
-    res.status(200).json(gyms);
+    res.status(200).json({ gyms });
   } catch (error) {
     res
       .status(500)

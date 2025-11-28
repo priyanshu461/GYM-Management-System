@@ -24,6 +24,7 @@ export default function TrainersManagement() {
   const fetchTrainers = async () => {
     try {
       setLoading(true);
+      
       const res = await trainerServices.getAllTrainers();
       setTrainers(res || []);
     } catch (err) {

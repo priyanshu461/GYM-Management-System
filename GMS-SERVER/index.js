@@ -4,7 +4,7 @@ const app = express();
 require("dotenv").config();
 
 const port = process.env.PORT || 8080;
-const {authenticateToken} = require("./src/middlewares/auth");
+const {authenticateToken, authorizeRoles} = require("./src/middlewares/auth");
 // Database connection
 const connectDB = require("./src/config/db");
 connectDB();
@@ -49,7 +49,7 @@ app.use("/api/trainers", authenticateToken, trainerRoutes);
 
 // Finance routes
 const financeRoutes = require("./src/routes/financeRoutes");
-app.use("/api/management/finance", financeRoutes);
+app.use("/api/management/finance", authenticateToken, authorizeRoles(['Admin', 'Gym']), financeRoutes);
 
 // Workout routes
 const workoutRoutes = require("./src/routes/workoutRoutes");

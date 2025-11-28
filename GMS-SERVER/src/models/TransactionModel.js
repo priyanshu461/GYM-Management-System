@@ -13,6 +13,11 @@ const transactionSchema = new Schema(
       enum: ["Income", "Expense"],
       required: true,
     },
+    category: {
+      type: String,
+      enum: ["Salary", "Equipment", "Maintenance", "Utilities", "Membership", "Training", "Other"],
+      default: "Other",
+    },
     amount: {
       type: Number,
       required: true,
@@ -23,11 +28,41 @@ const transactionSchema = new Schema(
       required: true,
       trim: true,
     },
+    gym: {
+      type: String,
+      required: false,
+    },
+    gymId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Gym",
+      required: false,
+    },
+    employeeId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: false,
+    },
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    status: {
+      type: String,
+      enum: ["Pending", "Completed", "Cancelled"],
+      default: "Completed",
+    },
   },
   {
     timestamps: true,
     versionKey: false,
   }
 );
+
+// Index for better query performance
+transactionSchema.index({ date: -1 });
+transactionSchema.index({ gym: 1 });
+transactionSchema.index({ type: 1 });
+transactionSchema.index({ category: 1 });
 
 module.exports = mongoose.model("Transaction", transactionSchema);

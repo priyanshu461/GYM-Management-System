@@ -187,31 +187,25 @@ export const menuConfig = {
           path: "/trainers",
           icon: FaUserTie,
         },
+      ],
+    },
+    {
+      id: "finance",
+      label: "Finance",
+      icon: TfiWallet,
+      type: "dropdown",
+      children: [
         {
-          id: "finance",
-          label: "Finance",
+          id: "finance-salary",
+          label: "Salary Management",
+          path: "/finance/salary",
           icon: TfiWallet,
-          type: "dropdown",
-          children: [
-            {
-              id: "finance-salary",
-              label: "Salary",
-              path: "/finance/salary",
-              icon: TfiWallet,
-            },
-            {
-              id: "finance-expense",
-              label: "Expense",
-              path: "/finance/expense",
-              icon: TfiWallet,
-            },
-          ],
         },
         {
-          id: "facilities",
-          label: "Facilities",
-          path: "/facilities",
-          icon: BsFillBox2HeartFill,
+          id: "finance-expense",
+          label: "Expense Management",
+          path: "/finance/expense",
+          icon: TfiWallet,
         },
       ],
     },
@@ -457,15 +451,16 @@ export const menuConfig = {
 /**
  * Helper function to get all paths that should expand a dropdown
  */
-export const getDropdownPaths = () => {
+export const getDropdownPaths = (userType = 'Admin') => {
   const paths = {};
-  const { user } = useAuth();
 
-  menuConfig[user.user_type].forEach((item) => {
-    if (item.type === "dropdown" && item.children) {
-      paths[item.id] = item.children.map((child) => child.path);
-    }
-  });
+  if (menuConfig[userType]) {
+    menuConfig[userType].forEach((item) => {
+      if (item.type === "dropdown" && item.children) {
+        paths[item.id] = item.children.map((child) => child.path);
+      }
+    });
+  }
 
   return paths;
 };

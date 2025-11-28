@@ -94,6 +94,7 @@ const memberSignup = async (req, res) => {
       mobile,
       email: email ? email.toLowerCase().trim() : "", // ✅ changed from null to ""
       password: hashedPassword,
+      user_type: "Member", // Explicitly set user type
     });
 
     await newCustomer.save();
@@ -180,6 +181,7 @@ const signup = async (req, res) => {
       email: email.toLowerCase(),
       password: hashedPassword,
       roleId: adminRole._id,
+      user_type: "Admin", // Explicitly set user type
     });
 
     await newUser.save();
@@ -198,7 +200,7 @@ const signup = async (req, res) => {
         name: newUser.name,
         email: newUser.email,
         roleId: newUser.roleId,
-        user_type: "admin",
+        user_type: "Admin",
       },
     });
   } catch (error) {

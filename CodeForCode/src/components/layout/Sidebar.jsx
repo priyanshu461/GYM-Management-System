@@ -11,7 +11,7 @@ const Sidebar = ({ demo = false, isOpen, onClose, collapsed, onToggleCollapse, c
   
   // Dynamic state for dropdowns
   const [openDropdowns, setOpenDropdowns] = useState({});
-  const dropdownPaths = getDropdownPaths();
+  const dropdownPaths = getDropdownPaths(user?.user_type);
 
   // Helper function to check if a route is active
   const isActive = (path) => {
@@ -164,7 +164,7 @@ const Sidebar = ({ demo = false, isOpen, onClose, collapsed, onToggleCollapse, c
             </div>
             {(isOpen || !collapsed) && (
               <h1 className="font-extrabold text-lg sm:text-xl text-teal-600 dark:text-white select-none truncate">
-                <span className="hidden sm:inline">{user.user_type} </span>
+                <span className="hidden sm:inline">{user?.user_type || 'User'} </span>
                 <span className='text-teal-900 dark:text-white'>Panel</span>
               </h1>
             )}
@@ -185,23 +185,28 @@ const Sidebar = ({ demo = false, isOpen, onClose, collapsed, onToggleCollapse, c
 
         {/* Navigation */}
         <nav className="p-2 sm:p-3 mt-2 sm:mt-4 flex-1 overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-thumb-teal-300 dark:scrollbar-thumb-teal-700 scrollbar-track-transparent">
-          {menuConfig[user.user_type].map(item => renderMenuItem(item))}
+          {user && user.user_type && menuConfig[user.user_type] ?
+            menuConfig[user.user_type].map(item => renderMenuItem(item)) :
+            <div className="text-center text-muted-foreground p-4">
+              <span>Loading menu...</span>
+            </div>
+          }
         </nav>
 
         {/* Footer */}
         <div className="mt-auto p-4 border-t border-teal-300 dark:border-teal-700">
           <div className={`${collapsed ? 'flex justify-center' : 'flex items-center gap-3'}`}>
-            {(isOpen || !collapsed) && (
+            {(isOpen || !collapsed) && user && (
               <img
                 src={user.avatar || "https://i.pravatar.cc/40"}
                 alt="User Avatar"
                 className="w-10 h-10 rounded-full object-cover"
               />
             )}
-            {(isOpen || !collapsed) && (
+            {(isOpen || !collapsed) && user && (
               <div>
-                <p className="text-sm font-semibold text-teal-800 dark:text-teal-200">{user.name}</p>
-                <p className="text-xs text-teal-500 dark:text-teal-400">{user.user_type}</p>
+                <p className="text-sm font-semibold text-teal-800 dark:text-teal-200">{user.name || 'User'}</p>
+                <p className="text-xs text-teal-500 dark:text-teal-400">{user.user_type || 'Guest'}</p>
               </div>
             )}
             <button

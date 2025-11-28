@@ -2,11 +2,16 @@ const Trainer = require("../models/TrainerModel");
 const Role = require("../models/RoleModel");
 const bcryptjs = require("bcryptjs");
 const User = require("../models/UserModel");
+const mongoose = require("mongoose");
 
 // Get all trainers (filter by active trainers)
 const getAllTrainers = async (req, res) => {
   try {
     const params = { user_type: "Trainer", isActive: true };
+    const gymId = req.user.gymId;
+    if (gymId) {
+      params.gymId = gymId;
+    }
     // Removed gymId filter to show all trainers
 
     const trainers = await User.aggregate([
@@ -35,6 +40,7 @@ const getAllTrainers = async (req, res) => {
           certifications: 1,
           specializations: 1,
           rating: 1,
+          gymId: 1,
           gymName: '$gym.name'
         }
       }
@@ -56,6 +62,77 @@ const getAllTrainers = async (req, res) => {
     res
       .status(500)
       .json({ message: "Error fetching trainers", error: error.message });
+  }
+};
+
+// Get trainers by gym ID
+const getTrainersByGym = async (req, res) => {
+  try {
+    const { gymId } = req.params;
+    const params = { user_type: "Trainer", isActive: true };
+    
+    // Add gym filter if gymId is provided
+    if (gymId && gymId !== 'all') {
+      params.gymId = new mongoose.Types.ObjectId(gymId);
+    }
+
+    const trainers = await User.aggregate([
+      { $match: params },
+      {
+        $lookup: {
+          from: 'gyms',
+          localField: 'gymId',
+          foreignField: '_id',
+          as: 'gym'
+        }
+      },
+      {
+        $unwind: {
+          path: '$gym',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $project: {
+          employeeId: 1,
+          name: 1,
+          email: 1,
+          mobile: 1,
+          profile: 1,
+          image: 1,
+          certifications: 1,
+          specializations: 1,
+          rating: 1,
+          gymId: 1,
+          gymName: '$gym.name',
+          salary: '$profile.salary',
+          joiningDate: '$createdAt'
+        }
+      }
+    ]);
+
+    const formattedTrainers = (trainers || []).map((trainer) => ({
+      id: trainer._id,
+      employeeId: trainer.employeeId || `EMP${String(Math.floor(Math.random() * 1000)).padStart(3, '0')}`,
+      name: trainer.name,
+      email: trainer.email,
+      mobile: trainer.mobile || 'N/A',
+      expertise: trainer.profile?.spacialization || "General",
+      experience: trainer.profile?.exp || "N/A",
+      image: trainer.image || "",
+      rating: trainer.rating || 0,
+      certifications: trainer.certifications || [],
+      specializations: trainer.specializations || [],
+      gymName: trainer.gymName || 'N/A',
+      salary: trainer.salary || 25000,
+      joiningDate: trainer.joiningDate
+    }));
+
+    res.status(200).json({ trainers: formattedTrainers });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error fetching trainers by gym", error: error.message });
   }
 };
 
@@ -459,6 +536,7 @@ const getTrainerDashboard = async (req, res) => {
 
 module.exports = {
   getAllTrainers,
+  getTrainersByGym,
   getTrainerById,
   addTrainer,
   updateTrainer,

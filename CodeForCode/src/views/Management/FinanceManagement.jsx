@@ -12,7 +12,7 @@ const Finance = () => {
   const [error, setError] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState(null);
-  const [formData, setFormData] = useState({ date: "", type: "Income", amount: "", description: "" });
+  const [formData, setFormData] = useState({ date: "", type: "Income", category: "Other", amount: "", description: "", gym: "" });
   const [submitting, setSubmitting] = useState(false);
 
   // Format date to DD/MM/YY
@@ -42,7 +42,15 @@ const Finance = () => {
     try {
       setLoading(true);
       setError(null);
-      const response = await financeService.getAllTransactions();
+      const filters = {};
+      if (currentView === "salary") {
+        filters.category = "Salary";
+        filters.type = "Expense";
+      } else if (currentView === "expense") {
+        filters.type = "Expense";
+      }
+      
+      const response = await financeService.getAllTransactions(filters);
       setTransactions(response.transactions || []);
     } catch (err) {
       console.error('Error fetching transactions:', err);
@@ -68,7 +76,7 @@ const Finance = () => {
         await financeService.addTransaction(formData);
         await fetchTransactions(); // Refresh data
       }
-      setFormData({ date: "", type: "Income", amount: "", description: "" });
+      setFormData({ date: "", type: "Income", category: "Other", amount: "", description: "", gym: "" });
       setShowForm(false);
     } catch (err) {
       console.error('Error submitting transaction:', err);
@@ -368,6 +376,22 @@ const Finance = () => {
                 >
                   <option>Income</option>
                   <option>Expense</option>
+                </select>
+              </div>
+              <div className="relative">
+                <select
+                  name="category"
+                  value={formData.category}
+                  onChange={handleChange}
+                  className="w-full bg-background border border-input text-foreground rounded-xl pl-4 pr-4 py-3 focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all appearance-none"
+                >
+                  <option value="Other">Other</option>
+                  <option value="Salary">Salary</option>
+                  <option value="Equipment">Equipment</option>
+                  <option value="Maintenance">Maintenance</option>
+                  <option value="Utilities">Utilities</option>
+                  <option value="Membership">Membership</option>
+                  <option value="Training">Training</option>
                 </select>
               </div>
               <div className="relative">

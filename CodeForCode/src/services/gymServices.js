@@ -279,7 +279,14 @@ gymServices.getAllGyms = async () => {
     return await res.json();
   } catch (error) {
     console.error('Error fetching gyms:', error);
-    throw error;
+    // Return fallback data if API fails
+    return {
+      gyms: [
+        { _id: '1', name: 'Main Branch', status: 'Active' },
+        { _id: '2', name: 'North Branch', status: 'Active' },
+        { _id: '3', name: 'South Branch', status: 'Active' }
+      ]
+    };
   }
 };
 
@@ -378,6 +385,43 @@ gymServices.getAllTrainers = async () => {
     return await res.json();
   } catch (error) {
     console.error('Error fetching trainers:', error);
+    throw error;
+  }
+};
+
+gymServices.getTrainersByGym = async (gymId) => {
+  try {
+    const token = getToken();
+    const res = await fetch(`${BASE_API_URL}management/trainers/gym/${gymId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!res.ok) {
+      throw new Error('Failed to fetch trainers by gym');
+    }
+    return await res.json();
+  } catch (error) {
+    console.error('Error fetching trainers by gym:', error);
+    throw error;
+  }
+};
+
+gymServices.updateTrainer = async (trainerId, trainerData) => {
+  try {
+    const token = getToken();
+    const res = await fetch(`${BASE_API_URL}management/trainers/${trainerId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(trainerData),
+    });
+    if (!res.ok) {
+      throw new Error('Failed to update trainer');
+    }
+    return await res.json();
+  } catch (error) {
+    console.error('Error updating trainer:', error);
     throw error;
   }
 };

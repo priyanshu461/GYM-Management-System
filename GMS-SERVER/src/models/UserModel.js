@@ -27,6 +27,7 @@ const userSchema = new Schema(
       emergencyContact: { type: String },
       spacialization: { type: String },
       occupation: { type: String },
+      salary: { type: Number, default: 25000 }, // Default salary for trainers
     },
     roleId: {
       type: mongoose.Schema.Types.ObjectId,

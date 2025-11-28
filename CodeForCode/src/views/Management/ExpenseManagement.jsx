@@ -4,17 +4,29 @@ import { motion } from "framer-motion";
 import { Plus, DollarSign, TrendingDown, Calendar, FileText, Edit3, Trash2, X, Tag, Loader2, Eye } from "lucide-react";
 import financeService from "../../services/financeService";
 import gymServices from "../../services/gymServices";
+import { useAuth } from "../../contexts/AuthContext";
 
 const ExpenseManagement = () => {
+  const { user } = useAuth();
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState(null);
-  const [formData, setFormData] = useState({ date: "", type: "Expense", amount: "", description: "", gym: "" });
+  const [formData, setFormData] = useState({
+    date: "",
+    type: "Expense",
+    category: "Other",
+    amount: "",
+    description: "",
+    gym: user?.user_type === 'Gym' ? (user?.gymName || 'My Gym') : ""
+  });
   const [submitting, setSubmitting] = useState(false);
-  const [selectedGym, setSelectedGym] = useState('All');
+  const [selectedGym, setSelectedGym] = useState(user?.user_type === 'Gym' ? user?.gymName || 'My Gym' : 'All');
   const [gyms, setGyms] = useState([]);
+  
+  const isAdmin = user?.user_type === 'Admin';
+  const isGymOwner = user?.user_type === 'Gym';
 
   // Format date to DD/MM/YY
   const formatDate = (dateString) => {
@@ -28,7 +40,9 @@ const ExpenseManagement = () => {
   // Fetch transactions and gyms on component mount
   useEffect(() => {
     fetchTransactions();
-    fetchGyms();
+    if (isAdmin) {
+      fetchGyms();
+    }
   }, []);
 
   // Refetch transactions when gym filter changes
@@ -40,9 +54,15 @@ const ExpenseManagement = () => {
     try {
       setLoading(true);
       setError(null);
-      const response = await financeService.getAllTransactions(selectedGym);
-      // Filter to show only expense transactions
-      setTransactions(response.transactions?.filter(t => t.type === "Expense") || []);
+      const filters = {
+        type: "Expense"
+      };
+      if (selectedGym && selectedGym !== 'All') {
+        filters.gym = selectedGym;
+      }
+      
+      const response = await financeService.getAllTransactions(filters);
+      setTransactions(response.transactions || []);
     } catch (err) {
       console.error('Error fetching transactions:', err);
       setError('Failed to load transactions. Please try again.');
@@ -76,7 +96,14 @@ const ExpenseManagement = () => {
         await financeService.addTransaction(formData);
         await fetchTransactions(); // Refresh data
       }
-      setFormData({ date: "", type: "Expense", amount: "", description: "", gym: "" });
+      setFormData({
+        date: "",
+        type: "Expense",
+        category: "Other",
+        amount: "",
+        description: "",
+        gym: user?.user_type === 'Gym' ? (user?.gymName || 'My Gym') : ""
+      });
       setShowForm(false);
     } catch (err) {
       console.error('Error submitting transaction:', err);
@@ -137,32 +164,49 @@ const ExpenseManagement = () => {
           </motion.button>
         </motion.div>
 
-        {/* Gym Filter */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="mb-8"
-        >
-          <div className="flex items-center gap-4">
-            <label htmlFor="gym-filter" className="text-sm font-medium text-foreground">
-              Filter by Gym:
-            </label>
-            <select
-              id="gym-filter"
-              value={selectedGym}
-              onChange={(e) => setSelectedGym(e.target.value)}
-              className="bg-background border border-input text-foreground rounded-xl px-4 py-2 focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all"
-            >
-              <option value="All">All Gyms</option>
-              {gyms.map((gym) => (
-                <option key={gym._id} value={gym.name}>
-                  {gym.name}
-                </option>
-              ))}
-            </select>
-          </div>
-        </motion.div>
+        {/* Gym Filter - Only show for Admin users */}
+        {isAdmin && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="mb-8"
+          >
+            <div className="flex items-center gap-4">
+              <label htmlFor="gym-filter" className="text-sm font-medium text-foreground">
+                Filter by Gym:
+              </label>
+              <select
+                id="gym-filter"
+                value={selectedGym}
+                onChange={(e) => setSelectedGym(e.target.value)}
+                className="bg-background border border-input text-foreground rounded-xl px-4 py-2 focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all"
+              >
+                <option value="All">All Gyms</option>
+                {gyms.map((gym) => (
+                  <option key={gym._id} value={gym.name}>
+                    {gym.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </motion.div>
+        )}
+        
+        {/* Gym Owner Info Display */}
+        {isGymOwner && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="mb-8"
+          >
+            <div className="bg-gradient-to-r from-teal-900/10 to-teal-800/5 dark:from-teal-900/20 dark:to-teal-800/10 border border-teal-700/20 dark:border-teal-600/30 rounded-xl p-4">
+              <h3 className="text-lg font-semibold text-foreground mb-1">Managing Expenses for:</h3>
+              <p className="text-teal-600 dark:text-teal-400 font-medium">{user?.gymName || 'My Gym'}</p>
+            </div>
+          </motion.div>
+        )}
 
         {/* Summary Cards */}
         <motion.div
@@ -364,6 +408,20 @@ const ExpenseManagement = () => {
                 </select>
               </div>
               <div className="relative">
+                <select
+                  name="category"
+                  value={formData.category}
+                  onChange={handleChange}
+                  className="w-full bg-background border border-input text-foreground rounded-xl pl-4 pr-4 py-3 focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all appearance-none"
+                >
+                  <option value="Other">Other</option>
+                  <option value="Equipment">Equipment</option>
+                  <option value="Maintenance">Maintenance</option>
+                  <option value="Utilities">Utilities</option>
+                  <option value="Training">Training</option>
+                </select>
+              </div>
+              <div className="relative">
                 <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <input
                   type="number"
@@ -387,22 +445,34 @@ const ExpenseManagement = () => {
                   required
                 />
               </div>
-              <div className="relative">
-                <select
+              {/* Gym field - only show for Admin users */}
+              {isAdmin && (
+                <div className="relative">
+                  <select
+                    name="gym"
+                    value={formData.gym}
+                    onChange={handleChange}
+                    className="w-full bg-background border border-input text-foreground rounded-xl pl-4 pr-4 py-3 focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all appearance-none"
+                    required
+                  >
+                    <option value="">Select Gym</option>
+                    {gyms.map((gym) => (
+                      <option key={gym._id} value={gym.name}>
+                        {gym.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+              
+              {/* Hidden gym field for Gym owners - automatically populated */}
+              {isGymOwner && (
+                <input
+                  type="hidden"
                   name="gym"
                   value={formData.gym}
-                  onChange={handleChange}
-                  className="w-full bg-background border border-input text-foreground rounded-xl pl-4 pr-4 py-3 focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all appearance-none"
-                  required
-                >
-                  <option value="">Select Gym</option>
-                  {gyms.map((gym) => (
-                    <option key={gym._id} value={gym.name}>
-                      {gym.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
+                />
+              )}
               <div className="flex justify-end gap-3 pt-4">
                 <motion.button
                   whileHover={{ scale: 1.02 }}
@@ -437,3 +507,4 @@ const ExpenseManagement = () => {
 };
 
 export default ExpenseManagement;
+
