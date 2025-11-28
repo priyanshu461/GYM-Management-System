@@ -1,10 +1,14 @@
-// import { BASE_API_URL, getToken } from "@/utils/data";
+import { BASE_API_URL, getToken } from "@/Utils/data";
 
 const financeService = {};
 
-financeService.getAllTransactions = async () => {
+financeService.getAllTransactions = async (gym = null) => {
   try {
-    const res = await fetch(`${BASE_API_URL}management/finance`, {
+    let url = `${BASE_API_URL}management/finance`;
+    if (gym && gym !== 'All') {
+      url += `?gym=${encodeURIComponent(gym)}`;
+    }
+    const res = await fetch(url, {
       headers: { Authorization: `Bearer ${getToken()}` },
     });
     if (!res.ok) {

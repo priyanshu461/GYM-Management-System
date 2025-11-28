@@ -101,11 +101,15 @@ const Sidebar = ({ demo = false, isOpen, onClose, collapsed, onToggleCollapse, c
       <div key={item.id}>
         <button
           type="button"
-          className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-lg hover:bg-teal-100 dark:hover:bg-teal-800 cursor-pointer text-sm text-teal-900 dark:text-white w-full transition-all duration-200 group"
+          className={`flex items-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-lg cursor-pointer text-sm w-full transition-all duration-200 group ${
+            hasActiveChild
+              ? 'bg-teal-500 dark:bg-teal-700 text-white shadow-lg'
+              : 'hover:bg-teal-100 dark:hover:bg-teal-800 text-teal-900 dark:text-white'
+          }`}
           onClick={() => toggleDropdown(item.id)}
           aria-expanded={isOpen}
         >
-          {renderIcon(IconComponent, 20, false)}
+          {renderIcon(IconComponent, 20, hasActiveChild)}
           {(isOpen || !collapsed) && <span className="font-semibold truncate">{item.label}</span>}
           {(isOpen || !collapsed) && (
             <svg

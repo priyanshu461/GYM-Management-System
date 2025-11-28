@@ -1,19 +1,22 @@
 import React, { useState, useEffect } from "react";
 import Layout from "../../components/Layout";
 import { motion } from "framer-motion";
-import { Plus, DollarSign, TrendingUp, TrendingDown, Calendar, FileText, Edit3, Trash2, X, Tag, Loader2, Eye } from "lucide-react";
+import { Plus, DollarSign, TrendingDown, Calendar, FileText, Edit3, Trash2, X, Tag, Loader2, Eye } from "lucide-react";
 import financeService from "../../services/financeService";
-import { useLocation } from "react-router-dom";
+import gymServices from "../../services/gymServices";
 
-const Finance = () => {
-  const location = useLocation();
+const SalaryManagement = () => {
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState(null);
-  const [formData, setFormData] = useState({ date: "", type: "Income", amount: "", description: "" });
+  const [formData, setFormData] = useState({ date: "", type: "Expense", amount: "", description: "", gym: "" });
   const [submitting, setSubmitting] = useState(false);
+  const [selectedGym, setSelectedGym] = useState('All');
+  const [selectedMonth, setSelectedMonth] = useState('All');
+  const [selectedYear, setSelectedYear] = useState('All');
+  const [gyms, setGyms] = useState([]);
 
   // Format date to DD/MM/YY
   const formatDate = (dateString) => {
@@ -24,31 +27,38 @@ const Finance = () => {
     return `${day}/${month}/${year}`;
   };
 
-  // Determine current view based on path
-  const getCurrentView = () => {
-    if (location.pathname === "/finance/salary") return "salary";
-    if (location.pathname === "/finance/expense") return "expense";
-    return "all";
-  };
-
-  const currentView = getCurrentView();
-
-  // Fetch transactions on component mount
+  // Fetch transactions and gyms on component mount
   useEffect(() => {
     fetchTransactions();
+    fetchGyms();
   }, []);
+
+  // Refetch transactions when gym filter changes
+  useEffect(() => {
+    fetchTransactions();
+  }, [selectedGym]);
 
   const fetchTransactions = async () => {
     try {
       setLoading(true);
       setError(null);
-      const response = await financeService.getAllTransactions();
-      setTransactions(response.transactions || []);
+      const response = await financeService.getAllTransactions(selectedGym);
+      // Filter to show only expense transactions (salaries are expenses)
+      setTransactions(response.transactions?.filter(t => t.type === "Expense") || []);
     } catch (err) {
       console.error('Error fetching transactions:', err);
       setError('Failed to load transactions. Please try again.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchGyms = async () => {
+    try {
+      const response = await gymServices.getAllGyms();
+      setGyms(response.gyms || []);
+    } catch (err) {
+      console.error('Error fetching gyms:', err);
     }
   };
 
@@ -68,7 +78,7 @@ const Finance = () => {
         await financeService.addTransaction(formData);
         await fetchTransactions(); // Refresh data
       }
-      setFormData({ date: "", type: "Income", amount: "", description: "" });
+      setFormData({ date: "", type: "Expense", amount: "", description: "" });
       setShowForm(false);
     } catch (err) {
       console.error('Error submitting transaction:', err);
@@ -98,41 +108,32 @@ const Finance = () => {
     }
   };
 
-  // Filter transactions based on current view
+  // Filter transactions based on selected filters
   const filteredTransactions = transactions.filter((t) => {
-    if (currentView === "salary" || currentView === "expense") {
-      return t.type === "Expense";
+    // Gym filter
+    const gymMatch = selectedGym === 'All' || t.gym === selectedGym;
+
+    // Date filter
+    let dateMatch = true;
+    const transactionDate = new Date(t.date);
+
+    // Month filter
+    if (selectedMonth !== 'All') {
+      dateMatch = dateMatch && transactionDate.getMonth() === parseInt(selectedMonth);
     }
-    return true;
+
+    // Year filter
+    if (selectedYear !== 'All') {
+      dateMatch = dateMatch && transactionDate.getFullYear() === parseInt(selectedYear);
+    }
+
+
+
+    return gymMatch && dateMatch;
   });
 
-  // Summary based on filtered transactions
-  const totalIncome = filteredTransactions.filter((t) => t.type === "Income").reduce((acc, curr) => acc + curr.amount, 0);
-  const totalExpense = filteredTransactions.filter((t) => t.type === "Expense").reduce((acc, curr) => acc + curr.amount, 0);
-  const balance = totalIncome - totalExpense;
-
-  // Get title and description based on current view
-  const getTitle = () => {
-    switch (currentView) {
-      case "salary":
-        return "Salary Management";
-      case "expense":
-        return "Expense Management";
-      default:
-        return "Finance Management";
-    }
-  };
-
-  const getDescription = () => {
-    switch (currentView) {
-      case "salary":
-        return "Track and manage trainer salaries and related expenses";
-      case "expense":
-        return "Monitor and manage all gym expenses";
-      default:
-        return "Track your gym's financial transactions and performance";
-    }
-  };
+  // Summary calculations
+  const totalExpense = filteredTransactions.reduce((acc, curr) => acc + curr.amount, 0);
 
   return (
    <Layout>
@@ -147,9 +148,9 @@ const Finance = () => {
           <div>
             <h1 className="text-4xl font-extrabold mb-3 text-foreground tracking-tight">
               <DollarSign className="inline-block w-10 h-10 mr-3 text-teal-500 dark:text-teal-400" />
-              {getTitle().split(' ')[0]}<span className="text-teal-500 dark:text-teal-400"> {getTitle().split(' ').slice(1).join(' ')}</span>
+              Salary<span className="text-teal-500 dark:text-teal-400"> Management</span>
             </h1>
-            <p className="text-muted-foreground text-lg">{getDescription()}</p>
+            <p className="text-muted-foreground text-lg">Track and manage trainer salaries and related expenses</p>
           </div>
           <motion.button
             whileHover={{ scale: 1.05 }}
@@ -158,8 +159,73 @@ const Finance = () => {
             className="bg-gradient-to-r from-teal-600 to-teal-500 text-white px-6 py-3 rounded-xl shadow-lg hover:from-teal-700 hover:to-teal-600 transition-all flex items-center gap-2 font-semibold"
           >
             <Plus className="w-5 h-5" />
-            Add Transaction
+            Add Salary Expense
           </motion.button>
+        </motion.div>
+
+        {/* Gym and Date Selection Dropdowns */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="mb-6"
+        >
+          <div className="flex items-center gap-4 flex-wrap">
+            <div className="flex items-center gap-4">
+              <label htmlFor="gym-select" className="text-lg font-semibold text-foreground">Select Gym:</label>
+              <select
+                id="gym-select"
+                value={selectedGym}
+                onChange={(e) => setSelectedGym(e.target.value)}
+                className="bg-background border border-input text-foreground rounded-xl px-4 py-2 focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all"
+              >
+                <option value="All">All Gyms</option>
+                {gyms.map((gym) => (
+                  <option key={gym._id} value={gym.name}>{gym.name}</option>
+                ))}
+              </select>
+            </div>
+            <div className="flex items-center gap-4">
+              <label className="text-lg font-semibold text-foreground">Filter by Month:</label>
+              <select
+                id="month-filter"
+                value={selectedMonth}
+                onChange={(e) => setSelectedMonth(e.target.value)}
+                className="bg-background border border-input text-foreground rounded-xl px-4 py-2 focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all"
+              >
+                <option value="All">All Months</option>
+                <option value="0">January</option>
+                <option value="1">February</option>
+                <option value="2">March</option>
+                <option value="3">April</option>
+                <option value="4">May</option>
+                <option value="5">June</option>
+                <option value="6">July</option>
+                <option value="7">August</option>
+                <option value="8">September</option>
+                <option value="9">October</option>
+                <option value="10">November</option>
+                <option value="11">December</option>
+              </select>
+            </div>
+            <div className="flex items-center gap-4">
+              <label className="text-lg font-semibold text-foreground">Filter by Year:</label>
+              <select
+                id="year-filter"
+                value={selectedYear}
+                onChange={(e) => setSelectedYear(e.target.value)}
+                className="bg-background border border-input text-foreground rounded-xl px-4 py-2 focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all"
+              >
+                <option value="All">All Years</option>
+                {Array.from({ length: 10 }, (_, i) => {
+                  const year = new Date().getFullYear() - i;
+                  return <option key={year} value={year.toString()}>{year}</option>;
+                })}
+              </select>
+            </div>
+
+
+          </div>
         </motion.div>
 
         {/* Summary Cards */}
@@ -167,41 +233,31 @@ const Finance = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8"
+          className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8"
         >
-          <motion.div
-            whileHover={{ scale: 1.02 }}
-            className="bg-gradient-to-br from-green-900/10 to-green-800/5 dark:from-green-900/20 dark:to-green-800/10 border border-green-700/20 dark:border-green-600/30 p-6 rounded-2xl shadow-xl"
-          >
-            <div className="flex items-center gap-3 mb-2">
-              <TrendingUp className="w-6 h-6 text-green-500 dark:text-green-400" />
-              <h2 className="text-lg font-semibold text-foreground">Total Income</h2>
-            </div>
-            <p className="text-3xl font-bold text-green-600 dark:text-green-400">₹{totalIncome.toLocaleString()}</p>
-          </motion.div>
           <motion.div
             whileHover={{ scale: 1.02 }}
             className="bg-gradient-to-br from-red-900/10 to-red-800/5 dark:from-red-900/20 dark:to-red-800/10 border border-red-700/20 dark:border-red-600/30 p-6 rounded-2xl shadow-xl"
           >
             <div className="flex items-center gap-3 mb-2">
               <TrendingDown className="w-6 h-6 text-red-500 dark:text-red-400" />
-              <h2 className="text-lg font-semibold text-foreground">Total Expense</h2>
+              <h2 className="text-lg font-semibold text-foreground">Total Salary Expenses</h2>
             </div>
             <p className="text-3xl font-bold text-red-600 dark:text-red-400">₹{totalExpense.toLocaleString()}</p>
           </motion.div>
           <motion.div
             whileHover={{ scale: 1.02 }}
-            className={`bg-gradient-to-br ${balance >= 0 ? 'from-blue-900/10 to-blue-800/5 dark:from-blue-900/20 dark:to-blue-800/10 border-blue-700/20 dark:border-blue-600/30' : 'from-orange-900/10 to-orange-800/5 dark:from-orange-900/20 dark:to-orange-800/10 border-orange-700/20 dark:border-orange-600/30'} p-6 rounded-2xl shadow-xl`}
+            className="bg-gradient-to-br from-blue-900/10 to-blue-800/5 dark:from-blue-900/20 dark:to-blue-800/10 border border-blue-700/20 dark:border-blue-600/30 p-6 rounded-2xl shadow-xl"
           >
             <div className="flex items-center gap-3 mb-2">
-              <DollarSign className={`w-6 h-6 ${balance >= 0 ? 'text-blue-500 dark:text-blue-400' : 'text-orange-500 dark:text-orange-400'}`} />
-              <h2 className="text-lg font-semibold text-foreground">Balance</h2>
+              <Tag className="w-6 h-6 text-blue-500 dark:text-blue-400" />
+              <h2 className="text-lg font-semibold text-foreground">Salary Transactions</h2>
             </div>
-            <p className={`text-3xl font-bold ${balance >= 0 ? 'text-blue-600 dark:text-blue-400' : 'text-orange-600 dark:text-orange-400'}`}>₹{balance.toLocaleString()}</p>
+            <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">{filteredTransactions.length}</p>
           </motion.div>
         </motion.div>
 
-        {/* Finance Table */}
+        {/* Salary Table */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -212,20 +268,17 @@ const Finance = () => {
             <thead className="bg-gradient-to-r from-teal-600 to-teal-500 w-full  ">
               <tr>
                 <th className="px-6 py-4 text-left text-white font-semibold  items-center gap-2">
-                  <Calendar className="w-4 h-4" />
-                  Date
-                </th>
-                <th className="px-6 py-4 text-left text-white font-semibold  items-center gap-2">
                   <Tag className="w-4 h-4" />
-                  Type
-                </th>
-                <th className="px-6 py-4 text-left text-white font-semibold  items-center gap-2">
-                  <DollarSign className="w-4 h-4" />
-                  Amount
+                  Employee No.
                 </th>
                 <th className="px-6 py-4 text-left text-white font-semibold  items-center gap-2">
                   <FileText className="w-4 h-4" />
-                  Description
+                  Employee Id
+                </th>
+                <th className="px-6 py-4 text-left text-white font-semibold">Date</th>
+                <th className="px-6 py-4 text-left text-white font-semibold  items-center gap-2">
+                  <DollarSign className="w-4 h-4" />
+                  Salary
                 </th>
                 <th className="px-6 pl-40 py-4 text-left text-white font-semibold">Actions</th>
               </tr>
@@ -236,7 +289,7 @@ const Finance = () => {
                   <td colSpan="5" className="px-6 py-12 text-center text-muted-foreground">
                     <div className="flex flex-col items-center gap-2">
                       <Loader2 className="w-8 h-8 animate-spin text-teal-500" />
-                      <span className="text-lg">Loading transactions...</span>
+                      <span className="text-lg">Loading salary transactions...</span>
                     </div>
                   </td>
                 </tr>
@@ -263,19 +316,10 @@ const Finance = () => {
                     transition={{ delay: 0.6 + index * 0.1 }}
                     className="border-b border-border hover:bg-gradient-to-r hover:from-teal-900/5 hover:to-teal-800/5 dark:hover:from-teal-900/10 dark:hover:to-teal-800/10 transition-all duration-200"
                   >
+                    <td className="px-6 py-4 text-foreground">{index + 1}</td>
+                    <td className="px-6 py-4 text-foreground">EMP{String(index + 1).padStart(3, '0')}</td>
                     <td className="px-6 py-4 text-foreground">{formatDate(t.date)}</td>
-                    <td className="px-6 py-4">
-                      <span
-                        className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-semibold ${
-                          t.type === "Income" ? "bg-green-100 text-green-800 border border-green-300 dark:bg-green-900/20 dark:text-green-400 dark:border-green-600" : "bg-red-100 text-red-800 border border-red-300 dark:bg-red-900/20 dark:text-red-400 dark:border-red-600"
-                        }`}
-                      >
-                        {t.type === "Income" ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
-                        {t.type}
-                      </span>
-                    </td>
                     <td className="px-6 py-4 font-semibold text-foreground">₹{t.amount.toLocaleString()}</td>
-                    <td className="px-6 py-4 text-foreground">{t.description}</td>
                     <td className="px-6 py-4 flex justify-center">
                       <motion.button
                         whileHover={{ scale: 1.05 }}
@@ -294,8 +338,8 @@ const Finance = () => {
                   <td colSpan="5" className="px-6 py-12 text-center text-muted-foreground">
                     <div className="flex flex-col items-center gap-2">
                       <DollarSign className="w-8 h-8 text-muted-foreground/50" />
-                      <span className="text-lg">No transactions found.</span>
-                      <span className="text-sm">Add your first transaction to get started!</span>
+                      <span className="text-lg">No salary transactions found.</span>
+                      <span className="text-sm">Add your first salary expense to get started!</span>
                     </div>
                   </td>
                 </tr>
@@ -312,6 +356,7 @@ const Finance = () => {
         >
           <div className="inline-flex items-center gap-2 bg-gradient-to-r from-teal-900/10 to-teal-800/5 dark:from-teal-900/20 dark:to-teal-800/10 border border-teal-700/20 dark:border-teal-600/30 rounded-full px-4 py-2 text-sm text-muted-foreground">
             <DollarSign className="w-4 h-4 text-teal-500 dark:text-teal-400" />
+            <span className="font-medium">{filteredTransactions.length} salary transactions</span>
           </div>
         </motion.div>
       </div>
@@ -333,7 +378,7 @@ const Finance = () => {
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
                 {editingTransaction ? <Edit3 className="w-5 h-5 text-teal-500 dark:text-teal-400" /> : <Plus className="w-5 h-5 text-teal-500 dark:text-teal-400" />}
-                {editingTransaction ? "Edit Transaction" : "Add Transaction"}
+                {editingTransaction ? "Edit Salary Expense" : "Add Salary Expense"}
               </h2>
               <motion.button
                 whileHover={{ scale: 1.1 }}
@@ -349,13 +394,12 @@ const Finance = () => {
             </div>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="relative">
-                <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <input
                   type="date"
                   name="date"
                   value={formData.date}
                   onChange={handleChange}
-                  className="w-full bg-background border border-input text-foreground rounded-xl pl-10 pr-4 py-3 focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all"
+                  className="w-full bg-background border border-input text-foreground rounded-xl pl-4 pr-4 py-3 focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all"
                   required
                 />
               </div>
@@ -365,8 +409,8 @@ const Finance = () => {
                   value={formData.type}
                   onChange={handleChange}
                   className="w-full bg-background border border-input text-foreground rounded-xl pl-4 pr-4 py-3 focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all appearance-none"
+                  disabled
                 >
-                  <option>Income</option>
                   <option>Expense</option>
                 </select>
               </div>
@@ -375,7 +419,7 @@ const Finance = () => {
                 <input
                   type="number"
                   name="amount"
-                  placeholder="Amount"
+                  placeholder="Salary Amount"
                   value={formData.amount}
                   onChange={handleChange}
                   className="w-full bg-background border border-input text-foreground rounded-xl pl-10 pr-4 py-3 placeholder:text-muted-foreground focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all"
@@ -387,12 +431,26 @@ const Finance = () => {
                 <input
                   type="text"
                   name="description"
-                  placeholder="Description"
+                  placeholder="Salary Description (e.g., Trainer Name - Month)"
                   value={formData.description}
                   onChange={handleChange}
                   className="w-full bg-background border border-input text-foreground rounded-xl pl-10 pr-4 py-3 placeholder:text-muted-foreground focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all"
                   required
                 />
+              </div>
+              <div className="relative">
+                <select
+                  name="gym"
+                  value={formData.gym}
+                  onChange={handleChange}
+                  className="w-full bg-background border border-input text-foreground rounded-xl pl-4 pr-4 py-3 focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all appearance-none"
+                  required
+                >
+                  <option value="">Select Gym</option>
+                  {gyms.map((gym) => (
+                    <option key={gym._id} value={gym.name}>{gym.name}</option>
+                  ))}
+                </select>
               </div>
               <div className="flex justify-end gap-3 pt-4">
                 <motion.button
@@ -427,4 +485,4 @@ const Finance = () => {
   );
 };
 
-export default Finance;
+export default SalaryManagement;

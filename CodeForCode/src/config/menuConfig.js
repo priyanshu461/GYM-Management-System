@@ -70,12 +70,7 @@ export const menuConfig = {
           path: "/trainers",
           icon: FaUserTie,
         },
-        {
-          id: "finance",
-          label: "Finance",
-          path: "/finance",
-          icon: TfiWallet,
-        },
+       
         {
           id: "facilities",
           label: "Facilities",
@@ -84,6 +79,26 @@ export const menuConfig = {
         },
       ],
     },
+        {
+          id: "finance",
+          label: "Finance",
+          icon: TfiWallet,
+          type: "dropdown",
+          children: [
+            {
+              id: "finance-salary",
+              label: "Salary",
+              path: "/finance/salary",
+              icon: TfiWallet,
+            },
+            {
+              id: "finance-expense",
+              label: "Expense",
+              path: "/finance/expense",
+              icon: TfiWallet,
+            },
+          ],
+        },
     {
       id: "workout-diet",
       label: "Workout & Diet Plans",
@@ -207,8 +222,22 @@ export const menuConfig = {
         {
           id: "finance",
           label: "Finance",
-          path: "/finance",
           icon: TfiWallet,
+          type: "dropdown",
+          children: [
+            {
+              id: "finance-salary",
+              label: "Salary",
+              path: "/finance/salary",
+              icon: TfiWallet,
+            },
+            {
+              id: "finance-expense",
+              label: "Expense",
+              path: "/finance/expense",
+              icon: TfiWallet,
+            },
+          ],
         },
         {
           id: "facilities",

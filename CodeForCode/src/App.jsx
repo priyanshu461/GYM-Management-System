@@ -19,6 +19,8 @@ import MemberManagement from './views/Management/MemberManagement'
 import AddMember from './views/Management/AddMember'
 import EditMember from './views/Management/EditMember'
 import Finance from './views/Management/FinanceManagement'
+import SalaryManagement from './views/Management/SalaryManagement'
+import ExpenseManagement from './views/Management/ExpenseManagement'
 import Trainer from './views/Management/TrainersManagement'
 import AddTrainer from './views/Management/AddTrainer'
 import EditTrainer from './views/Management/EditTrainer'
@@ -251,6 +253,8 @@ function App() {
               <Route path="/members" element={<ProtectedRoute><MemberManagement /></ProtectedRoute>} />
               <Route path="/members/add" element={<ProtectedRoute><AddMember /></ProtectedRoute>} />
               <Route path="/members/edit/:id" element={<ProtectedRoute><EditMember /></ProtectedRoute>} />
+              <Route path="/finance/salary" element={<ProtectedRoute><SalaryManagement /></ProtectedRoute>} />
+              <Route path="/finance/expense" element={<ProtectedRoute><ExpenseManagement /></ProtectedRoute>} />
               <Route path="/finance" element={<ProtectedRoute><Finance /></ProtectedRoute>} />
               <Route path="/trainers" element={<ProtectedRoute><Trainer /></ProtectedRoute>} />
               <Route path="/trainers/add" element={<ProtectedRoute><AddTrainer /></ProtectedRoute>} />
