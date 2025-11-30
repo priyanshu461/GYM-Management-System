@@ -81,25 +81,25 @@ const Salary = () => {
               <div className={`p-8 rounded-xl shadow-lg border ${cardClass}`}>
                 <h2 className="text-2xl font-bold mb-6">Salary Breakdown</h2>
 
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center p-4 rounded-lg bg-teal-50 dark:bg-teal-700">
-                    <div className="flex items-center gap-3">
+                <div className="space-y-4 flex-1 grid grid-cols-1 md:grid-cols-3 gap-4 items-stretch">
+                  <div className="justify-between items-center p-4 rounded-lg bg-teal-50 dark:bg-teal-700">
+                    <div className="items-center gap-3">
                       <Calendar className="h-5 w-5 text-teal-500" />
                       <span>Base Salary</span>
                     </div>
                     <span className="font-semibold">${salaryData.baseSalary || 0}</span>
                   </div>
 
-                  <div className="flex justify-between items-center p-4 rounded-lg bg-teal-50 dark:bg-teal-700">
-                    <div className="flex items-center gap-3">
+                  <div className="justify-between items-center p-4 rounded-lg bg-teal-50 dark:bg-teal-700">
+                    <div className="items-center gap-3">
                       <TrendingUp className="h-5 w-5 text-teal-500" />
                       <span>Performance Bonus</span>
                     </div>
                     <span className="font-semibold">${salaryData.performanceBonus || 0}</span>
                   </div>
 
-                  <div className="flex justify-between items-center p-4 rounded-lg bg-teal-50 dark:bg-teal-700">
-                    <div className="flex items-center gap-3">
+                  <div className="justify-between items-center p-4 rounded-lg bg-teal-50 dark:bg-teal-700">
+                    <div className="items-center gap-3">
                       <Users className="h-5 w-5 text-teal-500" />
                       <span>Client Commissions</span>
                     </div>

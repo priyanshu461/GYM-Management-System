@@ -31,7 +31,7 @@ export default function EditTrainer() {
   const getGyms = async () => {
     try {
       const gymsData = await gymServices.getAllGyms();
-      setGyms(gymsData);
+      setGyms(gymsData.gyms || []);
     } catch (error) {
       console.error("Error fetching gyms:", error);
     }

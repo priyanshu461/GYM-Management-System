@@ -22,7 +22,7 @@ import {
 } from "react-icons/md";
 import { TfiWallet } from "react-icons/tfi";
 import { BsClockHistory, BsFillBox2HeartFill } from "react-icons/bs";
-import { FaBlog, FaCartPlus, FaDumbbell, FaUserTie } from "react-icons/fa";
+import { Fa500Px, FaAccessibleIcon, FaAccusoft, FaBlog, FaCartPlus, FaDumbbell, FaMoneyBill, FaMoneyBillAlt, FaMoneyBillWave, FaMoneyBillWaveAlt, FaUserTie } from "react-icons/fa";
 import { TbReportAnalytics, TbReportSearch } from "react-icons/tb";
 import { GiFruitBowl, GiGymBag, GiProgression } from "react-icons/gi";
 import { BiDumbbell } from "react-icons/bi";
@@ -89,13 +89,13 @@ export const menuConfig = {
               id: "finance-salary",
               label: "Salary",
               path: "/finance/salary",
-              icon: TfiWallet,
+              icon: FaMoneyBillWave,
             },
             {
               id: "finance-expense",
               label: "Expense",
               path: "/finance/expense",
-              icon: TfiWallet,
+              icon: FaAccusoft,
             },
           ],
         },

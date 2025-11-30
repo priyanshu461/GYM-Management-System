@@ -30,7 +30,7 @@ const Facilities = () => {
     try {
       setLoading(true);
       const response = await facilitiesService.getAllFacilities();
-      setFacilities(response.facilities);
+      setFacilities(response);
       setError(null);
     } catch (err) {
       setError('Failed to fetch facilities');

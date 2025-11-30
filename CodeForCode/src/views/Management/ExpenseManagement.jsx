@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Layout from "../../components/Layout";
 import { motion } from "framer-motion";
-import { Plus, DollarSign, TrendingDown, Calendar, FileText, Edit3, Trash2, X, Tag, Loader2, Eye } from "lucide-react";
+import { Plus, DollarSign, TrendingDown, Calendar, FileText, Edit3, Trash2, X, Tag, Loader2, Eye, Receipt } from "lucide-react";
 import financeService from "../../services/financeService";
 import gymServices from "../../services/gymServices";
 import { useAuth } from "../../contexts/AuthContext";
@@ -23,6 +23,8 @@ const ExpenseManagement = () => {
   });
   const [submitting, setSubmitting] = useState(false);
   const [selectedGym, setSelectedGym] = useState(user?.user_type === 'Gym' ? user?.gymName || 'My Gym' : 'All');
+  const [selectedMonth, setSelectedMonth] = useState('All');
+  const [selectedYear, setSelectedYear] = useState('All');
   const [gyms, setGyms] = useState([]);
   
   const isAdmin = user?.user_type === 'Admin';
@@ -54,15 +56,43 @@ const ExpenseManagement = () => {
     try {
       setLoading(true);
       setError(null);
-      const filters = {
-        type: "Expense"
-      };
-      if (selectedGym && selectedGym !== 'All') {
-        filters.gym = selectedGym;
+
+      if (isAdmin && selectedGym === 'All') {
+        // For admins viewing all gyms, fetch transactions from all gyms
+        const allTransactions = [];
+        try {
+          const gymsResponse = await gymServices.getAllGyms();
+          const allGyms = gymsResponse.gyms || [];
+
+          for (const gym of allGyms) {
+            try {
+              const filters = {
+                type: "Expense",
+                gym: gym.name
+              };
+              const response = await financeService.getAllTransactions(filters);
+              allTransactions.push(...(response.transactions || []));
+            } catch (err) {
+              console.error(`Error fetching transactions for gym ${gym.name}:`, err);
+            }
+          }
+        } catch (err) {
+          console.error('Error fetching gyms:', err);
+          setError('Unable to fetch all gym expenses. Please select a specific gym.');
+        }
+        setTransactions(allTransactions);
+      } else {
+        // For gym owners or specific gym selection
+        const filters = {
+          type: "Expense"
+        };
+        if (selectedGym && selectedGym !== 'All') {
+          filters.gym = selectedGym;
+        }
+
+        const response = await financeService.getAllTransactions(filters);
+        setTransactions(response.transactions || []);
       }
-      
-      const response = await financeService.getAllTransactions(filters);
-      setTransactions(response.transactions || []);
     } catch (err) {
       console.error('Error fetching transactions:', err);
       setError('Failed to load transactions. Please try again.');
@@ -133,8 +163,26 @@ const ExpenseManagement = () => {
     }
   };
 
-  // Summary calculations
-  const totalExpense = transactions.reduce((acc, curr) => acc + curr.amount, 0);
+  // Filter transactions based on month and year
+  const filteredTransactions = transactions.filter((transaction) => {
+    let dateMatch = true;
+    const transactionDate = new Date(transaction.date);
+    
+    // Month filter
+    if (selectedMonth !== 'All') {
+      dateMatch = dateMatch && transactionDate.getMonth() === parseInt(selectedMonth);
+    }
+
+    // Year filter
+    if (selectedYear !== 'All') {
+      dateMatch = dateMatch && transactionDate.getFullYear() === parseInt(selectedYear);
+    }
+
+    return dateMatch;
+  });
+
+  // Summary calculations (use filtered transactions)
+  const totalExpense = filteredTransactions.reduce((acc, curr) => acc + curr.amount, 0);
 
   return (
    <Layout>
@@ -153,45 +201,87 @@ const ExpenseManagement = () => {
             </h1>
             <p className="text-muted-foreground text-lg">Monitor and manage all gym expenses</p>
           </div>
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => setShowForm(true)}
-            className="bg-gradient-to-r from-teal-600 to-teal-500 text-white px-6 py-3 rounded-xl shadow-lg hover:from-teal-700 hover:to-teal-600 transition-all flex items-center gap-2 font-semibold"
-          >
-            <Plus className="w-5 h-5" />
-            Add Expense
-          </motion.button>
+          {isGymOwner && (
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setShowForm(true)}
+              className="bg-gradient-to-r from-teal-600 to-teal-500 text-white px-6 py-3 rounded-xl shadow-lg hover:from-teal-700 hover:to-teal-600 transition-all flex items-center gap-2 font-semibold"
+            >
+              <Plus className="w-5 h-5" />
+              Add Expense
+            </motion.button>
+          )}
         </motion.div>
 
-        {/* Gym Filter - Only show for Admin users */}
-        {isAdmin && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="mb-8"
-          >
+        {/* Filters Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="mb-8"
+        >
+          <div className="flex items-center gap-4 flex-wrap">
+            {isAdmin && (
+              <div className="flex items-center gap-4">
+                <label htmlFor="gym-filter" className="text-lg font-semibold text-foreground">
+                  Filter by Gym:
+                </label>
+                <select
+                  id="gym-filter"
+                  value={selectedGym}
+                  onChange={(e) => setSelectedGym(e.target.value)}
+                  className="bg-background border border-input text-foreground rounded-xl px-4 py-2 focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all"
+                >
+                  <option value="All">All Gyms</option>
+                  {gyms.map((gym) => (
+                    <option key={gym._id} value={gym.name}>
+                      {gym.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
             <div className="flex items-center gap-4">
-              <label htmlFor="gym-filter" className="text-sm font-medium text-foreground">
-                Filter by Gym:
-              </label>
+              <label className="text-lg font-semibold text-foreground">Filter by Month:</label>
               <select
-                id="gym-filter"
-                value={selectedGym}
-                onChange={(e) => setSelectedGym(e.target.value)}
+                id="month-filter"
+                value={selectedMonth}
+                onChange={(e) => setSelectedMonth(e.target.value)}
                 className="bg-background border border-input text-foreground rounded-xl px-4 py-2 focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all"
               >
-                <option value="All">All Gyms</option>
-                {gyms.map((gym) => (
-                  <option key={gym._id} value={gym.name}>
-                    {gym.name}
-                  </option>
-                ))}
+                <option value="All">All Months</option>
+                <option value="0">January</option>
+                <option value="1">February</option>
+                <option value="2">March</option>
+                <option value="3">April</option>
+                <option value="4">May</option>
+                <option value="5">June</option>
+                <option value="6">July</option>
+                <option value="7">August</option>
+                <option value="8">September</option>
+                <option value="9">October</option>
+                <option value="10">November</option>
+                <option value="11">December</option>
               </select>
             </div>
-          </motion.div>
-        )}
+            <div className="flex items-center gap-4">
+              <label className="text-lg font-semibold text-foreground">Filter by Year:</label>
+              <select
+                id="year-filter"
+                value={selectedYear}
+                onChange={(e) => setSelectedYear(e.target.value)}
+                className="bg-background border border-input text-foreground rounded-xl px-4 py-2 focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all"
+              >
+                <option value="All">All Years</option>
+                {Array.from({ length: 10 }, (_, i) => {
+                  const year = new Date().getFullYear() - i;
+                  return <option key={year} value={year.toString()}>{year}</option>;
+                })}
+              </select>
+            </div>
+          </div>
+        </motion.div>
         
         {/* Gym Owner Info Display */}
         {isGymOwner && (
@@ -233,7 +323,7 @@ const ExpenseManagement = () => {
               <Tag className="w-6 h-6 text-blue-500 dark:text-blue-400" />
               <h2 className="text-lg font-semibold text-foreground">Expense Transactions</h2>
             </div>
-            <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">{transactions.length}</p>
+            <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">{filteredTransactions.length}</p>
           </motion.div>
         </motion.div>
 
@@ -293,8 +383,8 @@ const ExpenseManagement = () => {
                     </div>
                   </td>
                 </tr>
-              ) : transactions.length > 0 ? (
-                transactions.map((t, index) => (
+              ) : filteredTransactions.length > 0 ? (
+                filteredTransactions.map((t, index) => (
                   <motion.tr
                     key={t._id}
                     initial={{ opacity: 0, x: -20 }}
@@ -348,7 +438,7 @@ const ExpenseManagement = () => {
         >
           <div className="inline-flex items-center gap-2 bg-gradient-to-r from-teal-900/10 to-teal-800/5 dark:from-teal-900/20 dark:to-teal-800/10 border border-teal-700/20 dark:border-teal-600/30 rounded-full px-4 py-2 text-sm text-muted-foreground">
             <DollarSign className="w-4 h-4 text-teal-500 dark:text-teal-400" />
-            <span className="font-medium">{transactions.length} expense transactions</span>
+            <span className="font-medium">{filteredTransactions.length} expense transactions</span>
           </div>
         </motion.div>
       </div>

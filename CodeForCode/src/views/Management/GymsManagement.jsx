@@ -26,7 +26,7 @@ export default function GymsManagement() {
     try {
       setLoading(true);
       const res = await gymServices.getAllGyms();
-      setGyms(res || []);
+      setGyms(res.gyms || []);
     } catch (err) {
       setError(err.message);
       setGyms([]);
