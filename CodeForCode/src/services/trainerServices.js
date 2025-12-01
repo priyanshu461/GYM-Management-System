@@ -51,6 +51,13 @@ trainerServices.deleteTrainer = async (id) => {
   return await res.json();
 };
 
+trainerServices.getTrainersByGym = async (gymId) => {
+  const res = await fetch(`${BASE_API_URL}management/trainers/gym/${gymId}`, {
+    headers: { Authorization: `Bearer ${getToken()}` },
+  });
+  return await res.json();
+};
+
 trainerServices.getTrainerById = async (id) => {
   const res = await fetch(`${BASE_API_URL}management/trainers/${id}`, {
     method: "GET",

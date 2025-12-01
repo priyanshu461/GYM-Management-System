@@ -21,18 +21,20 @@ import {
 } from "lucide-react";
 import gymServices from "../../services/gymServices";
 import classService from "../../services/classService";
+import trainerServices from "../../services/trainerServices";
 import { useAuth } from "../../contexts/AuthContext";
 
 const ClassesSchedule = () => {
   const { user } = useAuth();
   const [classes, setClasses] = useState([]);
   const [trainers, setTrainers] = useState([]);
+  const [filteredTrainers, setFilteredTrainers] = useState([]);
   const [gyms, setGyms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingClass, setEditingClass] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedGym, setSelectedGym] = useState(user?.user_type === 'Gym' ? user?.gymName || 'All' : 'All');
+  const [selectedGym, setSelectedGym] = useState('All');
   const [selectedStatus, setSelectedStatus] = useState('All');
   const [formData, setFormData] = useState({
     name: "",
@@ -73,12 +75,18 @@ const ClassesSchedule = () => {
 
   // Fetch data on component mount
   useEffect(() => {
-    fetchClasses();
-    fetchTrainers();
-    if (isAdmin) {
-      fetchGyms();
+    if (user) {
+      if (isGymOwner && user.gymId) {
+        fetchClasses();
+        fetchTrainers(user.gymId);
+      } else if (isAdmin) {
+        fetchClasses();
+        fetchGyms();
+        // For admins, don't fetch trainers initially, set empty
+        setFilteredTrainers([]);
+      }
     }
-  }, []);
+  }, [user]);
 
   // Refetch classes when gym filter changes
   useEffect(() => {
@@ -93,20 +101,20 @@ const ClassesSchedule = () => {
       if (isAdmin && selectedGym !== 'All') {
         // Fetch classes for specific gym
         const gym = gyms.find(g => g.name === selectedGym);
-        if (gym) {
+        if (gym && gym._id) {
           response = await classService.getClassesByGym(gym._id);
         } else {
           response = await classService.getAllClasses();
         }
-      } else if (isGymOwner) {
+      } else if (isGymOwner && user.gymId) {
         // Fetch classes for current gym owner
-        response = await classService.getClassesByGym(user.gymId || user.gymName);
+        response = await classService.getClassesByGym(user.gymId);
       } else {
         // Fetch all classes for admin
         response = await classService.getAllClasses();
       }
 
-      let filteredClasses = response.classes || [];
+      let filteredClasses = Array.isArray(response) ? response : [];
 
       // Apply status filter
       if (selectedStatus !== 'All') {
@@ -116,72 +124,7 @@ const ClassesSchedule = () => {
       setClasses(filteredClasses);
     } catch (err) {
       console.error('Error fetching classes:', err);
-      // Fallback to mock data if API fails
-      const mockClasses = [
-        {
-          _id: "1",
-          name: "Morning Yoga",
-          description: "Start your day with energizing yoga poses",
-          trainerId: "trainer1",
-          trainerName: "Sarah Johnson",
-          gymId: "gym1",
-          gymName: "Downtown Fitness Center",
-          date: "2024-12-15",
-          startTime: "07:00",
-          endTime: "08:00",
-          capacity: 20,
-          enrolled: 15,
-          difficulty: "Beginner",
-          category: "Yoga",
-          status: "Active"
-        },
-        {
-          _id: "2",
-          name: "HIIT Workout",
-          description: "High-intensity interval training for maximum results",
-          trainerId: "trainer2",
-          trainerName: "Mike Chen",
-          gymId: "gym1",
-          gymName: "Downtown Fitness Center",
-          date: "2024-12-15",
-          startTime: "18:00",
-          endTime: "19:00",
-          capacity: 15,
-          enrolled: 12,
-          difficulty: "Advanced",
-          category: "Cardio",
-          status: "Active"
-        },
-        {
-          _id: "3",
-          name: "Strength Training",
-          description: "Build muscle and strength with compound exercises",
-          trainerId: "trainer3",
-          trainerName: "Emma Davis",
-          gymId: "gym2",
-          gymName: "Westside Gym",
-          date: "2024-12-16",
-          startTime: "10:00",
-          endTime: "11:30",
-          capacity: 12,
-          enrolled: 8,
-          difficulty: "Intermediate",
-          category: "Strength",
-          status: "Active"
-        }
-      ];
-
-      let filteredClasses = mockClasses;
-
-      if (selectedGym !== 'All') {
-        filteredClasses = mockClasses.filter(cls => cls.gymName === selectedGym);
-      }
-
-      if (selectedStatus !== 'All') {
-        filteredClasses = filteredClasses.filter(cls => cls.status === selectedStatus);
-      }
-
-      setClasses(filteredClasses);
+      setClasses([]); // Set empty array on error
     } finally {
       setLoading(false);
     }
@@ -190,25 +133,25 @@ const ClassesSchedule = () => {
   const fetchTrainers = async (gymId = null) => {
     try {
       let response;
-      if (gymId && isAdmin) {
-        // Fetch trainers for specific gym
+      if (isGymOwner) {
+        // For gym owners, always fetch trainers for their gym
+        response = await trainerServices.getTrainersByGym(user.gymId);
+      } else if (gymId && isAdmin) {
+        // For admins, fetch trainers for specific gym
         response = await trainerServices.getTrainersByGym(gymId);
       } else {
-        // Fetch all trainers
+        // Fetch all trainers for admin
         response = await trainerServices.getAllTrainers();
       }
 
-      const trainersData = response.trainers || response || [];
+      const trainersData = response.trainers || [];
       setTrainers(trainersData);
+      setFilteredTrainers(trainersData);
     } catch (err) {
       console.error('Error fetching trainers:', err);
-      // Fallback to mock data if API fails
-      const mockTrainers = [
-        { _id: "trainer1", name: "Sarah Johnson", specialization: "Yoga" },
-        { _id: "trainer2", name: "Mike Chen", specialization: "HIIT" },
-        { _id: "trainer3", name: "Emma Davis", specialization: "Strength Training" }
-      ];
-      setTrainers(mockTrainers);
+
+      setTrainers([]);
+      setFilteredTrainers([]);
     }
   };
 
@@ -226,9 +169,10 @@ const ClassesSchedule = () => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
 
-    // If gym selection changes, fetch trainers for that gym
+    // If gym selection changes, fetch trainers for that gym and clear trainer selection
     if (name === 'gymId' && value && isAdmin) {
       fetchTrainers(value);
+      setFormData(prev => ({ ...prev, trainerId: "" })); // Clear trainer selection
     }
   };
 
@@ -282,8 +226,8 @@ const ClassesSchedule = () => {
     setFormData({
       name: classItem.name,
       description: classItem.description,
-      trainerId: classItem.trainerId,
-      gymId: classItem.gymId,
+      trainerId: classItem.trainerId._id || classItem.trainerId,
+      gymId: classItem.gymId._id || classItem.gymId,
       date: classItem.date,
       startTime: classItem.startTime,
       endTime: classItem.endTime,
@@ -292,6 +236,12 @@ const ClassesSchedule = () => {
       category: classItem.category,
       status: classItem.status
     });
+
+    // For admins, fetch trainers for the class's gym
+    if (isAdmin && classItem.gymId) {
+      fetchTrainers(classItem.gymId._id || classItem.gymId);
+    }
+
     setShowForm(true);
   };
 
@@ -310,7 +260,7 @@ const ClassesSchedule = () => {
   // Filter classes based on search term
   const filteredClasses = classes.filter(cls =>
     cls.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    cls.trainerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (cls.trainerId?.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
     cls.category.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -450,13 +400,13 @@ const ClassesSchedule = () => {
                     </div>
                     <div className="flex items-center gap-2 text-sm">
                       <MapPin className="w-4 h-4 text-teal-500" />
-                      <span>{classItem.gymName}</span>
+                      <span>{classItem.gymId?.name || 'N/A'}</span>
                     </div>
                   </div>
 
                   {/* Trainer */}
                   <div className="mb-4">
-                    <p className="text-sm font-medium text-foreground">Trainer: {classItem.trainerName}</p>
+                    <p className="text-sm font-medium text-foreground">Trainer: {classItem.trainerId?.name || 'N/A'}</p>
                   </div>
 
                   {/* Actions */}
@@ -576,9 +526,9 @@ const ClassesSchedule = () => {
                         required
                       >
                         <option value="">Select Trainer</option>
-                        {trainers.map((trainer) => (
+                        {(isAdmin ? filteredTrainers : trainers).map((trainer) => (
                           <option key={trainer._id} value={trainer._id}>
-                            {trainer.name} - {trainer.specialization}
+                            {trainer.name} - {trainer.specialization || trainer.expertise}
                           </option>
                         ))}
                       </select>
@@ -639,7 +589,7 @@ const ClassesSchedule = () => {
 
                     {/* End Time */}
                     <div>
-                      <label className="block textName font-medium text-foreground mb-2">
+                      <label className="block text-sm font-medium text-foreground mb-2">
                         End Time *
                       </label>
                       <input

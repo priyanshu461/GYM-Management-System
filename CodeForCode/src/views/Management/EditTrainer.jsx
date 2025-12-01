@@ -51,6 +51,7 @@ export default function EditTrainer() {
       if (foundTrainer) {
         setTrainer({
           ...foundTrainer,
+          gymId: foundTrainer.gymId ? foundTrainer.gymId._id : "",
           certifications: foundTrainer.certifications.join(', '),
           specializations: foundTrainer.specializations.join(', '),
         });

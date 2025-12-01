@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+  import React, { useState, useEffect, useMemo } from "react";
 import Layout from "../../components/Layout";
 import { motion } from "framer-motion";
 import { Plus, DollarSign, TrendingDown, TrendingUp, Calendar, FileText, Edit3, Trash2, X, Tag, Loader2, Eye, Settings, Users } from "lucide-react";
@@ -108,23 +108,9 @@ const SalaryManagement = () => {
   const fetchAllTrainers = async () => {
     try {
       setTrainersLoading(true);
-      // Fetch trainers from all gyms
-      const allTrainers = [];
-      
-      for (const gym of gyms) {
-        try {
-          const response = await gymServices.getTrainersByGym(gym._id);
-          const trainersWithGym = (response.trainers || []).map(trainer => ({
-            ...trainer,
-            gymName: gym.name
-          }));
-          allTrainers.push(...trainersWithGym);
-        } catch (err) {
-          console.error(`Error fetching trainers for gym ${gym.name}:`, err);
-        }
-      }
-      
-      setTrainers(allTrainers);
+      // Use the optimized getAllTrainers API instead of looping through gyms
+      const response = await trainerServices.getAllTrainers();
+      setTrainers(response || []);
     } catch (err) {
       console.error('Error fetching all trainers:', err);
       setTrainers([]);
@@ -206,7 +192,7 @@ const SalaryManagement = () => {
       setSubmitting(true);
       // Update trainer salary in backend - salary is nested in profile
       await gymServices.updateTrainer(trainerId, {
-        profile: { salary: newSalary }
+        salary: newSalary
       });
       // Refresh trainers list
       await fetchTrainersByGym();

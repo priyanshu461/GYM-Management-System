@@ -1,4 +1,4 @@
-import Layout from "../../components/Layout";
+ import Layout from "../../components/Layout";
 import React, { useState, useEffect } from "react";
 import { UserPlus, User, Award, Calendar, Star, AlertCircle, CheckCircle, ArrowLeft, X, Mail, Phone, IdCard } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -17,6 +17,7 @@ export default function AddTrainer() {
     mobile: "",
     expertise: "",
     experience: "",
+    salary: 25000,
     image: "",
     rating: "",
     certifications: "",
@@ -74,6 +75,12 @@ export default function AddTrainer() {
       newErrors.rating = "Rating must be a number between 0 and 5";
     }
 
+    if (newTrainer.salary === "" || newTrainer.salary === null || newTrainer.salary === undefined) {
+      newErrors.salary = "Salary is required";
+    } else if (isNaN(newTrainer.salary) || parseFloat(newTrainer.salary) <= 0) {
+      newErrors.salary = "Salary must be a positive number";
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -97,6 +104,7 @@ export default function AddTrainer() {
         mobile: newTrainer.mobile,
         expertise: newTrainer.expertise,
         experience: newTrainer.experience,
+        salary: parseFloat(newTrainer.salary) || 0,
         image: newTrainer.image,
         rating: parseFloat(newTrainer.rating) || 0,
         certifications: newTrainer.certifications.split(',').map(c => c.trim()).filter(c => c),
@@ -116,6 +124,7 @@ export default function AddTrainer() {
         mobile: "",
         expertise: "",
         experience: "",
+        salary: "",
         image: "",
         rating: "",
         certifications: "",
@@ -285,6 +294,25 @@ export default function AddTrainer() {
                       required
                     />
                     {errors.experience && <p className="text-red-500 text-xs">{errors.experience}</p>}
+                  </div>
+
+                  {/* Salary */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-foreground flex items-center gap-2">
+                      <Award className="w-4 h-4" />
+                      Salary *
+                    </label>
+                    <input
+                      type="number"
+                      value={newTrainer.salary}
+                      onChange={(e) => setNewTrainer({ ...newTrainer, salary: e.target.value })}
+                      className={`w-full bg-background border text-foreground rounded-xl px-4 py-3 focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all ${errors.salary ? 'border-red-500' : 'border-input'}`}
+                      placeholder="Enter salary amount"
+                      required
+                      min="1000"
+                      step="1000"
+                    />
+                    {errors.salary && <p className="text-red-500 text-xs">{errors.salary}</p>}
                   </div>
 
                   {/* Rating */}

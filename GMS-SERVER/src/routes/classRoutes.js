@@ -2,6 +2,8 @@ const express = require("express");
 const router = express.Router();
 const {
   getAllClasses,
+  getClassesByGym,
+  getClassesByTrainer,
   addClass,
   updateClass,
   deleteClass,
@@ -9,6 +11,12 @@ const {
 
 // GET /api/classes - Get all classes
 router.get("/", getAllClasses);
+
+// GET /api/classes/gym/:gymId - Get classes by gym ID
+router.get("/gym/:gymId", getClassesByGym);
+
+// GET /api/classes/trainer/:trainerId - Get classes by trainer ID
+router.get("/trainer/:trainerId", getClassesByTrainer);
 
 // POST /api/classes - Add a new class
 router.post("/", addClass);

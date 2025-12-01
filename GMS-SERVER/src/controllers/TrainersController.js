@@ -70,9 +70,9 @@ const getTrainersByGym = async (req, res) => {
   try {
     const { gymId } = req.params;
     const params = { user_type: "Trainer", isActive: true };
-    
-    // Add gym filter if gymId is provided
-    if (gymId && gymId !== 'all') {
+
+    // Add gym filter if gymId is provided and valid
+    if (gymId && gymId !== 'all' && mongoose.Types.ObjectId.isValid(gymId)) {
       params.gymId = new mongoose.Types.ObjectId(gymId);
     }
 
