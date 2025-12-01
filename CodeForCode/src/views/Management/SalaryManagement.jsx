@@ -1,4 +1,4 @@
-  import React, { useState, useEffect, useMemo } from "react";
+ import React, { useState, useEffect, useMemo } from "react";
 import Layout from "../../components/Layout";
 import { motion } from "framer-motion";
 import { Plus, DollarSign, TrendingDown, TrendingUp, Calendar, FileText, Edit3, Trash2, X, Tag, Loader2, Eye, Settings, Users } from "lucide-react";
@@ -54,7 +54,7 @@ const SalaryManagement = () => {
   const [selectedYear, setSelectedYear] = useState('All');
   const [gyms, setGyms] = useState([]);
   const [formTrainers, setFormTrainers] = useState([]);
-  
+
   const isAdmin = user?.user_type === 'Admin';
   const isGymOwner = user?.user_type === 'Gym';
 
@@ -103,8 +103,6 @@ const SalaryManagement = () => {
     }
   }, [formData.gym, showForm]);
 
-
-
   const fetchTransactions = async () => {
     try {
       setLoading(false);
@@ -116,7 +114,7 @@ const SalaryManagement = () => {
       if (selectedGym && selectedGym !== 'All') {
         filters.gym = selectedGym;
       }
-      
+
       const response = await financeService.getAllTransactions(filters);
       setTransactions(response.transactions || []);
     } catch (err) {
@@ -127,47 +125,26 @@ const SalaryManagement = () => {
     }
   };
 
+  const fetchAllTrainers = async () => {
+    try {
+      setTrainersLoading(true);
+      // Use the optimized getAllTrainers API instead of looping through gyms
+      const response = await trainerServices.getAllTrainers();
+      setTrainers(response || []);
+    } catch (err) {
+      console.error('Error fetching all trainers:', err);
+      setTrainers([]);
+    } finally {
+      setTrainersLoading(false);
+    }
+  };
+
   const fetchGyms = async () => {
     try {
       const response = await gymServices.getAllGyms();
       setGyms(response.gyms || []);
     } catch (err) {
       console.error('Error fetching gyms:', err);
-    }
-  };
-
-  const fetchAllTrainers = async () => {
-    try {
-<<<<<<< HEAD
-      setTrainersLoading(true);
-      // Use the optimized getAllTrainers API instead of looping through gyms
-      const response = await trainerServices.getAllTrainers();
-      setTrainers(response || []);
-=======
-      setTrainersLoading(false);
-      // Fetch trainers from all gyms
-      const allTrainers = [];
-      
-      for (const gym of gyms) {
-        try {
-          const response = await gymServices.getTrainersByGym(gym._id);
-          const trainersWithGym = (response.trainers || []).map(trainer => ({
-            ...trainer,
-            gymName: gym.name
-          }));
-          allTrainers.push(...trainersWithGym);
-        } catch (err) {
-          console.error(`Error fetching trainers for gym ${gym.name}:`, err);
-        }
-      }
-      
-      setTrainers(allTrainers);
->>>>>>> 681623e28f2ece942edd8aeebcf076ebfa66182c
-    } catch (err) {
-      console.error('Error fetching all trainers:', err);
-      setTrainers([]);
-    } finally {
-      setTrainersLoading(false);
     }
   };
 
