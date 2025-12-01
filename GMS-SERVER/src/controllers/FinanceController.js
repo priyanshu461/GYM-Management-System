@@ -83,13 +83,13 @@ const getAllTransactions = async (req, res) => {
 // Add transaction
 const addTransaction = async (req, res) => {
   try {
-    const { date, type, category, amount, description, gym, gymId, employeeId } = req.body;
+    const { date, type, category, amount, description, gym, gymId, employeeId, salaryBreakdown } = req.body;
     const userId = req.user?.id || req.user?._id;
-    
+
     if (!userId) {
       return res.status(401).json({ message: "User authentication required" });
     }
-    
+
     const transactionData = {
       date: date || new Date(),
       type,
@@ -98,22 +98,23 @@ const addTransaction = async (req, res) => {
       description,
       createdBy: userId,
     };
-    
+
     // Add optional fields if provided
     if (gym) transactionData.gym = gym;
     if (gymId) transactionData.gymId = gymId;
     if (employeeId) transactionData.employeeId = employeeId;
-    
+    if (salaryBreakdown) transactionData.salaryBreakdown = salaryBreakdown;
+
     const transaction = new Transaction(transactionData);
     await transaction.save();
-    
+
     // Populate the created transaction for response
     await transaction.populate([
       { path: 'employeeId', select: 'name email employeeId' },
       { path: 'gymId', select: 'name location' },
       { path: 'createdBy', select: 'name email' }
     ]);
-    
+
     res.status(201).json({
       message: "Transaction added successfully",
       transaction
@@ -128,8 +129,8 @@ const addTransaction = async (req, res) => {
 const updateTransaction = async (req, res) => {
   try {
     const { id } = req.params;
-    const { date, type, category, amount, description, gym, gymId, employeeId, status } = req.body;
-    
+    const { date, type, category, amount, description, gym, gymId, employeeId, status, salaryBreakdown } = req.body;
+
     const updateData = {};
     if (date) updateData.date = date;
     if (type) updateData.type = type;
@@ -140,16 +141,17 @@ const updateTransaction = async (req, res) => {
     if (gymId) updateData.gymId = gymId;
     if (employeeId) updateData.employeeId = employeeId;
     if (status) updateData.status = status;
-    
+    if (salaryBreakdown) updateData.salaryBreakdown = salaryBreakdown;
+
     const transaction = await Transaction.findByIdAndUpdate(id, updateData, { new: true })
       .populate('employeeId', 'name email employeeId')
       .populate('gymId', 'name location')
       .populate('createdBy', 'name email');
-    
+
     if (!transaction) {
       return res.status(404).json({ message: "Transaction not found" });
     }
-    
+
     res.status(200).json({
       message: "Transaction updated successfully",
       transaction

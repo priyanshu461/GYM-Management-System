@@ -4,12 +4,14 @@ import { motion } from "framer-motion";
 import { Plus, DollarSign, TrendingDown, TrendingUp, Calendar, FileText, Edit3, Trash2, X, Tag, Loader2, Eye, Settings, Users } from "lucide-react";
 import financeService from "../../services/financeService";
 import gymServices from "../../services/gymServices";
+import trainerServices from "../../services/trainerServices";
 import { useAuth } from "../../contexts/AuthContext";
 
 const SalaryManagement = () => {
   const { user } = useAuth();
   const [transactions, setTransactions] = useState([]);
   const [trainers, setTrainers] = useState([]);
+  const [allTrainers, setAllTrainers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [trainersLoading, setTrainersLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -19,6 +21,19 @@ const SalaryManagement = () => {
   const [editingTransaction, setEditingTransaction] = useState(null);
   const [editingTrainer, setEditingTrainer] = useState(null);
   const [selectedTrainerDetails, setSelectedTrainerDetails] = useState(null);
+  const [editingPayment, setEditingPayment] = useState(null);
+  const [showAddPaymentForm, setShowAddPaymentForm] = useState(false);
+  const [paymentFormData, setPaymentFormData] = useState({
+    date: "",
+    amount: "",
+    description: "",
+    status: "Completed",
+    salaryBreakdown: {
+      baseSalary: 0,
+      performanceBonus: 0,
+      clientCommissions: 0
+    }
+  });
   const [formData, setFormData] = useState({
     date: "",
     type: "Expense",
@@ -26,13 +41,19 @@ const SalaryManagement = () => {
     amount: "",
     description: "",
     gym: user?.user_type === 'Gym' ? (user?.gymName || 'My Gym') : "",
-    trainerId: ""
+    trainerId: "",
+    salaryBreakdown: {
+      baseSalary: 0,
+      performanceBonus: 0,
+      clientCommissions: 0
+    }
   });
   const [submitting, setSubmitting] = useState(false);
   const [selectedGym, setSelectedGym] = useState(user?.user_type === 'Gym' ? user?.gymName || 'My Gym' : 'All');
   const [selectedMonth, setSelectedMonth] = useState('All');
   const [selectedYear, setSelectedYear] = useState('All');
   const [gyms, setGyms] = useState([]);
+  const [formTrainers, setFormTrainers] = useState([]);
   
   const isAdmin = user?.user_type === 'Admin';
   const isGymOwner = user?.user_type === 'Gym';
@@ -49,8 +70,9 @@ const SalaryManagement = () => {
   // Fetch transactions and gyms on component mount
   useEffect(() => {
     fetchTransactions();
+    fetchGyms(); // Fetch gyms for both admin and gym owners
     if (isAdmin) {
-      fetchGyms();
+      fetchAllTrainersForSalary();
     } else if (isGymOwner) {
       // For gym owners, automatically load their trainers
       fetchTrainersByGym();
@@ -74,9 +96,18 @@ const SalaryManagement = () => {
     }
   }, [selectedGym, gyms]);
 
+  // Fetch form trainers when gym changes in form
+  useEffect(() => {
+    if (showForm && formData.gym) {
+      fetchFormTrainers(formData.gym);
+    }
+  }, [formData.gym, showForm]);
+
+
+
   const fetchTransactions = async () => {
     try {
-      setLoading(true);
+      setLoading(false);
       setError(null);
       const filters = {
         type: "Expense",
@@ -107,7 +138,7 @@ const SalaryManagement = () => {
 
   const fetchAllTrainers = async () => {
     try {
-      setTrainersLoading(true);
+      setTrainersLoading(false);
       // Fetch trainers from all gyms
       const allTrainers = [];
       
@@ -137,7 +168,7 @@ const SalaryManagement = () => {
     try {
       setTrainersLoading(true);
       let gymId = null;
-      
+
       if (isGymOwner) {
         // For gym owners, use their gym ID
         gymId = user?.gymId || 'default-gym-id';
@@ -146,7 +177,7 @@ const SalaryManagement = () => {
         const selectedGymData = gyms.find(gym => gym.name === selectedGym);
         gymId = selectedGymData?._id;
       }
-      
+
       if (gymId) {
         const response = await gymServices.getTrainersByGym(gymId);
         setTrainers(response.trainers || []);
@@ -159,44 +190,52 @@ const SalaryManagement = () => {
     }
   };
 
+  const fetchAllTrainersForSalary = async () => {
+    try {
+      setTrainersLoading(true);
+      const response = await trainerServices.getAllTrainersForSalary();
+      setAllTrainers(response.trainers || []);
+    } catch (err) {
+      console.error('Error fetching all trainers for salary:', err);
+      setAllTrainers([]);
+    } finally {
+      setTrainersLoading(false);
+    }
+  };
+
+  const fetchFormTrainers = async (gymName) => {
+    try {
+      if (!gymName || gymName === '') return;
+
+      if (isGymOwner) {
+        // For gym owners, use their own trainers
+        setFormTrainers(trainers);
+      } else if (isAdmin) {
+        // For admin, fetch trainers for the selected gym
+        const selectedGymData = gyms.find(gym => gym.name === gymName);
+        if (selectedGymData) {
+          const response = await gymServices.getTrainersByGym(selectedGymData._id);
+          setFormTrainers(response.trainers || []);
+        }
+      }
+    } catch (err) {
+      console.error('Error fetching form trainers:', err);
+      setFormTrainers([]);
+    }
+  };
+
   // Get detailed salary information for a trainer
   const getTrainerSalaryDetails = async (trainer) => {
     try {
-      // Mock detailed salary data - in real implementation, this would fetch from API
-      const salaryDetails = {
-        trainerId: trainer.id,
-        trainerName: trainer.name,
-        monthlySalary: trainer.salary || 25000,
-        hourlyRate: Math.round((trainer.salary || 25000) / 160), // Assuming 160 hours per month
-        currentMonthEarnings: Math.round((trainer.salary || 25000) * 0.9), // 90% of monthly salary
-        baseSalary: Math.round((trainer.salary || 25000) * 0.8), // 80% base
-        performanceBonus: Math.round((trainer.salary || 25000) * 0.15), // 15% bonus
-        clientCommissions: Math.round((trainer.salary || 25000) * 0.05), // 5% commission
-        paymentHistory: [
-          {
-            period: "November 2024",
-            amount: trainer.salary || 25000,
-            date: "2024-11-30",
-            status: "Pending"
-          },
-          {
-            period: "October 2024",
-            amount: trainer.salary || 25000,
-            date: "2024-10-31",
-            status: "Paid"
-          },
-          {
-            period: "September 2024",
-            amount: (trainer.salary || 25000) - 1000,
-            date: "2024-09-30",
-            status: "Paid"
-          }
-        ]
-      };
-      setSelectedTrainerDetails(salaryDetails);
+      setLoading(true);
+      const response = await trainerServices.getTrainerSalaryDetails(trainer.id);
+      setSelectedTrainerDetails(response);
       setShowSalaryDetails(true);
-    } catch (error) {
-      console.error('Error fetching trainer salary details:', error);
+    } catch (err) {
+      console.error('Error fetching trainer salary details:', err);
+      setError('Failed to load salary details. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -219,21 +258,77 @@ const SalaryManagement = () => {
   };
 
   // Handle input change
-  const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    if (name.includes('.')) {
+      const [parent, child] = name.split('.');
+      setFormData(prev => ({
+        ...prev,
+        [parent]: {
+          ...prev[parent],
+          [child]: value
+        }
+      }));
+    } else {
+      setFormData({ ...formData, [name]: value });
+    }
+  };
 
   // Add / Update transaction
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
     try {
+      // Map trainerId to employeeId for database
+      const submitData = { ...formData };
+      if (submitData.trainerId) {
+        submitData.employeeId = submitData.trainerId;
+        delete submitData.trainerId;
+      }
+
       if (editingTransaction) {
-        await financeService.updateTransaction(editingTransaction._id, formData);
+        // Update existing transaction
+        await financeService.updateTransaction(editingTransaction._id, submitData);
         await fetchTransactions(); // Refresh data
+
+        // Update trainer's salary if amount changed
+        if (formData.trainerId && formData.amount && formData.amount !== editingTransaction.amount) {
+          try {
+            await gymServices.updateTrainer(formData.trainerId, {
+              profile: { salary: parseInt(formData.amount) }
+            });
+          } catch (updateErr) {
+            console.error('Error updating trainer salary:', updateErr);
+            // Don't fail the whole operation if salary update fails
+          }
+        }
+
         setEditingTransaction(null);
       } else {
-        await financeService.addTransaction(formData);
+        // Add new transaction
+        await financeService.addTransaction(submitData);
         await fetchTransactions(); // Refresh data
+
+        // Update trainer's salary in profile if adding a new salary transaction
+        if (formData.trainerId && formData.amount) {
+          try {
+            await gymServices.updateTrainer(formData.trainerId, {
+              profile: { salary: parseInt(formData.amount) }
+            });
+          } catch (updateErr) {
+            console.error('Error updating trainer salary:', updateErr);
+            // Don't fail the whole operation if salary update fails
+          }
+        }
       }
+
+      // Refresh trainers data to update salaries from database
+      if (isAdmin) {
+        await fetchAllTrainersForSalary();
+      } else if (isGymOwner) {
+        await fetchTrainersByGym();
+      }
+
       setFormData({
         date: "",
         type: "Expense",
@@ -241,7 +336,12 @@ const SalaryManagement = () => {
         amount: "",
         description: "",
         gym: user?.user_type === 'Gym' ? (user?.gymName || 'My Gym') : "",
-        trainerId: ""
+        trainerId: "",
+        salaryBreakdown: {
+          baseSalary: 0,
+          performanceBonus: 0,
+          clientCommissions: 0
+        }
       });
       setShowForm(false);
     } catch (err) {
@@ -269,6 +369,64 @@ const SalaryManagement = () => {
         console.error('Error deleting transaction:', err);
         setError('Failed to delete transaction. Please try again.');
       }
+    }
+  };
+
+  // Delete payment from salary details
+  const handleDeletePayment = async (paymentId) => {
+    if (window.confirm('Are you sure you want to delete this payment?')) {
+      try {
+        await financeService.deleteTransaction(paymentId);
+        // Refresh the trainer details
+        if (selectedTrainerDetails) {
+          const response = await trainerServices.getTrainerSalaryDetails(selectedTrainerDetails.trainerId);
+          setSelectedTrainerDetails(response);
+        }
+      } catch (err) {
+        console.error('Error deleting payment:', err);
+        setError('Failed to delete payment. Please try again.');
+      }
+    }
+  };
+
+  // Handle payment form change
+  const handlePaymentFormChange = (e) => {
+    const { name, value } = e.target;
+    if (name.includes('.')) {
+      const [parent, child] = name.split('.');
+      setPaymentFormData(prev => ({
+        ...prev,
+        [parent]: {
+          ...prev[parent],
+          [child]: value
+        }
+      }));
+    } else {
+      setPaymentFormData({ ...paymentFormData, [name]: value });
+    }
+  };
+
+  // Submit payment edit
+  const handlePaymentSubmit = async (e) => {
+    e.preventDefault();
+    setSubmitting(true);
+    try {
+      const submitData = { ...paymentFormData };
+      if (editingPayment && editingPayment._id) {
+        await financeService.updateTransaction(editingPayment._id, submitData);
+        // Refresh the trainer details
+        if (selectedTrainerDetails) {
+          const response = await trainerServices.getTrainerSalaryDetails(selectedTrainerDetails.trainerId);
+          setSelectedTrainerDetails(response);
+        }
+        setShowAddPaymentForm(false);
+        setEditingPayment(null);
+      }
+    } catch (err) {
+      console.error('Error updating payment:', err);
+      setError('Failed to update payment. Please try again.');
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -542,6 +700,15 @@ const SalaryManagement = () => {
                     <td className="px-6 py-4 font-semibold text-foreground">₹{trainer.salary?.toLocaleString() || '25,000'}</td>
                     <td className="px-6 py-4 text-foreground">{trainer.mobile || 'N/A'}</td>
                     <td className="px-6 py-4 flex gap-2">
+                      <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => getTrainerSalaryDetails(trainer)}
+                        className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-3 py-2 rounded-xl transition-all shadow-md flex items-center gap-2 text-sm font-medium"
+                      >
+                        <Eye className="w-4 h-4" />
+                        View Salary
+                      </motion.button>
                       {isGymOwner && (
                         <motion.button
                           whileHover={{ scale: 1.05 }}
@@ -574,15 +741,7 @@ const SalaryManagement = () => {
                         <DollarSign className="w-4 h-4" />
                         Pay Salary
                       </motion.button>
-                      <motion.button
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={() => getTrainerSalaryDetails(trainer)}
-                        className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-3 py-2 rounded-xl transition-all shadow-md flex items-center gap-2 text-sm font-medium"
-                      >
-                        <Eye className="w-4 h-4" />
-                        View Details
-                      </motion.button>
+
                     </td>
                   </motion.tr>
                 ))
@@ -695,24 +854,84 @@ const SalaryManagement = () => {
                   required
                 />
               </div>
-              {/* Gym field - only show for Admin users */}
-              {isAdmin && (
+              {/* Gym field - show for both Admin and Gym owners */}
+              <div className="relative">
+                <select
+                  name="gym"
+                  value={formData.gym}
+                  onChange={handleChange}
+                  className="w-full bg-background border border-input text-foreground rounded-xl pl-4 pr-4 py-3 focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all appearance-none"
+                  required
+                >
+                  <option value="">Select Gym</option>
+                  {gyms.map((gym) => (
+                    <option key={gym._id} value={gym.name}>{gym.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Trainer field - show for both Admin and Gym owners */}
+              <div className="relative">
+                <select
+                  name="trainerId"
+                  value={formData.trainerId}
+                  onChange={handleChange}
+                  className="w-full bg-background border border-input text-foreground rounded-xl pl-4 pr-4 py-3 focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all appearance-none"
+                  required
+                >
+                  <option value="">Select Trainer</option>
+                  {formTrainers.map((trainer) => (
+                    <option key={trainer.id} value={trainer.id}>
+                      {trainer.name} - {trainer.employeeId}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Salary Breakdown Fields */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-foreground">Salary Breakdown</h3>
+
                 <div className="relative">
-                  <select
-                    name="gym"
-                    value={formData.gym}
+                  <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <input
+                    type="number"
+                    name="salaryBreakdown.baseSalary"
+                    placeholder="Base Salary"
+                    value={formData.salaryBreakdown.baseSalary}
                     onChange={handleChange}
-                    className="w-full bg-background border border-input text-foreground rounded-xl pl-4 pr-4 py-3 focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all appearance-none"
-                    required
-                  >
-                    <option value="">Select Gym</option>
-                    {gyms.map((gym) => (
-                      <option key={gym._id} value={gym.name}>{gym.name}</option>
-                    ))}
-                  </select>
+                    className="w-full bg-background border border-input text-foreground rounded-xl pl-10 pr-4 py-3 placeholder:text-muted-foreground focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all"
+                    min="0"
+                  />
                 </div>
-              )}
-              
+
+                <div className="relative">
+                  <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <input
+                    type="number"
+                    name="salaryBreakdown.performanceBonus"
+                    placeholder="Performance Bonus"
+                    value={formData.salaryBreakdown.performanceBonus}
+                    onChange={handleChange}
+                    className="w-full bg-background border border-input text-foreground rounded-xl pl-10 pr-4 py-3 placeholder:text-muted-foreground focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all"
+                    min="0"
+                  />
+                </div>
+
+                <div className="relative">
+                  <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <input
+                    type="number"
+                    name="salaryBreakdown.clientCommissions"
+                    placeholder="Client Commissions"
+                    value={formData.salaryBreakdown.clientCommissions}
+                    onChange={handleChange}
+                    className="w-full bg-background border border-input text-foreground rounded-xl pl-10 pr-4 py-3 placeholder:text-muted-foreground focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all"
+                    min="0"
+                  />
+                </div>
+              </div>
+
               {/* Hidden gym field for Gym owners - automatically populated */}
               {isGymOwner && (
                 <input
@@ -925,15 +1144,51 @@ const SalaryManagement = () => {
                           <p className="font-medium text-foreground">{payment.period}</p>
                           <p className="text-sm text-muted-foreground">{formatDate(payment.date)}</p>
                         </div>
-                        <div className="text-right">
-                          <p className="font-bold text-foreground">₹{payment.amount.toLocaleString()}</p>
-                          <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                            payment.status === "Paid"
-                              ? "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400"
-                              : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400"
-                          }`}>
-                            {payment.status}
-                          </span>
+                        <div className="text-right flex items-center gap-3">
+                          <div>
+                            <p className="font-bold text-foreground">₹{payment.amount.toLocaleString()}</p>
+                            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                              payment.status === "Paid"
+                                ? "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400"
+                                : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400"
+                            }`}>
+                              {payment.status}
+                            </span>
+                          </div>
+                          <div className="flex gap-2">
+                            <motion.button
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                              onClick={() => {
+                                setEditingPayment(payment);
+                                setPaymentFormData({
+                                  date: payment.date.split('T')[0],
+                                  amount: payment.amount,
+                                  description: payment.description || '',
+                                  status: payment.status,
+                                  salaryBreakdown: payment.salaryBreakdown || {
+                                    baseSalary: 0,
+                                    performanceBonus: 0,
+                                    clientCommissions: 0
+                                  }
+                                });
+                                setShowAddPaymentForm(true);
+                              }}
+                              className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-3 py-2 rounded-lg transition-all shadow-md flex items-center gap-1 text-sm font-medium"
+                            >
+                              <Edit3 className="w-3 h-3" />
+                              Edit
+                            </motion.button>
+                            <motion.button
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                              onClick={() => handleDeletePayment(payment._id || payment.id)}
+                              className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-3 py-2 rounded-lg transition-all shadow-md flex items-center gap-1 text-sm font-medium"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                              Delete
+                            </motion.button>
+                          </div>
                         </div>
                       </div>
                     ))}

@@ -28,6 +28,23 @@ const transactionSchema = new Schema(
       required: true,
       trim: true,
     },
+    salaryBreakdown: {
+      baseSalary: {
+        type: Number,
+        default: 0,
+        min: 0,
+      },
+      performanceBonus: {
+        type: Number,
+        default: 0,
+        min: 0,
+      },
+      clientCommissions: {
+        type: Number,
+        default: 0,
+        min: 0,
+      },
+    },
     gym: {
       type: String,
       required: false,

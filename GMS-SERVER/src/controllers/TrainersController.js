@@ -65,6 +65,78 @@ const getAllTrainers = async (req, res) => {
   }
 };
 
+// Get all trainers for salary management (including inactive)
+const getAllTrainersForSalary = async (req, res) => {
+  try {
+    const params = { user_type: "Trainer" }; // Remove isActive filter to include both active and inactive
+    const gymId = req.user.gymId;
+    if (gymId) {
+      params.gymId = gymId;
+    }
+
+    const trainers = await User.aggregate([
+      { $match: params },
+      {
+        $lookup: {
+          from: 'gyms',
+          localField: 'gymId',
+          foreignField: '_id',
+          as: 'gym'
+        }
+      },
+      {
+        $unwind: {
+          path: '$gym',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $project: {
+          employeeId: 1,
+          name: 1,
+          email: 1,
+          mobile: 1,
+          profile: 1,
+          image: 1,
+          certifications: 1,
+          specializations: 1,
+          rating: 1,
+          gymId: 1,
+          gymName: '$gym.name',
+          isActive: 1,
+          salary: '$profile.salary',
+          joiningDate: '$createdAt'
+        }
+      }
+    ]);
+
+    const formattedTrainers = (trainers || []).map((trainer) => ({
+      id: trainer._id,
+      employeeId: trainer.employeeId || `EMP${String(Math.floor(Math.random() * 1000)).padStart(3, '0')}`,
+      name: trainer.name,
+      email: trainer.email,
+      mobile: trainer.mobile || 'N/A',
+      expertise: trainer.profile?.spacialization || "General",
+      experience: trainer.profile?.exp || "N/A",
+      image: trainer.image || "",
+      rating: trainer.rating || 0,
+      certifications: trainer.certifications || [],
+      specializations: trainer.specializations || [],
+      gymName: trainer.gymName || 'N/A',
+      isActive: trainer.isActive,
+      salary: trainer.salary || 25000,
+      joiningDate: trainer.joiningDate,
+      status: trainer.isActive ? 'Active' : 'Inactive'
+    }));
+
+    res.status(200).json({ trainers: formattedTrainers });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error fetching trainers for salary", error: error.message });
+  }
+};
+
 // Get trainers by gym ID
 const getTrainersByGym = async (req, res) => {
   try {
@@ -272,35 +344,123 @@ const getTrainerById = async (req, res) => {
   }
 };
 
-// Get trainer salary
+
+
+// Get trainer salary (legacy function for trainer dashboard)
 const getTrainerSalary = async (req, res) => {
   try {
-    // For now, return mock data. In future, integrate with SalaryModel or calculate from database.
+    const trainerId = req.user.id;
+
+    // Get trainer info
+    const trainer = await User.findById(trainerId);
+    if (!trainer) {
+      return res.status(404).json({ message: "Trainer not found" });
+    }
+
+    const trainerSalary = trainer.profile?.salary || 35000;
+    const Transaction = require("../models/TransactionModel");
+
+    // Get recent salary transactions
+    const salaryTransactions = await Transaction.find({
+      employeeId: trainerId,
+      category: "Salary",
+      type: "Expense"
+    }).sort({ date: -1 }).limit(5);
+
     const salaryData = {
-      monthlySalary: 3000,
-      hourlyRate: 25,
-      currentMonthEarnings: 2800,
-      baseSalary: 2500,
-      performanceBonus: 300,
-      clientCommissions: 200,
-      paymentHistory: [
-        {
-          period: "October 2023",
-          amount: 3000,
-          date: "2023-10-31",
-          status: "Paid"
-        },
-        {
-          period: "September 2023",
-          amount: 2900,
-          date: "2023-09-30",
-          status: "Paid"
-        }
-      ]
+      monthlySalary: trainerSalary,
+      hourlyRate: Math.round(trainerSalary / 160),
+      currentMonthEarnings: Math.round(trainerSalary * 0.9),
+      baseSalary: Math.round(trainerSalary * 0.8),
+      performanceBonus: Math.round(trainerSalary * 0.15),
+      clientCommissions: Math.round(trainerSalary * 0.05),
+      paymentHistory: salaryTransactions.map(transaction => ({
+        period: new Date(transaction.date).toLocaleString('default', { month: 'long', year: 'numeric' }),
+        amount: transaction.amount,
+        date: transaction.date.toISOString().split('T')[0],
+        status: transaction.status === "Completed" ? "Paid" : transaction.status
+      }))
     };
+
     res.status(200).json(salaryData);
   } catch (error) {
     res.status(500).json({ message: "Error fetching salary", error: error.message });
+  }
+};
+
+// Get trainer salary details by trainer ID (for management view)
+const getTrainerSalaryDetails = async (req, res) => {
+  try {
+    const { trainerId } = req.params;
+
+    // Get trainer info
+    const trainer = await User.findById(trainerId);
+    if (!trainer) {
+      return res.status(404).json({ message: "Trainer not found" });
+    }
+
+    const Transaction = require("../models/TransactionModel");
+
+    // Get all salary transactions for this trainer using employeeId
+    const salaryTransactions = await Transaction.find({
+      employeeId: trainerId,
+      category: "Salary",
+      type: "Expense"
+    }).sort({ date: -1 }).limit(12);
+
+    // Calculate dynamic salary based on recent transactions
+    let currentSalary = trainer.profile?.salary || 25000;
+
+    // If we have recent transactions, use the most recent one as current salary
+    if (salaryTransactions.length > 0) {
+      const mostRecentTransaction = salaryTransactions[0];
+      currentSalary = mostRecentTransaction.amount;
+
+      // Update trainer's profile salary to match the transaction
+      if (trainer.profile?.salary !== currentSalary) {
+        await User.findByIdAndUpdate(trainerId, {
+          'profile.salary': currentSalary
+        });
+      }
+    }
+
+    // Calculate salary breakdown from transaction data or use defaults
+    let baseSalary = Math.round(currentSalary * 0.8);
+    let performanceBonus = Math.round(currentSalary * 0.15);
+    let clientCommissions = Math.round(currentSalary * 0.05);
+
+    // If transaction has salary breakdown, use it
+    if (salaryTransactions.length > 0 && salaryTransactions[0].salaryBreakdown) {
+      const breakdown = salaryTransactions[0].salaryBreakdown;
+      baseSalary = breakdown.baseSalary || baseSalary;
+      performanceBonus = breakdown.performanceBonus || performanceBonus;
+      clientCommissions = breakdown.clientCommissions || clientCommissions;
+    }
+
+    // Calculate current month earnings (assuming 80% of monthly salary)
+    const currentMonthEarnings = Math.round(currentSalary * 0.8);
+
+    const salaryData = {
+      trainerId: trainer._id,
+      trainerName: trainer.name,
+      monthlySalary: currentSalary,
+      hourlyRate: Math.round(currentSalary / 160),
+      currentMonthEarnings: currentMonthEarnings,
+      baseSalary: baseSalary,
+      performanceBonus: performanceBonus,
+      clientCommissions: clientCommissions,
+      paymentHistory: salaryTransactions.map(transaction => ({
+        period: new Date(transaction.date).toLocaleString('default', { month: 'long', year: 'numeric' }),
+        amount: transaction.amount,
+        date: transaction.date.toISOString().split('T')[0],
+        status: transaction.status === "Completed" ? "Paid" : transaction.status,
+        breakdown: transaction.salaryBreakdown || null
+      }))
+    };
+
+    res.status(200).json(salaryData);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching salary details", error: error.message });
   }
 };
 
@@ -475,6 +635,361 @@ const getWorkouts = async (req, res) => {
   }
 };
 
+// Create or update trainer salary transaction
+const createOrUpdateTrainerSalary = async (req, res) => {
+  try {
+    const { trainerId, amount, description, salaryBreakdown, date, status } = req.body;
+
+    // Validate trainer exists
+    const trainer = await User.findById(trainerId);
+    if (!trainer) {
+      return res.status(404).json({ message: "Trainer not found" });
+    }
+
+    const Transaction = require("../models/TransactionModel");
+
+    // Check if there's already a salary transaction for this month
+    const transactionDate = date ? new Date(date) : new Date();
+    const startOfMonth = new Date(transactionDate.getFullYear(), transactionDate.getMonth(), 1);
+    const endOfMonth = new Date(transactionDate.getFullYear(), transactionDate.getMonth() + 1, 0);
+
+    const existingTransaction = await Transaction.findOne({
+      employeeId: trainerId,
+      category: "Salary",
+      type: "Expense",
+      date: { $gte: startOfMonth, $lte: endOfMonth }
+    });
+
+    let transaction;
+    if (existingTransaction) {
+      // Update existing transaction
+      transaction = await Transaction.findByIdAndUpdate(
+        existingTransaction._id,
+        {
+          amount,
+          description: description || `Salary payment for ${trainer.name}`,
+          salaryBreakdown: salaryBreakdown || {
+            baseSalary: Math.round(amount * 0.8),
+            performanceBonus: Math.round(amount * 0.15),
+            clientCommissions: Math.round(amount * 0.05)
+          },
+          date: transactionDate,
+          status: status || "Completed"
+        },
+        { new: true }
+      );
+    } else {
+      // Create new transaction
+      transaction = new Transaction({
+        date: transactionDate,
+        type: "Expense",
+        category: "Salary",
+        amount,
+        description: description || `Salary payment for ${trainer.name}`,
+        salaryBreakdown: salaryBreakdown || {
+          baseSalary: Math.round(amount * 0.8),
+          performanceBonus: Math.round(amount * 0.15),
+          clientCommissions: Math.round(amount * 0.05)
+        },
+        employeeId: trainerId,
+        gymId: trainer.gymId,
+        createdBy: req.user.id,
+        status: status || "Completed"
+      });
+      await transaction.save();
+    }
+
+    // Update trainer's profile salary
+    await User.findByIdAndUpdate(trainerId, {
+      'profile.salary': amount
+    });
+
+    res.status(200).json({
+      message: existingTransaction ? "Salary updated successfully" : "Salary created successfully",
+      transaction
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Error creating/updating salary", error: error.message });
+  }
+};
+
+// Update trainer salary dynamically
+const updateTrainerSalary = async (req, res) => {
+  try {
+    const { trainerId } = req.params;
+    const { newSalary, effectiveDate, reason } = req.body;
+
+    // Validate trainer exists
+    const trainer = await User.findById(trainerId);
+    if (!trainer) {
+      return res.status(404).json({ message: "Trainer not found" });
+    }
+
+    const Transaction = require("../models/TransactionModel");
+
+    // Create a salary adjustment transaction
+    const transaction = new Transaction({
+      date: effectiveDate ? new Date(effectiveDate) : new Date(),
+      type: "Expense",
+      category: "Salary",
+      amount: newSalary,
+      description: reason || `Salary adjustment for ${trainer.name}`,
+      salaryBreakdown: {
+        baseSalary: Math.round(newSalary * 0.8),
+        performanceBonus: Math.round(newSalary * 0.15),
+        clientCommissions: Math.round(newSalary * 0.05)
+      },
+      employeeId: trainerId,
+      gymId: trainer.gymId,
+      createdBy: req.user.id,
+      status: "Completed"
+    });
+
+    await transaction.save();
+
+    // Update trainer's profile salary
+    await User.findByIdAndUpdate(trainerId, {
+      'profile.salary': newSalary
+    });
+
+    res.status(200).json({
+      message: "Trainer salary updated successfully",
+      newSalary,
+      transaction
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Error updating trainer salary", error: error.message });
+  }
+};
+
+// Get salary analytics for all trainers
+const getSalaryAnalytics = async (req, res) => {
+  try {
+    const { gymId, month, year } = req.query;
+    const Transaction = require("../models/TransactionModel");
+
+    // Build match conditions
+    const matchConditions = {
+      category: "Salary",
+      type: "Expense"
+    };
+
+    if (gymId && gymId !== 'all') {
+      matchConditions.gymId = new mongoose.Types.ObjectId(gymId);
+    }
+
+    if (month && year) {
+      const startDate = new Date(year, month - 1, 1);
+      const endDate = new Date(year, month, 0);
+      matchConditions.date = { $gte: startDate, $lte: endDate };
+    }
+
+    const salaryAnalytics = await Transaction.aggregate([
+      { $match: matchConditions },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'employeeId',
+          foreignField: '_id',
+          as: 'trainer'
+        }
+      },
+      {
+        $unwind: {
+          path: '$trainer',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $group: {
+          _id: '$employeeId',
+          trainerName: { $first: '$trainer.name' },
+          totalSalary: { $sum: '$amount' },
+          transactionCount: { $sum: 1 },
+          averageSalary: { $avg: '$amount' },
+          lastPaymentDate: { $max: '$date' },
+          salaryBreakdown: { $last: '$salaryBreakdown' }
+        }
+      },
+      {
+        $project: {
+          trainerId: '$_id',
+          trainerName: 1,
+          totalSalary: 1,
+          transactionCount: 1,
+          averageSalary: { $round: ['$averageSalary', 2] },
+          lastPaymentDate: 1,
+          salaryBreakdown: 1
+        }
+      },
+      { $sort: { totalSalary: -1 } }
+    ]);
+
+    // Calculate totals
+    const totalSalaryPaid = salaryAnalytics.reduce((sum, item) => sum + item.totalSalary, 0);
+    const totalTrainers = salaryAnalytics.length;
+
+    res.status(200).json({
+      analytics: salaryAnalytics,
+      summary: {
+        totalSalaryPaid,
+        totalTrainers,
+        averageSalaryPerTrainer: totalTrainers > 0 ? Math.round(totalSalaryPaid / totalTrainers) : 0
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching salary analytics", error: error.message });
+  }
+};
+
+// Add payment record for trainer
+const addPaymentRecord = async (req, res) => {
+  try {
+    const { trainerId } = req.params;
+    const { date, amount, description, status, salaryBreakdown } = req.body;
+
+    // Validate trainer exists
+    const trainer = await User.findById(trainerId);
+    if (!trainer) {
+      return res.status(404).json({ message: "Trainer not found" });
+    }
+
+    const Transaction = require("../models/TransactionModel");
+
+    // Create new payment transaction
+    const transaction = new Transaction({
+      date: date ? new Date(date) : new Date(),
+      type: "Expense",
+      category: "Salary",
+      amount: parseFloat(amount),
+      description: description || `Salary payment for ${trainer.name}`,
+      salaryBreakdown: salaryBreakdown || {
+        baseSalary: Math.round(amount * 0.8),
+        performanceBonus: Math.round(amount * 0.15),
+        clientCommissions: Math.round(amount * 0.05)
+      },
+      employeeId: trainerId,
+      gymId: trainer.gymId,
+      createdBy: req.user.id,
+      status: status || "Completed"
+    });
+
+    await transaction.save();
+
+    // Update trainer's profile salary if this is the most recent payment
+    const recentTransaction = await Transaction.findOne({
+      employeeId: trainerId,
+      category: "Salary",
+      type: "Expense"
+    }).sort({ date: -1 });
+
+    if (recentTransaction && recentTransaction._id.toString() === transaction._id.toString()) {
+      await User.findByIdAndUpdate(trainerId, {
+        'profile.salary': amount
+      });
+    }
+
+    res.status(201).json({
+      message: "Payment record added successfully",
+      transaction
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Error adding payment record", error: error.message });
+  }
+};
+
+// Update payment record for trainer
+const updatePaymentRecord = async (req, res) => {
+  try {
+    const { trainerId, paymentId } = req.params;
+    const { date, amount, description, status, salaryBreakdown } = req.body;
+
+    const Transaction = require("../models/TransactionModel");
+
+    // Find and update the transaction
+    const transaction = await Transaction.findOneAndUpdate(
+      { _id: paymentId, employeeId: trainerId, category: "Salary", type: "Expense" },
+      {
+        date: date ? new Date(date) : undefined,
+        amount: amount ? parseFloat(amount) : undefined,
+        description,
+        status,
+        salaryBreakdown
+      },
+      { new: true }
+    );
+
+    if (!transaction) {
+      return res.status(404).json({ message: "Payment record not found" });
+    }
+
+    // Update trainer's profile salary if this is the most recent payment
+    const recentTransaction = await Transaction.findOne({
+      employeeId: trainerId,
+      category: "Salary",
+      type: "Expense"
+    }).sort({ date: -1 });
+
+    if (recentTransaction && recentTransaction._id.toString() === transaction._id.toString()) {
+      await User.findByIdAndUpdate(trainerId, {
+        'profile.salary': transaction.amount
+      });
+    }
+
+    res.status(200).json({
+      message: "Payment record updated successfully",
+      transaction
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Error updating payment record", error: error.message });
+  }
+};
+
+// Delete payment record for trainer
+const deletePaymentRecord = async (req, res) => {
+  try {
+    const { trainerId, paymentId } = req.params;
+
+    const Transaction = require("../models/TransactionModel");
+
+    // Find and delete the transaction
+    const transaction = await Transaction.findOneAndDelete({
+      _id: paymentId,
+      employeeId: trainerId,
+      category: "Salary",
+      type: "Expense"
+    });
+
+    if (!transaction) {
+      return res.status(404).json({ message: "Payment record not found" });
+    }
+
+    // Update trainer's profile salary to the most recent remaining payment
+    const recentTransaction = await Transaction.findOne({
+      employeeId: trainerId,
+      category: "Salary",
+      type: "Expense"
+    }).sort({ date: -1 });
+
+    if (recentTransaction) {
+      await User.findByIdAndUpdate(trainerId, {
+        'profile.salary': recentTransaction.amount
+      });
+    } else {
+      // If no payments left, set to default
+      await User.findByIdAndUpdate(trainerId, {
+        'profile.salary': 25000
+      });
+    }
+
+    res.status(200).json({
+      message: "Payment record deleted successfully"
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Error deleting payment record", error: error.message });
+  }
+};
+
 // Get trainer dashboard data
 const getTrainerDashboard = async (req, res) => {
   try {
@@ -501,8 +1016,20 @@ const getTrainerDashboard = async (req, res) => {
       isActive: true
     });
 
-    // Mock monthly earnings (integrate with SalaryModel later)
-    const monthlyEarnings = 2800;
+    // Get actual monthly earnings from transactions
+    const Transaction = require("../models/TransactionModel");
+    const currentMonth = new Date();
+    const startOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
+
+    const monthlyTransactions = await Transaction.find({
+      employeeId: trainerId,
+      category: "Salary",
+      type: "Expense",
+      date: { $gte: startOfMonth },
+      status: "Completed"
+    });
+
+    const monthlyEarnings = monthlyTransactions.reduce((sum, transaction) => sum + transaction.amount, 0);
 
     // Get recent activities (mock for now)
     const recentActivities = [
@@ -536,12 +1063,20 @@ const getTrainerDashboard = async (req, res) => {
 
 module.exports = {
   getAllTrainers,
+  getAllTrainersForSalary,
   getTrainersByGym,
   getTrainerById,
   addTrainer,
   updateTrainer,
   deleteTrainer,
   getTrainerSalary,
+  getTrainerSalaryDetails,
+  createOrUpdateTrainerSalary,
+  updateTrainerSalary,
+  getSalaryAnalytics,
+  addPaymentRecord,
+  updatePaymentRecord,
+  deletePaymentRecord,
   getTrainerSchedules,
   getTrainerClients,
   getAssignedMembers,

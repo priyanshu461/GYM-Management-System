@@ -12,6 +12,13 @@ trainerServices.getAllTrainers = async () => {
     return await res.json();
   };
 
+trainerServices.getAllTrainersForSalary = async () => {
+  const res = await fetch(`${BASE_API_URL}management/trainers/all-for-salary`, {
+    headers: { Authorization: `Bearer ${getToken()}` },
+  });
+  return await res.json();
+};
+
 trainerServices.createTrainer = async (data = {}) => {
   // Simulate fetching all trainers
   const res = await fetch(`${BASE_API_URL}management/trainers/add`, {
@@ -104,6 +111,13 @@ trainerServices.getTrainerSalary = async () => {
   return await res.json();
 };
 
+trainerServices.getTrainerSalaryDetails = async (trainerId) => {
+  const res = await fetch(`${BASE_API_URL}management/trainers/salary/${trainerId}`, {
+    headers: { Authorization: `Bearer ${getToken()}` },
+  });
+  return await res.json();
+};
+
 trainerServices.resetPassword = async (data = {}) => {
   const res = await fetch(`${BASE_API_URL}trainers/password/reset`, {
     method: "PUT",
@@ -112,6 +126,41 @@ trainerServices.resetPassword = async (data = {}) => {
       Authorization: `Bearer ${getToken()}`,
     },
     body: JSON.stringify(data),
+  });
+  return await res.json();
+};
+
+// Payment record services
+trainerServices.addPaymentRecord = async (trainerId, data = {}) => {
+  const res = await fetch(`${BASE_API_URL}management/trainers/${trainerId}/payment`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${getToken()}`,
+    },
+    body: JSON.stringify(data),
+  });
+  return await res.json();
+};
+
+trainerServices.updatePaymentRecord = async (trainerId, paymentId, data = {}) => {
+  const res = await fetch(`${BASE_API_URL}management/trainers/${trainerId}/payment/${paymentId}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${getToken()}`,
+    },
+    body: JSON.stringify(data),
+  });
+  return await res.json();
+};
+
+trainerServices.deletePaymentRecord = async (trainerId, paymentId) => {
+  const res = await fetch(`${BASE_API_URL}management/trainers/${trainerId}/payment/${paymentId}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${getToken()}`,
+    },
   });
   return await res.json();
 };
