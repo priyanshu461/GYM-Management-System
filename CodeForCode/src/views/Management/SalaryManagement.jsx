@@ -1,4 +1,4 @@
- import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import Layout from "../../components/Layout";
 import { motion } from "framer-motion";
 import { Plus, DollarSign, TrendingDown, TrendingUp, Calendar, FileText, Edit3, Trash2, X, Tag, Loader2, Eye, Settings, Users } from "lucide-react";
@@ -54,6 +54,7 @@ const SalaryManagement = () => {
   const [selectedYear, setSelectedYear] = useState('All');
   const [gyms, setGyms] = useState([]);
   const [formTrainers, setFormTrainers] = useState([]);
+  const [paymentDatesFromSalary, setPaymentDatesFromSalary] = useState({});
 
   const isAdmin = user?.user_type === 'Admin';
   const isGymOwner = user?.user_type === 'Gym';
@@ -131,6 +132,23 @@ const SalaryManagement = () => {
       // Use the optimized getAllTrainers API instead of looping through gyms
       const response = await trainerServices.getAllTrainers();
       setTrainers(response || []);
+
+      // Fetch salary details for each trainer to get payment dates
+      const paymentDates = {};
+      for (const trainer of response || []) {
+        try {
+          const salaryDetails = await trainerServices.getTrainerSalaryDetails(trainer.id);
+          if (salaryDetails.paymentHistory && salaryDetails.paymentHistory.length > 0) {
+            // Get the most recent payment date
+            const latestPayment = salaryDetails.paymentHistory.sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+            paymentDates[trainer.id] = latestPayment.date;
+          }
+        } catch (salaryErr) {
+          console.error(`Error fetching salary details for trainer ${trainer.id}:`, salaryErr);
+          // Continue with other trainers
+        }
+      }
+      setPaymentDatesFromSalary(paymentDates);
     } catch (err) {
       console.error('Error fetching all trainers:', err);
       setTrainers([]);
@@ -165,6 +183,23 @@ const SalaryManagement = () => {
       if (gymId) {
         const response = await gymServices.getTrainersByGym(gymId);
         setTrainers(response.trainers || []);
+
+        // Fetch salary details for each trainer to get payment dates
+        const paymentDates = {};
+        for (const trainer of response.trainers || []) {
+          try {
+            const salaryDetails = await trainerServices.getTrainerSalaryDetails(trainer.id);
+            if (salaryDetails.paymentHistory && salaryDetails.paymentHistory.length > 0) {
+              // Get the most recent payment date
+              const latestPayment = salaryDetails.paymentHistory.sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+              paymentDates[trainer.id] = latestPayment.date;
+            }
+          } catch (salaryErr) {
+            console.error(`Error fetching salary details for trainer ${trainer.id}:`, salaryErr);
+            // Continue with other trainers
+          }
+        }
+        setPaymentDatesFromSalary(paymentDates);
       }
     } catch (err) {
       console.error('Error fetching trainers by gym:', err);
@@ -438,25 +473,14 @@ const SalaryManagement = () => {
     return gymMatch && dateMatch;
   });
 
-  // Compute last payment date from transactions for each trainer
-  const lastPaymentDates = useMemo(() => {
-    const dateMap = {};
-    // Sort transactions by date descending to get the most recent first
-    const sortedTransactions = [...transactions].sort((a, b) => new Date(b.date) - new Date(a.date));
-    sortedTransactions.forEach(transaction => {
-      if (transaction.trainerId && !dateMap[transaction.trainerId]) {
-        dateMap[transaction.trainerId] = transaction.date;
-      }
-    });
-    return dateMap;
-  }, [transactions]);
 
-  // Filter trainers based on month and year (using computed lastPaymentDate or createdAt)
+
+  // Filter trainers based on month and year (using payment date from salary details or createdAt)
   const filteredTrainers = trainers.filter((trainer) => {
     let dateMatch = true;
 
-    // Use computed lastPaymentDate if available, otherwise use createdAt (joining date)
-    const trainerDate = lastPaymentDates[trainer.id] ? new Date(lastPaymentDates[trainer.id]) : new Date(trainer.createdAt);
+    // Use payment date from salary details if available, otherwise use createdAt (joining date)
+    const trainerDate = paymentDatesFromSalary[trainer.id] ? new Date(paymentDatesFromSalary[trainer.id]) : new Date(trainer.createdAt);
 
     // Month filter
     if (selectedMonth !== 'All') {
@@ -647,9 +671,6 @@ const SalaryManagement = () => {
                   <DollarSign className="w-4 h-4" />
                   Salary
                 </th>
-                <th className="px-6 py-4 text-left text-white font-semibold">
-                  Contact
-                </th>
                 <th className="px-6 py-4 text-left text-white font-semibold">Actions</th>
               </tr>
             </thead>
@@ -680,9 +701,8 @@ const SalaryManagement = () => {
                         <div className="text-xs text-muted-foreground">({trainer.gymName})</div>
                       )}
                     </td>
-                    <td className="px-6 py-4 text-foreground">{lastPaymentDates[trainer.id] ? formatDate(lastPaymentDates[trainer.id]) : 'Not Paid'}</td>
+                    <td className="px-6 py-4 text-foreground">{paymentDatesFromSalary[trainer.id] ? formatDate(paymentDatesFromSalary[trainer.id]) : 'Not Paid'}</td>
                     <td className="px-6 py-4 font-semibold text-foreground">₹{trainer.salary?.toLocaleString() || '25,000'}</td>
-                    <td className="px-6 py-4 text-foreground">{trainer.mobile || 'N/A'}</td>
                     <td className="px-6 py-4 flex gap-2">
                       <motion.button
                         whileHover={{ scale: 1.05 }}
