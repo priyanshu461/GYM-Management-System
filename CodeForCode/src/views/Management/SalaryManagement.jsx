@@ -55,6 +55,7 @@ const SalaryManagement = () => {
   const [gyms, setGyms] = useState([]);
   const [formTrainers, setFormTrainers] = useState([]);
   const [paymentDatesFromSalary, setPaymentDatesFromSalary] = useState({});
+  const [trainerSalaries, setTrainerSalaries] = useState({});
 
   const isAdmin = user?.user_type === 'Admin';
   const isGymOwner = user?.user_type === 'Gym';
@@ -133,8 +134,9 @@ const SalaryManagement = () => {
       const response = await trainerServices.getAllTrainers();
       setTrainers(response || []);
 
-      // Fetch salary details for each trainer to get payment dates
+      // Fetch salary details for each trainer to get payment dates and salaries
       const paymentDates = {};
+      const salaries = {};
       for (const trainer of response || []) {
         try {
           const salaryDetails = await trainerServices.getTrainerSalaryDetails(trainer.id);
@@ -143,12 +145,15 @@ const SalaryManagement = () => {
             const latestPayment = salaryDetails.paymentHistory.sort((a, b) => new Date(b.date) - new Date(a.date))[0];
             paymentDates[trainer.id] = latestPayment.date;
           }
+          // Store the monthly salary from salary details API
+          salaries[trainer.id] = salaryDetails.monthlySalary;
         } catch (salaryErr) {
           console.error(`Error fetching salary details for trainer ${trainer.id}:`, salaryErr);
           // Continue with other trainers
         }
       }
       setPaymentDatesFromSalary(paymentDates);
+      setTrainerSalaries(salaries);
     } catch (err) {
       console.error('Error fetching all trainers:', err);
       setTrainers([]);
@@ -702,7 +707,7 @@ const SalaryManagement = () => {
                       )}
                     </td>
                     <td className="px-6 py-4 text-foreground">{paymentDatesFromSalary[trainer.id] ? formatDate(paymentDatesFromSalary[trainer.id]) : 'Not Paid'}</td>
-                    <td className="px-6 py-4 font-semibold text-foreground">₹{trainer.salary?.toLocaleString() || '25,000'}</td>
+                    <td className="px-6 py-4 font-semibold text-foreground">₹{trainerSalaries[trainer.id]?.toLocaleString() || trainer.salary?.toLocaleString() || '25,000'}</td>
                     <td className="px-6 py-4 flex gap-2">
                       <motion.button
                         whileHover={{ scale: 1.05 }}
