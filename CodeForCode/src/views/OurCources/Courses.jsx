@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Layout from "../../components/Layout";
 import { useTheme } from "../../contexts/ThemeContext";
 import {
@@ -11,9 +11,16 @@ import {
 } from "../../components/ui/dialog";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
+import courseService from "../../services/courseService";
+import { useAuth } from "../../contexts/AuthContext";
+import { Loader2 } from "lucide-react";
 
 const Courses = () => {
   const { theme } = useTheme();
+  const { user } = useAuth();
+  const [courses, setCourses] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState("monthly");
@@ -25,45 +32,102 @@ const Courses = () => {
     name: "",
     upiId: "",
   });
+  const [enrolling, setEnrolling] = useState(false);
 
-  const [courses] = useState([
-    {
-      id: 1,
-      name: "Strength Training",
-      image: "https://images.unsplash.com/photo-1599058917212-d750089bc07e",
-      description:
-        "Build muscle and improve endurance with professional strength training programs.",
-      level: "Intermediate",
-      duration: "8 Weeks",
-    },
-    {
-      id: 2,
-      name: "Yoga & Flexibility",
-      image: "https://images.unsplash.com/photo-1552196563-55cd4e45efb3",
-      description:
-        "Enhance flexibility and balance through guided yoga and meditation sessions.",
-      level: "Beginner",
-      duration: "6 Weeks",
-    },
-    {
-      id: 3,
-      name: "Cardio Blast",
-      image: "https://media.istockphoto.com/id/961837744/photo/side-view-of-a-beautiful-woman-smiling-while-cycling-during-exercising-class-at-the-gym.jpg?s=612x612&w=0&k=20&c=6hZAtaQP3uAR6CvrWW44bA2ZKDAf5jiA-rQzxH-mb4o=",
-      description:
-        "High-intensity cardio sessions to burn fat and improve stamina efficiently.",
-      level: "All Levels",
-      duration: "4 Weeks",
-    },
-    {
-      id: 4,
-      name: "CrossFit Challenge",
-      image: "https://www.garagegymreviews.com/wp-content/uploads/2023/11/Photo-Credit-CrossFit-Games-@crossfitgames.jpeg",
-      description:
-        "Push your limits with CrossFit workouts focusing on strength, power, and agility.",
-      level: "Advanced",
-      duration: "10 Weeks",
-    },
-  ]);
+  // Fetch courses from database
+  useEffect(() => {
+    fetchCourses();
+  }, []);
+
+  const fetchCourses = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await courseService.getAllCourses();
+      setCourses(response.courses || []);
+    } catch (err) {
+      console.error('Error fetching courses:', err);
+      setError('Failed to load courses. Please try again.');
+      // Fallback to default courses if API fails
+      setCourses([
+        {
+          _id: 1,
+          name: "Strength Training",
+          image: "https://images.unsplash.com/photo-1599058917212-d750089bc07e",
+          description: "Build muscle and improve endurance with professional strength training programs.",
+          level: "Intermediate",
+          duration: "8 Weeks",
+          price: { monthly: 50, annual: 500 }
+        },
+        {
+          _id: 2,
+          name: "Yoga & Flexibility",
+          image: "https://images.unsplash.com/photo-1552196563-55cd4e45efb3",
+          description: "Enhance flexibility and balance through guided yoga and meditation sessions.",
+          level: "Beginner",
+          duration: "6 Weeks",
+          price: { monthly: 40, annual: 400 }
+        },
+        {
+          _id: 3,
+          name: "Cardio Blast",
+          image: "https://media.istockphoto.com/id/961837744/photo/side-view-of-a-beautiful-woman-smiling-while-cycling-during-exercising-class-at-the-gym.jpg?s=612x612&w=0&k=20&c=6hZAtaQP3uAR6CvrWW44bA2ZKDAf5jiA-rQzxH-mb4o=",
+          description: "High-intensity cardio sessions to burn fat and improve stamina efficiently.",
+          level: "All Levels",
+          duration: "4 Weeks",
+          price: { monthly: 45, annual: 450 }
+        },
+        {
+          _id: 4,
+          name: "CrossFit Challenge",
+          image: "https://www.garagegymreviews.com/wp-content/uploads/2023/11/Photo-Credit-CrossFit-Games-@crossfitgames.jpeg",
+          description: "Push your limits with CrossFit workouts focusing on strength, power, and agility.",
+          level: "Advanced",
+          duration: "10 Weeks",
+          price: { monthly: 60, annual: 600 }
+        },
+      ]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handle course enrollment
+  const handleEnroll = async () => {
+    if (!user) {
+      alert("Please login to enroll in courses");
+      return;
+    }
+
+    try {
+      setEnrolling(true);
+      const enrollmentData = {
+        userId: user._id,
+        courseId: selectedCourse._id,
+        plan: selectedPlan,
+        paymentMethod,
+        paymentDetails,
+        amount: selectedPlan === "monthly" ? selectedCourse.price?.monthly || 50 : selectedCourse.price?.annual || 500
+      };
+
+      await courseService.enrollInCourse(selectedCourse._id, enrollmentData);
+      alert("Enrollment successful! You will receive a confirmation email shortly.");
+      setIsModalOpen(false);
+      // Reset payment details
+      setPaymentDetails({
+        cardNumber: "",
+        expiry: "",
+        cvv: "",
+        name: "",
+        upiId: "",
+      });
+    } catch (err) {
+      console.error('Error enrolling in course:', err);
+      alert("Enrollment failed. Please try again.");
+    } finally {
+      setEnrolling(false);
+    }
+  };
 
   return (
     <Layout>
@@ -81,53 +145,79 @@ const Courses = () => {
           }`}>Gym Courses</span>
         </h2>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {courses.map((course) => (
-            <div
-              key={course.id}
-              className={`rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition transform hover:scale-105 ${
-                theme === 'dark'
-                  ? 'bg-gradient-to-br from-gray-700 to-gray-800'
-                  : 'bg-gradient-to-br from-teal-50 to-teal-100'
-              }`}
+        {loading ? (
+          <div className="flex justify-center items-center py-12">
+            <Loader2 className="w-8 h-8 animate-spin text-teal-500" />
+            <span className="ml-2 text-lg">Loading courses...</span>
+          </div>
+        ) : error ? (
+          <div className="text-center py-12">
+            <p className="text-red-500 mb-4">{error}</p>
+            <button
+              onClick={fetchCourses}
+              className="bg-teal-500 hover:bg-teal-600 text-white px-6 py-2 rounded-lg transition-colors"
             >
-              <img
-                src={course.image}
-                alt={course.name}
-                className="h-56 w-full object-cover"
-              />
-              <div className="p-6">
-                <h3 className={`text-2xl font-bold mb-2 ${
-                  theme === 'dark' ? 'text-teal-400' : 'text-teal-600'
-                }`}>
-                  {course.name}
-                </h3>
-                <p className={`text-sm mb-4 ${
-                  theme === 'dark' ? 'text-gray-300' : 'text-slate-600'
-                }`}>{course.description}</p>
-                <div className={`flex justify-between text-sm ${
-                  theme === 'dark' ? 'text-gray-400' : 'text-slate-500'
-                }`}>
-                  <span>Level: <span className={`font-semibold ${
-                    theme === 'dark' ? 'text-white' : 'text-slate-700'
-                  }`}>{course.level}</span></span>
-                  <span>Duration: <span className={`font-semibold ${
-                    theme === 'dark' ? 'text-white' : 'text-slate-700'
-                  }`}>{course.duration}</span></span>
+              Retry
+            </button>
+          </div>
+        ) : (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {courses.map((course) => (
+              <div
+                key={course._id || course.id}
+                className={`rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition transform hover:scale-105 ${
+                  theme === 'dark'
+                    ? 'bg-gradient-to-br from-gray-700 to-gray-800'
+                    : 'bg-gradient-to-br from-teal-50 to-teal-100'
+                }`}
+              >
+                <img
+                  src={course.image}
+                  alt={course.name}
+                  className="h-56 w-full object-cover"
+                />
+                <div className="p-6">
+                  <h3 className={`text-2xl font-bold mb-2 ${
+                    theme === 'dark' ? 'text-teal-400' : 'text-teal-600'
+                  }`}>
+                    {course.name}
+                  </h3>
+                  <p className={`text-sm mb-4 ${
+                    theme === 'dark' ? 'text-gray-300' : 'text-slate-600'
+                  }`}>{course.description}</p>
+                  <div className={`flex justify-between text-sm ${
+                    theme === 'dark' ? 'text-gray-400' : 'text-slate-500'
+                  }`}>
+                    <span>Level: <span className={`font-semibold ${
+                      theme === 'dark' ? 'text-white' : 'text-slate-700'
+                    }`}>{course.level}</span></span>
+                    <span>Duration: <span className={`font-semibold ${
+                      theme === 'dark' ? 'text-white' : 'text-slate-700'
+                    }`}>{course.duration}</span></span>
+                  </div>
+                  <div className={`text-sm mb-4 ${
+                    theme === 'dark' ? 'text-gray-300' : 'text-slate-600'
+                  }`}>
+                    <span className={`font-semibold ${
+                      theme === 'dark' ? 'text-teal-400' : 'text-teal-600'
+                    }`}>
+                      From ${course.price?.monthly || 50}/month
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setSelectedCourse(course);
+                      setIsModalOpen(true);
+                    }}
+                    className="mt-5 w-full bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2 rounded-xl transition duration-200"
+                  >
+                    Enroll Now
+                  </button>
                 </div>
-                <button
-                  onClick={() => {
-                    setSelectedCourse(course);
-                    setIsModalOpen(true);
-                  }}
-                  className="mt-5 w-full bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2 rounded-xl transition duration-200"
-                >
-                  Enroll Now
-                </button>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </section>
 
@@ -230,7 +320,7 @@ const Courses = () => {
                     }`}>Annual Plan</span>
                     <span className={`font-bold ml-2 text-sm ${
                       theme === 'dark' ? 'text-teal-400' : 'text-teal-600'
-                    }`}>$500/year</span>
+                    }`}>${selectedCourse.price?.annual || 500}/year</span>
                     <span className={`text-xs ml-2 ${
                       theme === 'dark' ? 'text-green-400' : 'text-green-600'
                     }`}>(Save 17%)</span>
@@ -352,7 +442,7 @@ const Courses = () => {
               <div className={`text-2xl font-bold ${
                 theme === 'dark' ? 'text-teal-400' : 'text-teal-600'
               }`}>
-                ${selectedPlan === "monthly" ? 50 : 500}
+                ${selectedPlan === "monthly" ? (selectedCourse.price?.monthly || 50) : (selectedCourse.price?.annual || 500)}
               </div>
             </div>
           </div>
@@ -367,14 +457,18 @@ const Courses = () => {
             Cancel
           </Button>
           <Button
-            onClick={() => {
-              // Handle payment logic here
-              alert("Payment processed successfully!");
-              setIsModalOpen(false);
-            }}
-            className="bg-teal-500 hover:bg-teal-600 text-white font-semibold px-6"
+            onClick={handleEnroll}
+            disabled={enrolling}
+            className="bg-teal-500 hover:bg-teal-600 text-white font-semibold px-6 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Pay Now
+            {enrolling ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                Processing...
+              </>
+            ) : (
+              "Pay Now"
+            )}
           </Button>
         </DialogFooter>
       </DialogContent>

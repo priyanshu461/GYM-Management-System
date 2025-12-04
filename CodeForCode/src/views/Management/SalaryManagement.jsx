@@ -424,14 +424,32 @@ const SalaryManagement = () => {
   };
 
   // Delete payment from salary details
-  const handleDeletePayment = async (paymentId) => {
+  const handleDeletePayment = async (payment) => {
     if (window.confirm('Are you sure you want to delete this payment?')) {
       try {
-        await financeService.deleteTransaction(paymentId);
-        // Refresh the trainer details
-        if (selectedTrainerDetails) {
-          const response = await trainerServices.getTrainerSalaryDetails(selectedTrainerDetails.trainerId);
-          setSelectedTrainerDetails(response);
+        // Find the transaction by fetching all salary transactions and matching
+        const filters = {
+          type: "Expense",
+          category: "Salary",
+          limit: 10000 // Fetch all transactions to ensure we find the one to delete
+        };
+        const response = await financeService.getAllTransactions(filters);
+        const transaction = response.transactions.find(t =>
+          t.employeeId === selectedTrainerDetails.trainerId &&
+          new Date(t.date).toDateString() === new Date(payment.date).toDateString() &&
+          t.amount === payment.amount
+        );
+        if (transaction) {
+          await financeService.deleteTransaction(transaction._id);
+          // Refresh the trainer details
+          if (selectedTrainerDetails) {
+            const updatedResponse = await trainerServices.getTrainerSalaryDetails(selectedTrainerDetails.trainerId);
+            setSelectedTrainerDetails(updatedResponse);
+          }
+          // Also refresh the transactions list to update summary
+          await fetchTransactions();
+        } else {
+          setError('Transaction not found. Please try again.');
         }
       } catch (err) {
         console.error('Error deleting payment:', err);
@@ -1268,7 +1286,7 @@ const SalaryManagement = () => {
                             <motion.button
                               whileHover={{ scale: 1.05 }}
                               whileTap={{ scale: 0.95 }}
-                              onClick={() => handleDeletePayment(payment._id || payment.id)}
+                              onClick={() => handleDeletePayment(payment)}
                               className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-3 py-2 rounded-lg transition-all shadow-md flex items-center gap-1 text-sm font-medium"
                             >
                               <Trash2 className="w-3 h-3" />
@@ -1282,6 +1300,159 @@ const SalaryManagement = () => {
                 </div>
               </div>
             </div>
+          </motion.div>
+        </motion.div>
+      )}
+
+      {/* Edit Payment Modal */}
+      {showAddPaymentForm && editingPayment && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50"
+        >
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.9, opacity: 0 }}
+            className="bg-background border border-border p-6 rounded-2xl shadow-2xl w-full max-w-md mx-4"
+          >
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
+                <Edit3 className="w-5 h-5 text-teal-500 dark:text-teal-400" />
+                Edit Payment
+              </h2>
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={() => {
+                  setShowAddPaymentForm(false);
+                  setEditingPayment(null);
+                }}
+                className="text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </motion.button>
+            </div>
+            <form onSubmit={handlePaymentSubmit} className="space-y-4">
+              <div className="relative">
+                <input
+                  type="date"
+                  name="date"
+                  value={paymentFormData.date}
+                  onChange={handlePaymentFormChange}
+                  className="w-full bg-background border border-input text-foreground rounded-xl pl-4 pr-4 py-3 focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all"
+                  required
+                />
+              </div>
+              <div className="relative">
+                <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <input
+                  type="number"
+                  name="amount"
+                  placeholder="Payment Amount"
+                  value={paymentFormData.amount}
+                  onChange={handlePaymentFormChange}
+                  className="w-full bg-background border border-input text-foreground rounded-xl pl-10 pr-4 py-3 placeholder:text-muted-foreground focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all"
+                  required
+                />
+              </div>
+              <div className="relative">
+                <FileText className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <input
+                  type="text"
+                  name="description"
+                  placeholder="Payment Description"
+                  value={paymentFormData.description}
+                  onChange={handlePaymentFormChange}
+                  className="w-full bg-background border border-input text-foreground rounded-xl pl-10 pr-4 py-3 placeholder:text-muted-foreground focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all"
+                  required
+                />
+              </div>
+              <div className="relative">
+                <select
+                  name="status"
+                  value={paymentFormData.status}
+                  onChange={handlePaymentFormChange}
+                  className="w-full bg-background border border-input text-foreground rounded-xl pl-4 pr-4 py-3 focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all appearance-none"
+                  required
+                >
+                  <option value="Completed">Completed</option>
+                  <option value="Pending">Pending</option>
+                  <option value="Failed">Failed</option>
+                </select>
+              </div>
+
+              {/* Salary Breakdown Fields */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-foreground">Salary Breakdown</h3>
+
+                <div className="relative">
+                  <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <input
+                    type="number"
+                    name="salaryBreakdown.baseSalary"
+                    placeholder="Base Salary"
+                    value={paymentFormData.salaryBreakdown.baseSalary}
+                    onChange={handlePaymentFormChange}
+                    className="w-full bg-background border border-input text-foreground rounded-xl pl-10 pr-4 py-3 placeholder:text-muted-foreground focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all"
+                    min="0"
+                  />
+                </div>
+
+                <div className="relative">
+                  <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <input
+                    type="number"
+                    name="salaryBreakdown.performanceBonus"
+                    placeholder="Performance Bonus"
+                    value={paymentFormData.salaryBreakdown.performanceBonus}
+                    onChange={handlePaymentFormChange}
+                    className="w-full bg-background border border-input text-foreground rounded-xl pl-10 pr-4 py-3 placeholder:text-muted-foreground focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all"
+                    min="0"
+                  />
+                </div>
+
+                <div className="relative">
+                  <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <input
+                    type="number"
+                    name="salaryBreakdown.clientCommissions"
+                    placeholder="Client Commissions"
+                    value={paymentFormData.salaryBreakdown.clientCommissions}
+                    onChange={handlePaymentFormChange}
+                    className="w-full bg-background border border-input text-foreground rounded-xl pl-10 pr-4 py-3 placeholder:text-muted-foreground focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all"
+                    min="0"
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-3 pt-4">
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  type="button"
+                  onClick={() => {
+                    setShowAddPaymentForm(false);
+                    setEditingPayment(null);
+                  }}
+                  className="px-6 py-3 bg-muted text-muted-foreground rounded-xl hover:bg-muted/80 transition-all font-medium"
+                >
+                  Cancel
+                </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  type="submit"
+                  disabled={submitting}
+                  className="px-6 py-3 bg-gradient-to-r from-teal-600 to-teal-500 text-white rounded-xl shadow-lg hover:from-teal-700 hover:to-teal-600 transition-all font-semibold flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Edit3 className="w-4 h-4" />}
+                  {submitting ? "Updating..." : "Update Payment"}
+                </motion.button>
+              </div>
+            </form>
           </motion.div>
         </motion.div>
       )}

@@ -402,7 +402,7 @@ const ExpenseManagement = () => {
                     <td className="px-6 py-4 font-semibold text-foreground">₹{t.amount.toLocaleString()}</td>
                     <td className="px-6 py-4 text-foreground">{t.description}</td>
                     <td className="px-6 py-4 text-foreground">{t.gym}</td>
-                    <td className="px-6 py-4 flex justify-center">
+                    <td className="px-6 py-4 flex gap-2 justify-center">
                       <motion.button
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
@@ -411,6 +411,15 @@ const ExpenseManagement = () => {
                       >
                         <Eye className="w-4 h-4" />
                         View
+                      </motion.button>
+                      <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => handleDelete(t._id)}
+                        className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-3 py-2 rounded-xl transition-all shadow-md flex items-center gap-2 text-sm font-medium"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                        Delete
                       </motion.button>
                     </td>
                   </motion.tr>
