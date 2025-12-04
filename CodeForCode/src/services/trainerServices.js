@@ -172,4 +172,11 @@ trainerServices.deletePaymentRecord = async (trainerId, paymentId) => {
   return await res.json();
 };
 
+trainerServices.getAllTrainerPaymentDates = async () => {
+  const res = await fetch(`${BASE_API_URL}management/trainers/payment-dates`, {
+    headers: { Authorization: `Bearer ${getToken()}` },
+  });
+  return await res.json();
+};
+
 export default trainerServices;

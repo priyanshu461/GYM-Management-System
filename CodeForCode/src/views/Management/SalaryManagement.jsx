@@ -54,6 +54,7 @@ const SalaryManagement = () => {
   const [selectedYear, setSelectedYear] = useState('All');
   const [gyms, setGyms] = useState([]);
   const [formTrainers, setFormTrainers] = useState([]);
+  const [trainerPaymentDates, setTrainerPaymentDates] = useState({});
 
   const isAdmin = user?.user_type === 'Admin';
   const isGymOwner = user?.user_type === 'Gym';
@@ -102,6 +103,23 @@ const SalaryManagement = () => {
       fetchFormTrainers(formData.gym);
     }
   }, [formData.gym, showForm]);
+
+  const fetchTrainerPaymentDates = async () => {
+    try {
+      const response = await trainerServices.getAllTrainerPaymentDates();
+      setTrainerPaymentDates(response.paymentDates || {});
+    } catch (err) {
+      console.error('Error fetching trainer payment dates:', err);
+      setTrainerPaymentDates({});
+    }
+  };
+
+  // Fetch payment dates for all trainers
+  useEffect(() => {
+    if (allTrainers.length > 0 || trainers.length > 0) {
+      fetchTrainerPaymentDates();
+    }
+  }, [allTrainers, trainers]);
 
   const fetchTransactions = async () => {
     try {
@@ -647,16 +665,13 @@ const SalaryManagement = () => {
                   <DollarSign className="w-4 h-4" />
                   Salary
                 </th>
-                <th className="px-6 py-4 text-left text-white font-semibold">
-                  Contact
-                </th>
                 <th className="px-6 py-4 text-left text-white font-semibold">Actions</th>
               </tr>
             </thead>
             <tbody>
               {trainersLoading ? (
                 <tr>
-                  <td colSpan="7" className="px-6 py-12 text-center text-muted-foreground">
+                  <td colSpan="6" className="px-6 py-12 text-center text-muted-foreground">
                     <div className="flex flex-col items-center gap-2">
                       <Loader2 className="w-8 h-8 animate-spin text-teal-500" />
                       <span className="text-lg">Loading trainers...</span>
@@ -682,7 +697,6 @@ const SalaryManagement = () => {
                     </td>
                     <td className="px-6 py-4 text-foreground">{lastPaymentDates[trainer.id] ? formatDate(lastPaymentDates[trainer.id]) : 'Not Paid'}</td>
                     <td className="px-6 py-4 font-semibold text-foreground">₹{trainer.salary?.toLocaleString() || '25,000'}</td>
-                    <td className="px-6 py-4 text-foreground">{trainer.mobile || 'N/A'}</td>
                     <td className="px-6 py-4 flex gap-2">
                       <motion.button
                         whileHover={{ scale: 1.05 }}
@@ -731,7 +745,7 @@ const SalaryManagement = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="7" className="px-6 py-12 text-center text-muted-foreground">
+                  <td colSpan="6" className="px-6 py-12 text-center text-muted-foreground">
                     <div className="flex flex-col items-center gap-2">
                       <DollarSign className="w-8 h-8 text-muted-foreground/50" />
                       <span className="text-lg">No trainers found.</span>
