@@ -57,6 +57,14 @@ const SalaryManagement = () => {
   const [paymentDatesFromSalary, setPaymentDatesFromSalary] = useState({});
   const [trainerSalaries, setTrainerSalaries] = useState({});
 
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalRecords, setTotalRecords] = useState(0);
+  const [hasNextPage, setHasNextPage] = useState(false);
+  const [hasPrevPage, setHasPrevPage] = useState(false);
+
   const isAdmin = user?.user_type === 'Admin';
   const isGymOwner = user?.user_type === 'Gym';
 
@@ -90,13 +98,20 @@ const SalaryManagement = () => {
 
   // Refetch transactions when gym filter changes
   useEffect(() => {
-    fetchTransactions();
+    setCurrentPage(1); // Reset to first page when filters change
+    fetchTransactions(1);
     if (selectedGym && selectedGym !== 'All') {
       fetchTrainersByGym();
     } else if (isAdmin && selectedGym === 'All' && gyms.length > 0) {
       fetchAllTrainers();
     }
   }, [selectedGym, gyms]);
+
+  // Refetch transactions when month/year filters change
+  useEffect(() => {
+    setCurrentPage(1); // Reset to first page when filters change
+    fetchTransactions(1);
+  }, [selectedMonth, selectedYear]);
 
   // Fetch form trainers when gym changes in form
   useEffect(() => {
@@ -105,20 +120,32 @@ const SalaryManagement = () => {
     }
   }, [formData.gym, showForm]);
 
-  const fetchTransactions = async () => {
+  const fetchTransactions = async (page = currentPage) => {
     try {
-      setLoading(false);
+      setLoading(true);
       setError(null);
       const filters = {
         type: "Expense",
-        category: "Salary"
+        category: "Salary",
+        page: page,
+        limit: pageSize
       };
       if (selectedGym && selectedGym !== 'All') {
         filters.gym = selectedGym;
       }
+      if (selectedMonth !== 'All') {
+        filters.month = selectedMonth;
+      }
+      if (selectedYear !== 'All') {
+        filters.year = selectedYear;
+      }
 
       const response = await financeService.getAllTransactions(filters);
       setTransactions(response.transactions || []);
+      setTotalPages(response.pagination?.total || 1);
+      setTotalRecords(response.pagination?.totalRecords || 0);
+      setHasNextPage(response.pagination?.current < response.pagination?.total);
+      setHasPrevPage(response.pagination?.current > 1);
     } catch (err) {
       console.error('Error fetching transactions:', err);
       setError('Failed to load transactions. Please try again.');
@@ -500,11 +527,14 @@ const SalaryManagement = () => {
     return dateMatch;
   });
 
-  // Summary calculations
-  const totalExpense = filteredTransactions.reduce((acc, curr) => acc + curr.amount, 0);
+  // Summary calculations - total monthly salaries should reflect the filtered data
+  const totalMonthlySalaries = filteredTransactions
+    .filter((t) => t.type === "Expense" && t.category === "Salary")
+    .reduce((acc, curr) => acc + curr.amount, 0);
 
-  // Calculate trainer-based totals when showing trainers (use filtered trainers)
-  const totalTrainerSalaries = filteredTrainers.reduce((acc, trainer) => acc + (trainer.salary || 25000), 0);
+  // Calculate trainer-based totals when showing trainers (use filtered trainers for count, but all trainers for total salary)
+  const allTrainersForTotal = isAdmin && selectedGym === 'All' ? allTrainers : trainers;
+  const totalTrainerSalaries = allTrainersForTotal.reduce((acc, trainer) => acc + (trainer.salary || 25000), 0);
   const trainerCount = filteredTrainers.length;
 
   return (
@@ -628,7 +658,7 @@ const SalaryManagement = () => {
               </h2>
             </div>
             <p className="text-3xl font-bold text-red-600 dark:text-red-400">
-              ₹{((selectedGym !== 'All' || isGymOwner) ? totalTrainerSalaries : totalExpense).toLocaleString()}
+              ₹{totalMonthlySalaries.toLocaleString()}
             </p>
           </motion.div>
           <motion.div
@@ -698,7 +728,7 @@ const SalaryManagement = () => {
                     transition={{ delay: 0.6 + index * 0.1 }}
                     className="border-b border-border hover:bg-gradient-to-r hover:from-teal-900/5 hover:to-teal-800/5 dark:hover:from-teal-900/10 dark:hover:to-teal-800/10 transition-all duration-200"
                   >
-                    <td className="px-6 py-4 text-foreground">{index + 1}</td>
+                    <td className="px-6 py-4 text-foreground">{(currentPage - 1) * pageSize + index + 1}</td>
                     <td className="px-6 py-4 text-foreground">{trainer.employeeId}</td>
                     <td className="px-6 py-4 text-foreground font-medium">
                       {trainer.name}
@@ -772,10 +802,57 @@ const SalaryManagement = () => {
                   </td>
                 </tr>
               )}
-            
+
             </tbody>
           </table>
         </motion.div>
+
+        {/* Pagination Controls */}
+        {totalPages > 1 && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.6 }}
+            className="mt-6 flex justify-center items-center gap-4"
+          >
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => {
+                const newPage = currentPage - 1;
+                setCurrentPage(newPage);
+                fetchTransactions(newPage);
+              }}
+              disabled={!hasPrevPage}
+              className="px-4 py-2 bg-gradient-to-r from-teal-600 to-teal-500 text-white rounded-xl shadow-lg hover:from-teal-700 hover:to-teal-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 font-medium"
+            >
+              Previous
+            </motion.button>
+
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">
+                Page {currentPage} of {totalPages}
+              </span>
+              <span className="text-sm text-muted-foreground">
+                ({totalRecords} total records)
+              </span>
+            </div>
+
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => {
+                const newPage = currentPage + 1;
+                setCurrentPage(newPage);
+                fetchTransactions(newPage);
+              }}
+              disabled={!hasNextPage}
+              className="px-4 py-2 bg-gradient-to-r from-teal-600 to-teal-500 text-white rounded-xl shadow-lg hover:from-teal-700 hover:to-teal-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 font-medium"
+            >
+              Next
+            </motion.button>
+          </motion.div>
+        )}
 
         <motion.div
           initial={{ opacity: 0 }}
