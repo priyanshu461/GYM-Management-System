@@ -193,7 +193,8 @@ const ClassesSchedule = () => {
         await classService.updateClass(editingClass._id, submitData);
       } else {
         // Add new class
-        await classService.addClass(submitData);
+        const newClass = await classService.addClass(submitData);
+        setClasses(prev => [newClass, ...prev]);
       }
 
       // Reset form
@@ -259,9 +260,11 @@ const ClassesSchedule = () => {
 
   // Filter classes based on search term
   const filteredClasses = classes.filter(cls =>
-    cls.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (cls.trainerId?.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-    cls.category.toLowerCase().includes(searchTerm.toLowerCase())
+    cls && (
+      (cls.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (cls.trainerId?.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (cls.category || '').toLowerCase().includes(searchTerm.toLowerCase())
+    )
   );
 
   // Get status color
