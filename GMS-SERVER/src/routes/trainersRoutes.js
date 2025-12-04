@@ -15,6 +15,7 @@ const {
   addPaymentRecord,
   updatePaymentRecord,
   deletePaymentRecord,
+  getAllTrainerPaymentDates,
 } = require('../controllers/TrainersController');
 
 router.get('/all', getAllTrainers);
@@ -23,6 +24,7 @@ router.get('/gym/:gymId', getTrainersByGym); // Get trainers by gym ID
 router.get('/:id', getTrainerById); // Add route to get single trainer by ID
 router.get('/salary/:trainerId', getTrainerSalaryDetails); // Add route to get trainer salary details
 router.get('/salary/analytics', getSalaryAnalytics); // Get salary analytics for all trainers
+router.get('/payment-dates', getAllTrainerPaymentDates); // Get all trainer payment dates
 router.post('/add', addTrainer);
 router.post('/salary/create-or-update', createOrUpdateTrainerSalary); // Create or update trainer salary transaction
 router.put('/salary/:trainerId', updateTrainerSalary); // Update trainer salary dynamically

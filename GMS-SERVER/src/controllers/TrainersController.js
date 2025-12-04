@@ -990,6 +990,72 @@ const deletePaymentRecord = async (req, res) => {
   }
 };
 
+// Get all trainer payment dates for salary management
+const getAllTrainerPaymentDates = async (req, res) => {
+  try {
+    const Transaction = require("../models/TransactionModel");
+
+    // Get the most recent payment date for each trainer
+    const paymentDates = await Transaction.aggregate([
+      {
+        $match: {
+          category: "Salary",
+          type: "Expense",
+          status: "Completed"
+        }
+      },
+      {
+        $sort: { date: -1 }
+      },
+      {
+        $group: {
+          _id: "$employeeId",
+          lastPaymentDate: { $first: "$date" },
+          totalPayments: { $sum: 1 }
+        }
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: '_id',
+          foreignField: '_id',
+          as: 'trainer'
+        }
+      },
+      {
+        $unwind: {
+          path: '$trainer',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $project: {
+          trainerId: '$_id',
+          trainerName: '$trainer.name',
+          lastPaymentDate: 1,
+          totalPayments: 1
+        }
+      }
+    ]);
+
+    // Convert to a map for easy lookup
+    const paymentDateMap = {};
+    paymentDates.forEach(item => {
+      paymentDateMap[item.trainerId] = {
+        date: item.lastPaymentDate,
+        totalPayments: item.totalPayments
+      };
+    });
+
+    res.status(200).json({
+      paymentDates: paymentDateMap,
+      totalTrainers: paymentDates.length
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching trainer payment dates", error: error.message });
+  }
+};
+
 // Get trainer dashboard data
 const getTrainerDashboard = async (req, res) => {
   try {
@@ -1077,6 +1143,7 @@ module.exports = {
   addPaymentRecord,
   updatePaymentRecord,
   deletePaymentRecord,
+  getAllTrainerPaymentDates,
   getTrainerSchedules,
   getTrainerClients,
   getAssignedMembers,

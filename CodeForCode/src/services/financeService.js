@@ -6,30 +6,34 @@ const financeService = {};
 financeService.getAllTransactions = async (filters = {}) => {
   try {
     const params = new URLSearchParams();
-    
+
     // Add filters to params
     Object.keys(filters).forEach(key => {
       if (filters[key] && filters[key] !== 'All') {
         params.append(key, filters[key]);
       }
     });
-    
+
+    // Add pagination defaults if not specified
+    if (!filters.page) params.append('page', '1');
+    if (!filters.limit) params.append('limit', '20');
+
     const url = `${BASE_API_URL}management/finance${params.toString() ? `?${params.toString()}` : ''}`;
-    
+
     console.log('🌐 FinanceService - API URL:', url);
     console.log('🌐 FinanceService - Filters:', filters);
     console.log('🌐 FinanceService - Query params:', params.toString());
-    
+
     const res = await fetch(url, {
       headers: { Authorization: `Bearer ${getToken()}` },
     });
-    
+
     console.log('🌐 FinanceService - Response status:', res.status);
-    
+
     if (!res.ok) {
       throw new Error(`Failed to fetch transactions: ${res.status}`);
     }
-    
+
     const data = await res.json();
     console.log('🌐 FinanceService - Response data:', data);
     return data;
