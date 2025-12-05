@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Layout from "../../components/Layout";
 import { useTheme } from "../../contexts/ThemeContext";
 import {
@@ -39,10 +39,37 @@ const FranchiseAndMembership = () => {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState("");
+  const [memberCount, setMemberCount] = useState(0);
+  const [isLoadingMembers, setIsLoadingMembers] = useState(false);
+  const [registrationSuccess, setRegistrationSuccess] = useState(false);
+  const [buttonStates, setButtonStates] = useState({});
+
+  // Fetch member count on component mount and when registration succeeds
+  useEffect(() => {
+    const fetchMemberCount = async () => {
+      setIsLoadingMembers(true);
+      try {
+        const response = await gymServices.getUser();
+        setMemberCount(response.customers?.length || 0);
+      } catch (error) {
+        console.error('Error fetching member count:', error);
+        setMemberCount(0);
+      } finally {
+        setIsLoadingMembers(false);
+      }
+    };
+
+    fetchMemberCount();
+  }, [registrationSuccess]);
 
   const handleJoinNow = (planName) => {
     setSelectedPlan(planName);
     setIsDialogOpen(true);
+    // Set button loading state
+    setButtonStates(prev => ({ ...prev, [planName]: 'loading' }));
+    setTimeout(() => {
+      setButtonStates(prev => ({ ...prev, [planName]: 'ready' }));
+    }, 500);
   };
 
   const handleFormChange = (e) => {
@@ -59,8 +86,9 @@ const FranchiseAndMembership = () => {
         ...formData,
         plan: selectedPlan,
       };
-      await gymServices.addCustomer(customerData);
+      await gymServices.registerMember(customerData);
       setSubmitMessage("Membership registered successfully!");
+      setRegistrationSuccess(prev => !prev); // Trigger member count refresh
       setFormData({
         name: "",
         email: "",
@@ -75,6 +103,8 @@ const FranchiseAndMembership = () => {
       setTimeout(() => {
         setIsDialogOpen(false);
         setSubmitMessage("");
+        // Reset button states
+        setButtonStates({});
       }, 2000);
     } catch (error) {
       setSubmitMessage("Failed to register membership. Please try again.");
@@ -183,6 +213,7 @@ const FranchiseAndMembership = () => {
 
         {/* Franchise Section */}
         {activeTab === "franchise" && (
+          <>
           <div className="grid md:grid-cols-3 gap-8 animate-fade-in">
             {franchiseData.map((item, index) => (
               <div
@@ -232,10 +263,35 @@ const FranchiseAndMembership = () => {
               </div>
             ))}
           </div>
+          </>
         )}
 
         {activeTab === "membership" && (
-          <div className="grid md:grid-cols-3 gap-8">
+          <>
+            {/* Member Count Display */}
+            <div className="text-center mb-8">
+              <div className={`inline-flex items-center px-6 py-3 rounded-full ${
+                theme === 'dark'
+                  ? 'bg-gradient-to-r from-teal-800 to-teal-700 border border-teal-600'
+                  : 'bg-gradient-to-r from-teal-100 to-teal-200 border border-teal-300'
+              } shadow-lg`}>
+                <span className="text-2xl mr-3">👥</span>
+                <div className="text-left">
+                  <p className={`text-sm font-medium ${
+                    theme === 'dark' ? 'text-teal-200' : 'text-teal-700'
+                  }`}>
+                    Community Members
+                  </p>
+                  <p className={`text-2xl font-bold ${
+                    theme === 'dark' ? 'text-white' : 'text-teal-800'
+                  }`}>
+                    {isLoadingMembers ? '...' : memberCount}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-8">
             {membershipPlans.map((plan, index) => (
               <div
                 key={index}
@@ -262,13 +318,26 @@ const FranchiseAndMembership = () => {
                 </ul>
                 <button
                   onClick={() => handleJoinNow(plan.name)}
-                  className="bg-teal-600 text-white font-semibold px-5 py-2 rounded-full hover:bg-teal-700 transition"
+                  disabled={buttonStates[plan.name] === 'loading'}
+                  className={`font-semibold px-5 py-2 rounded-full transition-all duration-300 ${
+                    buttonStates[plan.name] === 'loading'
+                      ? 'bg-teal-500 cursor-not-allowed animate-pulse'
+                      : 'bg-teal-600 hover:bg-teal-700 hover:shadow-lg hover:scale-105'
+                  } text-white`}
                 >
-                  Join Now
+                  {buttonStates[plan.name] === 'loading' ? (
+                    <span className="flex items-center">
+                      <span className="animate-spin mr-2">⏳</span>
+                      Opening...
+                    </span>
+                  ) : (
+                    'Join Now'
+                  )}
                 </button>
               </div>
             ))}
           </div>
+          </>
         )}
 
         {/* Membership Signup Dialog */}

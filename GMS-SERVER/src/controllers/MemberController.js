@@ -1,5 +1,5 @@
 const Membership = require("../models/MembershipModel");
-const Plans = require("../models/PlansModel");
+const MembershipPlan = require("../models/MembershipPlanModel");
 const WorkoutCompletion = require("../models/WorkoutCompletionModel");
 const ClassAttendance = require("../models/ClassAttendanceModel");
 const Class = require("../models/ClassModel");
@@ -87,9 +87,9 @@ const addMember = async (req, res) => {
       gymId,
     } = req.body;
 
-    // Determine gymId: use req.user.gymId if present, otherwise require from body
-    const memberGymId = req.user.gymId || gymId;
-    if (!memberGymId) {
+    // Determine gymId: use req.user.gymId if present, otherwise use gymId from body or set to null for public registration
+    const memberGymId = (req.user && req.user.gymId) || gymId || null;
+    if (!memberGymId && req.user) {
       return res.status(400).json({ message: "Gym ID is required" });
     }
 
@@ -104,10 +104,12 @@ const addMember = async (req, res) => {
       }
     }
 
-    // Check if email already exists
-    const existingEmail = await User.findOne({ email: email.toLowerCase() });
-    if (existingEmail) {
-      return res.status(400).json({ message: "Email already exists" });
+    // Check if email already exists (only if email is provided)
+    if (email) {
+      const existingEmail = await User.findOne({ email: email.toLowerCase() });
+      if (existingEmail) {
+        return res.status(400).json({ message: "Email already exists" });
+      }
     }
 
     // Check if mobile already exists (optional, but consistent with update profile)
@@ -122,7 +124,7 @@ const addMember = async (req, res) => {
 
     const customer = new User({
       name,
-      email: email.toLowerCase(),
+      email: email ? email.toLowerCase() : null,
       mobile,
       password: bcrypt.hashSync(mobile, 10), // Default password is mobile number
       address,
@@ -136,12 +138,12 @@ const addMember = async (req, res) => {
       },
       user_type: "Member",
       gymId: memberGymId,
-      status: "Active",
+      isActive: true,
     });
     await customer.save();
     // Find plan by name if provided
     if (plan) {
-      const planDoc = await Plans.findOne({ name: plan });
+      const planDoc = await MembershipPlan.findOne({ name: plan });
       if (planDoc) {
         const membership = new Membership({
           customer: customer._id,
@@ -163,6 +165,7 @@ const addMember = async (req, res) => {
     //end notification
     res.status(201).json({ message: "Member added successfully" });
   } catch (error) {
+    console.error("Error adding member:", error);
     res
       .status(500)
       .json({ message: "Error adding member", error: error.message });

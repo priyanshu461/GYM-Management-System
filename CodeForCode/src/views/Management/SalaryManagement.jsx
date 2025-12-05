@@ -13,6 +13,8 @@ const SalaryManagement = () => {
   const [transactions, setTransactions] = useState([]);
   const [trainers, setTrainers] = useState([]);
   const [trainersLoading, setTrainersLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [showSalaryForm, setShowSalaryForm] = useState(false);
   const [showSalaryDetails, setShowSalaryDetails] = useState(false);
@@ -523,7 +525,7 @@ const SalaryManagement = () => {
     .reduce((acc, curr) => acc + curr.amount, 0);
 
   // Calculate trainer-based totals when showing trainers (use filtered trainers for count, but all trainers for total salary)
-  const allTrainersForTotal = isAdmin && selectedGym === 'All' ? allTrainers : trainers;
+  const allTrainersForTotal = trainers;
   const totalTrainerSalaries = allTrainersForTotal.reduce((acc, trainer) => acc + (trainer.salary || 25000), 0);
   const trainerCount = filteredTrainers.length;
 

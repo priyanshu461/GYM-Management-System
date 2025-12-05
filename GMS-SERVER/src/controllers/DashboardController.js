@@ -1,6 +1,7 @@
 const Payment = require("../models/PaymentModel");
 const Membership = require("../models/MembershipModel");
 const Product = require("../models/ProductModel");
+const User = require("../models/UserModel");
 
 // Get dashboard stats
 const getStats = async (req, res) => {
@@ -15,8 +16,8 @@ const getStats = async (req, res) => {
     // Orders: Count of completed payments
     const orders = await Payment.countDocuments({ status: "Completed" });
 
-    // Customers: Count of active customers
-    const customers = await Customer.countDocuments({ status: "Active" });
+    // Customers: Count of active members
+    const customers = await User.countDocuments({ user_type: "Member", isActive: true });
 
     // Traffic: For simplicity, count of memberships (or could be visits if tracked)
     const traffic = await Membership.countDocuments();

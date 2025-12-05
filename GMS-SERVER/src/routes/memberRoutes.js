@@ -14,6 +14,9 @@ const {
   getUpcomingClasses,
 } = require('../controllers/MemberController');
 
+// Public route for member registration (no authentication required)
+router.post('/register', addMember);
+
 // Admin routes (require admin authentication)
 router.get('/', authenticateToken, getAllMembers);
 router.get('/:id', authenticateToken, getMemberById);

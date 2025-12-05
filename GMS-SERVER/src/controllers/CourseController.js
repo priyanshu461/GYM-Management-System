@@ -3,9 +3,12 @@ const Course = require("../models/CourseModel");
 // Get all courses
 const getAllCourses = async (req, res) => {
   try {
+    console.log('Attempting to fetch courses...');
     const courses = await Course.find();
+    console.log('Courses fetched successfully:', courses.length);
     res.status(200).json(courses);
   } catch (error) {
+    console.error('Error in getAllCourses:', error);
     res.status(500).json({ message: "Error fetching courses", error: error.message });
   }
 };

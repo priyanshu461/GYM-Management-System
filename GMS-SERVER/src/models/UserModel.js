@@ -5,7 +5,7 @@ const userSchema = new Schema(
   {
     gymId: { type: mongoose.Schema.Types.ObjectId, ref: "Gym" },
     name: { type: String, required: true },
-    email: { type: String, required: true, unique: true },
+    email: { type: String, required: function() { return this.user_type !== 'Member'; }, unique: true },
     password: { type: String, required: true },
     employeeId: { type: String },
     mobile: { type: String },

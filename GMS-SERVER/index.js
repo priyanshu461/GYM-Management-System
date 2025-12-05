@@ -10,8 +10,9 @@ const connectDB = require("./src/config/db");
 connectDB();
 
 // Import models to register them
-require("./src/models/RoleModel");  
+require("./src/models/RoleModel");
 require("./src/models/UserModel");
+require("./src/models/CourseModel");
 
 // Middleware
 app.use(cors());
@@ -31,9 +32,12 @@ app.use("/api/dashboard", dashboardRoutes);
 const productRoutes = require("./src/routes/productRoutes");
 app.use("/api/products", productRoutes);
 
-// Member management routes
+// Member management routes (authentication handled per route)
 const memberRoutes = require("./src/routes/memberRoutes");
-app.use("/api/management/members", authenticateToken , memberRoutes);
+app.use("/api/management/members", memberRoutes);
+
+// Public member registration (no authentication required)
+app.post("/api/management/members/register", require("./src/controllers/MemberController").addMember);
 
 // Facilities routes
 const facilitiesRoutes = require("./src/routes/facilitiesRoutes");

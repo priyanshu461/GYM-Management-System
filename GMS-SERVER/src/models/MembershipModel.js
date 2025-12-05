@@ -12,7 +12,8 @@ const membershipSchema = new Schema(
     },
     plan: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Plans",required: [true, "Plan reference is required"],
+      ref: "MembershipPlan",
+      required: [true, "Plan reference is required"],
     },
     startDate: {
       type: Date,

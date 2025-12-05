@@ -382,7 +382,8 @@ gymServices.getAllTrainers = async () => {
     if (!res.ok) {
       throw new Error('Failed to fetch trainers');
     }
-    return await res.json();
+    const data = await res.json();
+    return data.trainers || [];
   } catch (error) {
     console.error('Error fetching trainers:', error);
     throw error;
@@ -423,6 +424,27 @@ gymServices.updateTrainer = async (trainerId, trainerData) => {
   } catch (error) {
     console.error('Error updating trainer:', error);
     throw error;
+  }
+};
+
+gymServices.registerMember = async (memberData) => {
+  try {
+    const res = await fetch(`${BASE_API_URL}management/members/register`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(memberData),
+    });
+
+    if (!res.ok) {
+      const errorData = await res.json();
+      throw new Error(errorData.message || `HTTP error! status: ${res.status}`);
+    }
+
+    return await res.json();
+  } catch (error) {
+    throw new Error(error.message || "Failed to register member");
   }
 };
 
