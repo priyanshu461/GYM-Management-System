@@ -43,6 +43,19 @@ const FranchiseAndMembership = () => {
   const [isLoadingMembers, setIsLoadingMembers] = useState(false);
   const [registrationSuccess, setRegistrationSuccess] = useState(false);
   const [buttonStates, setButtonStates] = useState({});
+  const [isCreateFranchiseDialogOpen, setIsCreateFranchiseDialogOpen] = useState(false);
+  const [isCreatePlanDialogOpen, setIsCreatePlanDialogOpen] = useState(false);
+  const [newFranchiseData, setNewFranchiseData] = useState({
+    title: "",
+    desc: "",
+    investment: "",
+    roi: "",
+  });
+  const [newPlanData, setNewPlanData] = useState({
+    name: "",
+    price: "",
+    benefits: [],
+  });
 
   // Fetch member count on component mount and when registration succeeds
   useEffect(() => {
@@ -107,7 +120,11 @@ const FranchiseAndMembership = () => {
         setButtonStates({});
       }, 2000);
     } catch (error) {
-      setSubmitMessage("Failed to register membership. Please try again.");
+      if (error?.message?.includes("Email already exists")) {
+        setSubmitMessage("This email is already registered. Please use a different email.");
+      } else {
+        setSubmitMessage("Failed to register membership. Please try again.");
+      }
       console.error("Error registering membership:", error);
     } finally {
       setIsSubmitting(false);
@@ -214,6 +231,14 @@ const FranchiseAndMembership = () => {
         {/* Franchise Section */}
         {activeTab === "franchise" && (
           <>
+          <div className="flex justify-end mb-6">
+            <Button
+              onClick={() => setIsCreateFranchiseDialogOpen(true)}
+              className="bg-teal-600 hover:bg-teal-700 text-white px-6 py-2 rounded-full shadow-lg"
+            >
+              + Create New Franchise
+            </Button>
+          </div>
           <div className="grid md:grid-cols-3 gap-8 animate-fade-in">
             {franchiseData.map((item, index) => (
               <div
@@ -268,6 +293,14 @@ const FranchiseAndMembership = () => {
 
         {activeTab === "membership" && (
           <>
+            <div className="flex justify-end mb-6">
+              <Button
+                onClick={() => setIsCreatePlanDialogOpen(true)}
+                className="bg-teal-600 hover:bg-teal-700 text-white px-6 py-2 rounded-full shadow-lg"
+              >
+                + Create New Plan
+              </Button>
+            </div>
             {/* Member Count Display */}
             <div className="text-center mb-8">
               <div className={`inline-flex items-center px-6 py-3 rounded-full ${
@@ -484,6 +517,155 @@ const FranchiseAndMembership = () => {
                 </Button>
                 <Button type="submit" disabled={isSubmitting}>
                   {isSubmitting ? "Registering..." : "Register Membership"}
+                </Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
+
+        {/* Create Franchise Dialog */}
+        <Dialog open={isCreateFranchiseDialogOpen} onOpenChange={setIsCreateFranchiseDialogOpen}>
+          <DialogContent className={`sm:max-w-[600px] ${theme === 'dark' ? 'bg-teal-800 text-white' : 'bg-white'}`}>
+            <DialogHeader>
+              <DialogTitle className={theme === 'dark' ? 'text-teal-100' : 'text-teal-800'}>
+                Create New Franchise
+              </DialogTitle>
+              <DialogDescription className={theme === 'dark' ? 'text-teal-300' : 'text-slate-600'}>
+                Add a new franchise option for potential partners.
+              </DialogDescription>
+            </DialogHeader>
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              // Handle franchise creation logic here
+              console.log('Creating franchise:', newFranchiseData);
+              setIsCreateFranchiseDialogOpen(false);
+              setNewFranchiseData({ title: "", desc: "", investment: "", roi: "" });
+            }} className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className={`block text-sm font-medium mb-1 ${theme === 'dark' ? 'text-teal-100' : 'text-teal-800'}`}>
+                    Franchise Title *
+                  </label>
+                  <Input
+                    value={newFranchiseData.title}
+                    onChange={(e) => setNewFranchiseData({ ...newFranchiseData, title: e.target.value })}
+                    required
+                    className={theme === 'dark' ? 'bg-teal-700 border-teal-600 text-teal-100' : ''}
+                  />
+                </div>
+                <div>
+                  <label className={`block text-sm font-medium mb-1 ${theme === 'dark' ? 'text-teal-100' : 'text-teal-800'}`}>
+                    Investment Range *
+                  </label>
+                  <Input
+                    value={newFranchiseData.investment}
+                    onChange={(e) => setNewFranchiseData({ ...newFranchiseData, investment: e.target.value })}
+                    required
+                    className={theme === 'dark' ? 'bg-teal-700 border-teal-600 text-teal-100' : ''}
+                  />
+                </div>
+              </div>
+              <div>
+                <label className={`block text-sm font-medium mb-1 ${theme === 'dark' ? 'text-teal-100' : 'text-teal-800'}`}>
+                  Description *
+                </label>
+                <Input
+                  value={newFranchiseData.desc}
+                  onChange={(e) => setNewFranchiseData({ ...newFranchiseData, desc: e.target.value })}
+                  required
+                  className={theme === 'dark' ? 'bg-teal-700 border-teal-600 text-teal-100' : ''}
+                />
+              </div>
+              <div>
+                <label className={`block text-sm font-medium mb-1 ${theme === 'dark' ? 'text-teal-100' : 'text-teal-800'}`}>
+                  Expected ROI *
+                </label>
+                <Input
+                  value={newFranchiseData.roi}
+                  onChange={(e) => setNewFranchiseData({ ...newFranchiseData, roi: e.target.value })}
+                  required
+                  className={theme === 'dark' ? 'bg-teal-700 border-teal-600 text-teal-100' : ''}
+                />
+              </div>
+              <DialogFooter>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsCreateFranchiseDialogOpen(false)}
+                >
+                  Cancel
+                </Button>
+                <Button type="submit">
+                  Create Franchise
+                </Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
+
+        {/* Create Membership Plan Dialog */}
+        <Dialog open={isCreatePlanDialogOpen} onOpenChange={setIsCreatePlanDialogOpen}>
+          <DialogContent className={`sm:max-w-[500px] ${theme === 'dark' ? 'bg-teal-800 text-white' : 'bg-white'}`}>
+            <DialogHeader>
+              <DialogTitle className={theme === 'dark' ? 'text-teal-100' : 'text-teal-800'}>
+                Create New Membership Plan
+              </DialogTitle>
+              <DialogDescription className={theme === 'dark' ? 'text-teal-300' : 'text-slate-600'}>
+                Add a new membership plan for customers.
+              </DialogDescription>
+            </DialogHeader>
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              // Handle plan creation logic here
+              console.log('Creating plan:', newPlanData);
+              setIsCreatePlanDialogOpen(false);
+              setNewPlanData({ name: "", price: "", benefits: [] });
+            }} className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className={`block text-sm font-medium mb-1 ${theme === 'dark' ? 'text-teal-100' : 'text-teal-800'}`}>
+                    Plan Name *
+                  </label>
+                  <Input
+                    value={newPlanData.name}
+                    onChange={(e) => setNewPlanData({ ...newPlanData, name: e.target.value })}
+                    required
+                    className={theme === 'dark' ? 'bg-teal-700 border-teal-600 text-teal-100' : ''}
+                  />
+                </div>
+                <div>
+                  <label className={`block text-sm font-medium mb-1 ${theme === 'dark' ? 'text-teal-100' : 'text-teal-800'}`}>
+                    Price *
+                  </label>
+                  <Input
+                    value={newPlanData.price}
+                    onChange={(e) => setNewPlanData({ ...newPlanData, price: e.target.value })}
+                    required
+                    className={theme === 'dark' ? 'bg-teal-700 border-teal-600 text-teal-100' : ''}
+                  />
+                </div>
+              </div>
+              <div>
+                <label className={`block text-sm font-medium mb-1 ${theme === 'dark' ? 'text-teal-100' : 'text-teal-800'}`}>
+                  Benefits (comma-separated) *
+                </label>
+                <Input
+                  value={newPlanData.benefits.join(', ')}
+                  onChange={(e) => setNewPlanData({ ...newPlanData, benefits: e.target.value.split(',').map(b => b.trim()) })}
+                  required
+                  className={theme === 'dark' ? 'bg-teal-700 border-teal-600 text-teal-100' : ''}
+                />
+              </div>
+              <DialogFooter>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsCreatePlanDialogOpen(false)}
+                >
+                  Cancel
+                </Button>
+                <Button type="submit">
+                  Create Plan
                 </Button>
               </DialogFooter>
             </form>
