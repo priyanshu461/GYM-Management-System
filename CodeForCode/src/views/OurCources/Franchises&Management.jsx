@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import Layout from "../../components/Layout";
-import { useTheme } from "../../contexts/ThemeContext";
+import Layout from "@/components/Layout";
+import { useTheme } from "@/contexts/ThemeContext";
 import {
   Dialog,
   DialogContent,
@@ -20,6 +20,9 @@ import {
   SelectValue,
 } from "../../components/ui/select";
 import gymServices from "../../services/gymServices";
+import franchiseService from "../../services/franchiseService";
+import membershipService from "../../services/membershipService";
+import { Loader2 } from "lucide-react";
 
 const FranchiseAndMembership = () => {
   const { theme } = useTheme();
@@ -53,9 +56,167 @@ const FranchiseAndMembership = () => {
   });
   const [newPlanData, setNewPlanData] = useState({
     name: "",
+    description: "",
+    duration: "",
     price: "",
-    benefits: [],
+    features: [],
   });
+  const [franchises, setFranchises] = useState([]);
+  const [membershipPlans, setMembershipPlans] = useState([]);
+  const [loadingFranchises, setLoadingFranchises] = useState(true);
+  const [loadingPlans, setLoadingPlans] = useState(true);
+  const [franchiseError, setFranchiseError] = useState(null);
+  const [planError, setPlanError] = useState(null);
+  const [creatingFranchise, setCreatingFranchise] = useState(false);
+  const [creatingPlan, setCreatingPlan] = useState(false);
+
+  // Fetch franchises from database
+  useEffect(() => {
+    const fetchFranchises = async () => {
+      try {
+        setLoadingFranchises(true);
+        setFranchiseError(null);
+        const response = await franchiseService.getAllFranchises();
+        const apiFranchises = Array.isArray(response) ? response : response.franchises || [];
+        // Always include fallback franchises for display
+        const fallbackFranchises = [
+          {
+            _id: 1,
+            title: "Single Unit Franchise",
+            desc: "Start your own gym under our brand with full setup, marketing, and training support.",
+            investment: "₹15–25 Lakhs",
+            roi: "Expected ROI in 12–18 months",
+          },
+          {
+            _id: 2,
+            title: "Master Franchise",
+            desc: "Own and manage multiple branches in your city with exclusive regional rights.",
+            investment: "₹50+ Lakhs",
+            roi: "Expected ROI in 18–24 months",
+          },
+          {
+            _id: 3,
+            title: "Express Studio",
+            desc: "Compact gym model ideal for smaller spaces or communities with low setup cost.",
+            investment: "₹8–12 Lakhs",
+            roi: "Expected ROI in 10–12 months",
+          },
+        ];
+        setFranchises(apiFranchises.length > 0 ? apiFranchises : fallbackFranchises);
+      } catch (err) {
+        console.error('Error fetching franchises:', err);
+        setFranchiseError('Failed to load franchises. Please try again.');
+        // Fallback to default franchises if API fails
+        setFranchises([
+          {
+            _id: 1,
+            title: "Single Unit Franchise",
+            desc: "Start your own gym under our brand with full setup, marketing, and training support.",
+            investment: "₹15–25 Lakhs",
+            roi: "Expected ROI in 12–18 months",
+          },
+          {
+            _id: 2,
+            title: "Master Franchise",
+            desc: "Own and manage multiple branches in your city with exclusive regional rights.",
+            investment: "₹50+ Lakhs",
+            roi: "Expected ROI in 18–24 months",
+          },
+          {
+            _id: 3,
+            title: "Express Studio",
+            desc: "Compact gym model ideal for smaller spaces or communities with low setup cost.",
+            investment: "₹8–12 Lakhs",
+            roi: "Expected ROI in 10–12 months",
+          },
+        ]);
+      } finally {
+        setLoadingFranchises(false);
+      }
+    };
+
+    fetchFranchises();
+  }, []);
+
+  // Fetch membership plans from database
+  useEffect(() => {
+    const fetchMembershipPlans = async () => {
+      try {
+        setLoadingPlans(true);
+        setPlanError(null);
+        const response = await membershipService.getAllMembershipPlans();
+        const apiPlans = Array.isArray(response) ? response : response.plans || [];
+        // Always include fallback plans for display
+        const fallbackPlans = [
+          {
+            _id: 1,
+            name: "Basic Plan",
+            price: "₹999/month",
+            features: ["Gym Access", "Locker Facility", "1 Free Diet Plan"],
+          },
+          {
+            _id: 2,
+            name: "Premium Plan",
+            price: "₹1999/month",
+            features: [
+              "All Basic Benefits",
+              "Personal Trainer (2 sessions/week)",
+              "Sauna Access",
+            ],
+          },
+          {
+            _id: 3,
+            name: "Elite Plan",
+            price: "₹2999/month",
+            features: [
+              "Unlimited Access",
+              "Personal Trainer (Daily)",
+              "Diet Consultation",
+              "Priority Support",
+            ],
+          },
+        ];
+        setMembershipPlans(apiPlans.length > 0 ? apiPlans : fallbackPlans);
+      } catch (err) {
+        console.error('Error fetching membership plans:', err);
+        setPlanError('Failed to load membership plans. Please try again.');
+        // Fallback to default plans if API fails
+        setMembershipPlans([
+          {
+            _id: 1,
+            name: "Basic Plan",
+            price: "₹999/month",
+            features: ["Gym Access", "Locker Facility", "1 Free Diet Plan"],
+          },
+          {
+            _id: 2,
+            name: "Premium Plan",
+            price: "₹1999/month",
+            features: [
+              "All Basic Benefits",
+              "Personal Trainer (2 sessions/week)",
+              "Sauna Access",
+            ],
+          },
+          {
+            _id: 3,
+            name: "Elite Plan",
+            price: "₹2999/month",
+            features: [
+              "Unlimited Access",
+              "Personal Trainer (Daily)",
+              "Diet Consultation",
+              "Priority Support",
+            ],
+          },
+        ]);
+      } finally {
+        setLoadingPlans(false);
+      }
+    };
+
+    fetchMembershipPlans();
+  }, []);
 
   // Fetch member count on component mount and when registration succeeds
   useEffect(() => {
@@ -131,53 +292,7 @@ const FranchiseAndMembership = () => {
     }
   };
 
-  const franchiseData = [
-    {
-      title: "Single Unit Franchise",
-      desc: "Start your own gym under our brand with full setup, marketing, and training support.",
-      investment: "₹15–25 Lakhs",
-      roi: "Expected ROI in 12–18 months",
-    },
-    {
-      title: "Master Franchise",
-      desc: "Own and manage multiple branches in your city with exclusive regional rights.",
-      investment: "₹50+ Lakhs",
-      roi: "Expected ROI in 18–24 months",
-    },
-    {
-      title: "Express Studio",
-      desc: "Compact gym model ideal for smaller spaces or communities with low setup cost.",
-      investment: "₹8–12 Lakhs",
-      roi: "Expected ROI in 10–12 months",
-    },
-  ];
 
-  const membershipPlans = [
-    {
-      name: "Basic Plan",
-      price: "₹999/month",
-      benefits: ["Gym Access", "Locker Facility", "1 Free Diet Plan"],
-    },
-    {
-      name: "Premium Plan",
-      price: "₹1999/month",
-      benefits: [
-        "All Basic Benefits",
-        "Personal Trainer (2 sessions/week)",
-        "Sauna Access",
-      ],
-    },
-    {
-      name: "Elite Plan",
-      price: "₹2999/month",
-      benefits: [
-        "Unlimited Access",
-        "Personal Trainer (Daily)",
-        "Diet Consultation",
-        "Priority Support",
-      ],
-    },
-  ];
 
   return (
     <Layout>
@@ -239,55 +354,72 @@ const FranchiseAndMembership = () => {
               + Create New Franchise
             </Button>
           </div>
-          <div className="grid md:grid-cols-3 gap-8 animate-fade-in">
-            {franchiseData.map((item, index) => (
-              <div
-                key={index}
-                className={`relative p-6 rounded-2xl shadow-lg hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 group overflow-hidden ${
-                  theme === 'dark'
-                    ? 'bg-gradient-to-br from-gray-700 via-gray-800 to-gray-900 border border-teal-700'
-                    : 'bg-gradient-to-br from-teal-50 via-teal-100 to-teal-200 border border-teal-300'
-                }`}
-                style={{ animationDelay: `${index * 0.1}s` }}
+          {loadingFranchises ? (
+            <div className="flex justify-center items-center py-12">
+              <Loader2 className="animate-spin h-8 w-8 text-teal-600" />
+              <span className="ml-2 text-teal-600">Loading franchises...</span>
+            </div>
+          ) : franchiseError ? (
+            <div className="text-center py-12">
+              <p className="text-red-600 mb-4">{franchiseError}</p>
+              <Button
+                onClick={() => window.location.reload()}
+                className="bg-teal-600 hover:bg-teal-700 text-white"
               >
-                <div className={`absolute inset-0 ${
-                  theme === 'dark'
-                    ? 'bg-gradient-to-br from-teal-900/20 to-transparent'
-                    : 'bg-gradient-to-br from-teal-400/10 to-transparent'
-                } opacity-0 group-hover:opacity-100 transition-opacity duration-500`}></div>
-                <div className="relative z-10">
-                  <h3 className={`text-2xl font-extrabold mb-2 flex items-center ${
-                    theme === 'dark' ? 'text-teal-400' : 'text-teal-600'
-                  }`}>
-                    <span className="mr-2">🏢</span>
-                    {item.title}
-                  </h3>
-                  <p className={`mb-4 ${
-                    theme === 'dark' ? 'text-gray-300' : 'text-slate-700'
-                  }`}>{item.desc}</p>
-                  <div className="space-y-2">
-                    <p className="text-sm flex items-center">
-                      <span className="mr-2">💰</span>
-                      <span className={`font-semibold ${
-                        theme === 'dark' ? 'text-white' : 'text-slate-900'
-                      }`}>Investment:</span>{" "}
-                      <span className={`${
-                        theme === 'dark' ? 'text-gray-300' : 'text-slate-700'
-                      }`}>{item.investment}</span>
-                    </p>
-                    <p className="text-sm flex items-center">
-                      <span className="mr-2">📈</span>
-                      <span className={`font-semibold ${
-                        theme === 'dark' ? 'text-white' : 'text-slate-900'
-                      }`}>ROI:</span> <span className={`${
-                        theme === 'dark' ? 'text-gray-300' : 'text-slate-700'
-                      }`}>{item.roi}</span>
-                    </p>
+                Try Again
+              </Button>
+            </div>
+          ) : (
+            <div className="grid md:grid-cols-3 gap-8 animate-fade-in">
+              {franchises.map((item, index) => (
+                <div
+                  key={item._id || index}
+                  className={`relative p-6 rounded-2xl shadow-lg hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 group overflow-hidden ${
+                    theme === 'dark'
+                      ? 'bg-gradient-to-br from-gray-700 via-gray-800 to-gray-900 border border-teal-700'
+                      : 'bg-gradient-to-br from-teal-50 via-teal-100 to-teal-200 border border-teal-300'
+                  }`}
+                  style={{ animationDelay: `${index * 0.1}s` }}
+                >
+                  <div className={`absolute inset-0 ${
+                    theme === 'dark'
+                      ? 'bg-gradient-to-br from-teal-900/20 to-transparent'
+                      : 'bg-gradient-to-br from-teal-400/10 to-transparent'
+                  } opacity-0 group-hover:opacity-100 transition-opacity duration-500`}></div>
+                  <div className="relative z-10">
+                    <h3 className={`text-2xl font-extrabold mb-2 flex items-center ${
+                      theme === 'dark' ? 'text-teal-400' : 'text-teal-600'
+                    }`}>
+                      <span className="mr-2">🏢</span>
+                      {item.title}
+                    </h3>
+                    <p className={`mb-4 ${
+                      theme === 'dark' ? 'text-gray-300' : 'text-slate-700'
+                    }`}>{item.desc}</p>
+                    <div className="space-y-2">
+                      <p className="text-sm flex items-center">
+                        <span className="mr-2">💰</span>
+                        <span className={`font-semibold ${
+                          theme === 'dark' ? 'text-white' : 'text-slate-900'
+                        }`}>Investment:</span>{" "}
+                        <span className={`${
+                          theme === 'dark' ? 'text-gray-300' : 'text-slate-700'
+                        }`}>{item.investment}</span>
+                      </p>
+                      <p className="text-sm flex items-center">
+                        <span className="mr-2">📈</span>
+                        <span className={`font-semibold ${
+                          theme === 'dark' ? 'text-white' : 'text-slate-900'
+                        }`}>ROI:</span> <span className={`${
+                          theme === 'dark' ? 'text-gray-300' : 'text-slate-700'
+                        }`}>{item.roi}</span>
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
           </>
         )}
 
@@ -345,8 +477,8 @@ const FranchiseAndMembership = () => {
                 <ul className={`space-y-2 mb-6 ${
                   theme === 'dark' ? 'text-gray-300' : 'text-slate-700'
                 }`}>
-                  {plan.benefits.map((benefit, i) => (
-                    <li key={i}>• {benefit}</li>
+                  {plan.features.map((feature, i) => (
+                    <li key={i}>• {feature}</li>
                   ))}
                 </ul>
                 <button
@@ -534,12 +666,23 @@ const FranchiseAndMembership = () => {
                 Add a new franchise option for potential partners.
               </DialogDescription>
             </DialogHeader>
-            <form onSubmit={(e) => {
+            <form onSubmit={async (e) => {
               e.preventDefault();
-              // Handle franchise creation logic here
-              console.log('Creating franchise:', newFranchiseData);
-              setIsCreateFranchiseDialogOpen(false);
-              setNewFranchiseData({ title: "", desc: "", investment: "", roi: "" });
+              setCreatingFranchise(true);
+              try {
+                await franchiseService.addFranchise(newFranchiseData);
+                setIsCreateFranchiseDialogOpen(false);
+                setNewFranchiseData({ title: "", desc: "", investment: "", roi: "" });
+                // Refresh franchises list
+                const response = await franchiseService.getAllFranchises();
+                const apiFranchises = Array.isArray(response) ? response : response.franchises || [];
+                setFranchises(apiFranchises.length > 0 ? apiFranchises : franchises);
+              } catch (error) {
+                console.error('Error creating franchise:', error);
+                // Handle error (could add error state here)
+              } finally {
+                setCreatingFranchise(false);
+              }
             }} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -614,12 +757,23 @@ const FranchiseAndMembership = () => {
                 Add a new membership plan for customers.
               </DialogDescription>
             </DialogHeader>
-            <form onSubmit={(e) => {
+            <form onSubmit={async (e) => {
               e.preventDefault();
-              // Handle plan creation logic here
-              console.log('Creating plan:', newPlanData);
-              setIsCreatePlanDialogOpen(false);
-              setNewPlanData({ name: "", price: "", benefits: [] });
+              setCreatingPlan(true);
+              try {
+                await membershipService.createMembershipPlan(newPlanData);
+                setIsCreatePlanDialogOpen(false);
+                setNewPlanData({ name: "", description: "", duration: "", price: "", features: [] });
+                // Refresh membership plans list
+                const response = await membershipService.getAllMembershipPlans();
+                const apiPlans = Array.isArray(response) ? response : response.plans || [];
+                setMembershipPlans(apiPlans.length > 0 ? apiPlans : membershipPlans);
+              } catch (error) {
+                console.error('Error creating membership plan:', error);
+                // Handle error (could add error state here)
+              } finally {
+                setCreatingPlan(false);
+              }
             }} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -635,26 +789,53 @@ const FranchiseAndMembership = () => {
                 </div>
                 <div>
                   <label className={`block text-sm font-medium mb-1 ${theme === 'dark' ? 'text-teal-100' : 'text-teal-800'}`}>
-                    Price *
+                    Duration (months) *
                   </label>
                   <Input
-                    value={newPlanData.price}
-                    onChange={(e) => setNewPlanData({ ...newPlanData, price: e.target.value })}
+                    type="number"
+                    value={newPlanData.duration}
+                    onChange={(e) => setNewPlanData({ ...newPlanData, duration: e.target.value })}
                     required
+                    min="1"
                     className={theme === 'dark' ? 'bg-teal-700 border-teal-600 text-teal-100' : ''}
                   />
                 </div>
               </div>
               <div>
                 <label className={`block text-sm font-medium mb-1 ${theme === 'dark' ? 'text-teal-100' : 'text-teal-800'}`}>
-                  Benefits (comma-separated) *
+                  Description
                 </label>
                 <Input
-                  value={newPlanData.benefits.join(', ')}
-                  onChange={(e) => setNewPlanData({ ...newPlanData, benefits: e.target.value.split(',').map(b => b.trim()) })}
-                  required
+                  value={newPlanData.description}
+                  onChange={(e) => setNewPlanData({ ...newPlanData, description: e.target.value })}
                   className={theme === 'dark' ? 'bg-teal-700 border-teal-600 text-teal-100' : ''}
                 />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className={`block text-sm font-medium mb-1 ${theme === 'dark' ? 'text-teal-100' : 'text-teal-800'}`}>
+                    Price *
+                  </label>
+                  <Input
+                    type="number"
+                    value={newPlanData.price}
+                    onChange={(e) => setNewPlanData({ ...newPlanData, price: e.target.value })}
+                    required
+                    min="0"
+                    className={theme === 'dark' ? 'bg-teal-700 border-teal-600 text-teal-100' : ''}
+                  />
+                </div>
+                <div>
+                  <label className={`block text-sm font-medium mb-1 ${theme === 'dark' ? 'text-teal-100' : 'text-teal-800'}`}>
+                    Features (comma-separated) *
+                  </label>
+                  <Input
+                    value={newPlanData.features.join(', ')}
+                    onChange={(e) => setNewPlanData({ ...newPlanData, features: e.target.value.split(',').map(b => b.trim()) })}
+                    required
+                    className={theme === 'dark' ? 'bg-teal-700 border-teal-600 text-teal-100' : ''}
+                  />
+                </div>
               </div>
               <DialogFooter>
                 <Button
