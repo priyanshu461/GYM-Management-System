@@ -7,7 +7,7 @@ import {
   DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogTitle
+  DialogTitle,
   DialogTrigger,
 } from "../../components/ui/dialog";
 import { Input } from "../../components/ui/input";
@@ -69,6 +69,9 @@ const FranchiseAndMembership = () => {
   const [planError, setPlanError] = useState(null);
   const [creatingFranchise, setCreatingFranchise] = useState(false);
   const [creatingPlan, setCreatingPlan] = useState(false);
+  const [customers, setCustomers] = useState([]);
+  const [selectedCustomer, setSelectedCustomer] = useState("");
+  const [selectedMember, setSelectedMember] = useState("");
 
   // Fetch franchises from database
   useEffect(() => {
@@ -218,16 +221,18 @@ const FranchiseAndMembership = () => {
     fetchMembershipPlans();
   }, []);
 
-  // Fetch member count on component mount and when registration succeeds
+  // Fetch member count and customers on component mount and when registration succeeds
   useEffect(() => {
     const fetchMemberCount = async () => {
       setIsLoadingMembers(true);
       try {
         const response = await gymServices.getUser();
         setMemberCount(response.customers?.length || 0);
+        setCustomers(response.customers || []);
       } catch (error) {
         console.error('Error fetching member count:', error);
         setMemberCount(0);
+        setCustomers([]);
       } finally {
         setIsLoadingMembers(false);
       }
@@ -250,6 +255,38 @@ const FranchiseAndMembership = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const handleMemberSelect = (memberId) => {
+    setSelectedMember(memberId);
+    if (memberId) {
+      const selectedMemberData = customers.find(customer => customer._id === memberId);
+      if (selectedMemberData) {
+        setFormData({
+          name: selectedMemberData.name || "",
+          email: selectedMemberData.email || "",
+          mobile: selectedMemberData.mobile || "",
+          aadharNo: selectedMemberData.aadharNo || "",
+          address: selectedMemberData.address || "",
+          emergencyContact: selectedMemberData.emergencyContact || "",
+          dob: selectedMemberData.dob || "",
+          gender: selectedMemberData.gender || "",
+          occupation: selectedMemberData.occupation || "",
+        });
+      }
+    } else {
+      setFormData({
+        name: "",
+        email: "",
+        mobile: "",
+        aadharNo: "",
+        address: "",
+        emergencyContact: "",
+        dob: "",
+        gender: "",
+        occupation: "",
+      });
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -260,8 +297,18 @@ const FranchiseAndMembership = () => {
         ...formData,
         plan: selectedPlan,
       };
-      await gymServices.registerMember(customerData);
-      setSubmitMessage("Membership registered successfully!");
+
+      if (selectedMember) {
+        // Update existing member (exclude plan from update data)
+        const { plan, ...updateData } = customerData;
+        await gymServices.updateUser(selectedMember, updateData);
+        setSubmitMessage("Membership updated successfully!");
+      } else {
+        // Register new member
+        await gymServices.registerMember(customerData);
+        setSubmitMessage("Membership registered successfully!");
+      }
+
       setRegistrationSuccess(prev => !prev); // Trigger member count refresh
       setFormData({
         name: "",
@@ -274,6 +321,7 @@ const FranchiseAndMembership = () => {
         gender: "",
         occupation: "",
       });
+      setSelectedMember(""); // Reset selected member
       setTimeout(() => {
         setIsDialogOpen(false);
         setSubmitMessage("");
@@ -284,9 +332,9 @@ const FranchiseAndMembership = () => {
       if (error?.message?.includes("Email already exists")) {
         setSubmitMessage("This email is already registered. Please use a different email.");
       } else {
-        setSubmitMessage("Failed to register membership. Please try again.");
+        setSubmitMessage("Failed to process membership. Please try again.");
       }
-      console.error("Error registering membership:", error);
+      console.error("Error processing membership:", error);
     } finally {
       setIsSubmitting(false);
     }
@@ -517,6 +565,24 @@ const FranchiseAndMembership = () => {
               </DialogDescription>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label className={`block text-sm font-medium mb-1 ${theme === 'dark' ? 'text-teal-100' : 'text-teal-800'}`}>
+                  Select Existing Member (Optional)
+                </label>
+                <Select onValueChange={handleMemberSelect} value={selectedMember || "none"}>
+                  <SelectTrigger className={theme === 'dark' ? 'bg-teal-700 border-teal-600 text-teal-100' : ''}>
+                    <SelectValue placeholder="Choose a member to pre-fill form" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">None (New Member)</SelectItem>
+                    {customers.map((customer) => (
+                      <SelectItem key={customer._id} value={customer._id}>
+                        {customer.name} - {customer.email}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className={`block text-sm font-medium mb-1 ${theme === 'dark' ? 'text-teal-100' : 'text-teal-800'}`}>
@@ -648,7 +714,7 @@ const FranchiseAndMembership = () => {
                   Cancel
                 </Button>
                 <Button type="submit" disabled={isSubmitting}>
-                  {isSubmitting ? "Registering..." : "Register Membership"}
+                  {isSubmitting ? (selectedMember ? "Updating..." : "Registering...") : (selectedMember ? "Update Membership" : "Register Membership")}
                 </Button>
               </DialogFooter>
             </form>

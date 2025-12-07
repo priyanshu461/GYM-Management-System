@@ -45,6 +45,8 @@ const ProductCreate = () => {
     }));
   };
 
+
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -83,6 +85,8 @@ const ProductCreate = () => {
         stock: "",
         description: "",
       });
+      setImagePreview("");
+      setImageFile(null);
 
       navigate("/products");
       if (window.opener && window.opener.refreshProducts) {

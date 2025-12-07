@@ -1,11 +1,18 @@
-# TODO: Update courseService.js to match classService.js structure and add course management features
+# TODO List for Product Management Enhancements
 
-- [x] Update imports in courseService.js to use BASE_API_URL and getToken from "@/Utils/data"
-- [x] Change courseService from a class to an object structure like classService
-- [x] Add authorization headers to all fetch methods
-- [x] Add new methods: getCoursesByGym and getCoursesByTrainer
-- [x] Update existing methods (getAllCourses, getCourseById, createCourse, updateCourse, deleteCourse, enrollInCourse, getCourseEnrollments, getUserEnrollments) to match classService structure and include auth
-- [x] Ensure error handling is consistent with classService
-- [x] Add unenrollFromCourse method for consistency with classService
-- [x] Fix Courses.jsx to properly handle API response and always display fallback courses if no data from API
-- [ ] Verify the updated service works with the backend
+## Completed Tasks
+- [x] Update edit form category field to use dynamic categories from API
+- [x] Add useEffect to fetch categories and brands on component mount
+- [x] Add routes for /categories and /brands in productRoutes.js
+- [x] Update edit form brand field to use dynamic brands from API
+- [x] Rolled back: Replace image URL input with file chooser in create product form
+
+## Pending Tasks
+- [ ] Test the implementation to ensure categories and brands are fetched correctly
+- [ ] Verify that the edit form populates with dynamic options
+- [ ] Check that the category pills in the filter section use dynamic categories
+
+## Notes
+- The backend already had getCategories and getBrands functions implemented in ProductController.js
+- The frontend productService.js already had methods to call these endpoints
+- All changes have been made to support dynamic categories and brands in the product management interface

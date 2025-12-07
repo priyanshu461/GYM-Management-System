@@ -27,56 +27,70 @@ export default function NotificationsCommunication() {
   const [systemHealth, setSystemHealth] = useState([]);
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
+  const [isPolling, setIsPolling] = useState(true);
+  const [lastUpdate, setLastUpdate] = useState(new Date());
 
   const base = highContrast ? "from-teal-50 via-teal-100 to-teal-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900" : "from-white via-teal-50 to-white dark:from-gray-900 dark:via-gray-800 dark:to-gray-900";
 
   const filteredActivity = useMemo(() => activity.filter(a => `${a.who} ${a.what} ${a.detail}`.toLowerCase().includes(search.toLowerCase())), [search, activity]);
 
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        setLoading(true);
-        const [globalStatsRes, templatesRes, segmentsRes, activityRes, healthRes] = await Promise.all([
-          notificationService.getGlobalStats(),
-          notificationService.getTemplates(),
-          notificationService.getSegments(),
-          notificationService.getActivityFeed(),
-          notificationService.getSystemHealth()
+  const loadData = async () => {
+    try {
+      const [globalStatsRes, templatesRes, segmentsRes, activityRes, healthRes] = await Promise.all([
+        notificationService.getGlobalStats(),
+        notificationService.getTemplates(),
+        notificationService.getSegments(),
+        notificationService.getActivityFeed(),
+        notificationService.getSystemHealth()
+      ]);
+
+      if (globalStatsRes.success) {
+        setStats([
+          { label: "Sent", value: globalStatsRes.data.sent || "0", sub: globalStatsRes.data.sentChange || "Loading..." },
+          { label: "Open rate", value: globalStatsRes.data.openRate || "0%", sub: globalStatsRes.data.openRateChange || "Loading..." },
+          { label: "Clicks", value: globalStatsRes.data.clicks || "0", sub: globalStatsRes.data.clicksChange || "Loading..." },
+          { label: "Unsubs", value: globalStatsRes.data.unsubs || "0%", sub: globalStatsRes.data.unsubsChange || "Loading..." },
         ]);
-
-        if (globalStatsRes.success) {
-          setStats([
-            { label: "Sent", value: globalStatsRes.data.sent || "0", sub: globalStatsRes.data.sentChange || "Loading..." },
-            { label: "Open rate", value: globalStatsRes.data.openRate || "0%", sub: globalStatsRes.data.openRateChange || "Loading..." },
-            { label: "Clicks", value: globalStatsRes.data.clicks || "0", sub: globalStatsRes.data.clicksChange || "Loading..." },
-            { label: "Unsubs", value: globalStatsRes.data.unsubs || "0%", sub: globalStatsRes.data.unsubsChange || "Loading..." },
-          ]);
-        }
-
-        if (templatesRes.success) {
-          setTemplates(templatesRes.data);
-        }
-
-        if (segmentsRes.success) {
-          setSegments(segmentsRes.data);
-        }
-
-        if (activityRes.success) {
-          setActivity(activityRes.data);
-        }
-
-        if (healthRes.success) {
-          setSystemHealth(healthRes.data);
-        }
-      } catch (error) {
-        console.error('Error loading notification data:', error);
-      } finally {
-        setLoading(false);
       }
-    };
 
+      if (templatesRes.success) {
+        setTemplates(templatesRes.data);
+      }
+
+      if (segmentsRes.success) {
+        setSegments(segmentsRes.data);
+      }
+
+      if (activityRes.success) {
+        setActivity(activityRes.data);
+      }
+
+      if (healthRes.success) {
+        setSystemHealth(healthRes.data);
+      }
+
+      setLastUpdate(new Date());
+    } catch (error) {
+      console.error('Error loading notification data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     loadData();
   }, []);
+
+  // Real-time polling effect
+  useEffect(() => {
+    if (!isPolling) return;
+
+    const interval = setInterval(() => {
+      loadData();
+    }, 5000); // Poll every 5 seconds
+
+    return () => clearInterval(interval);
+  }, [isPolling]);
 
   function quickFill(t) {
     setSubject(t.name);
@@ -144,6 +158,13 @@ export default function NotificationsCommunication() {
                 <span>High contrast</span>
                 <input type="checkbox" className="toggle toggle-sm toggle-primary" checked={highContrast} onChange={toggleHighContrast} />
               </label>
+              <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                <span>Real-time updates</span>
+                <input type="checkbox" className="toggle toggle-sm toggle-primary" checked={isPolling} onChange={() => setIsPolling(!isPolling)} />
+              </label>
+              <div className="text-xs text-gray-600 dark:text-gray-400">
+                Last updated: {lastUpdate.toLocaleTimeString()}
+              </div>
               <select value={range} onChange={e=>setRange(e.target.value)} className="rounded-xl bg-gradient-to-r from-teal-50 to-emerald-50 dark:from-gray-700 dark:to-gray-600 px-4 py-2 text-sm ring-2 ring-teal-300 focus:outline-none focus:ring-teal-500 transition-all duration-300">
                 <option value="7">Last 7 days</option>
                 <option value="30">Last 30 days</option>
