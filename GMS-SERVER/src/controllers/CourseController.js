@@ -7,11 +7,13 @@ const getAllCourses = async (req, res) => {
     console.log('Attempting to fetch courses...');
     let query = {};
 
-    // Filter courses based on user role
-    if (req.user.user_type === 'Gym') {
-      query.gymId = req.user.gymId;
+    // Filter courses based on user role if authenticated
+    if (req.user) {
+      if (req.user.user_type === 'Gym') {
+        query.gymId = req.user.gymId;
+      }
+      // Admin can see all courses, no filter needed
     }
-    // Admin can see all courses, no filter needed
 
     const courses = await Course.find(query).populate('gymId', 'name');
     console.log('Courses fetched successfully:', courses.length);

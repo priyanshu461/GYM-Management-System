@@ -30,10 +30,10 @@ router.delete("/:id", authenticateToken, authorizeRoles(['Admin', 'Gym']), delet
 // POST /api/courses/:id/enroll - Enroll in course
 router.post("/:id/enroll", authenticateToken, authorizeRoles(['Member']), enrollInCourse);
 
-// GET /api/courses/:id/enrollments - Get course enrollments
-router.get("/:id/enrollments", authenticateToken, getCourseEnrollments);
+// GET /api/courses/:id/enrollments - Get course enrollments (public)
+router.get("/:id/enrollments", getCourseEnrollments);
 
-// GET /api/users/:userId/enrollments - Get user enrollments
-router.get("/users/:userId/enrollments", authenticateToken, getUserEnrollments);
+// GET /api/users/:userId/enrollments - Get user enrollments (public)
+router.get("/users/:userId/enrollments", getUserEnrollments);
 
 module.exports = router;
