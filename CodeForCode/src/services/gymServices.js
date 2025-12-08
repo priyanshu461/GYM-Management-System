@@ -241,7 +241,8 @@ gymServices.updateUser = async (id, customerData) => {
       body: JSON.stringify(customerData),
     });
     if (!res.ok) {
-      throw new Error('Failed to update customer');
+      const errorData = await res.json();
+      throw new Error(errorData.message || `HTTP error! status: ${res.status}`);
     }
     return await res.json();
   } catch (error) {

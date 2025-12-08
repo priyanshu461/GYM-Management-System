@@ -12,7 +12,17 @@ export const AuthProvider = ({ children }) => {
 
   // Check for existing token on app load
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = (() => {
+      try {
+        if (typeof Storage === "undefined" || typeof localStorage === "undefined") {
+          return null;
+        }
+        return localStorage.getItem("token");
+      } catch (error) {
+        console.warn("Unable to access localStorage:", error.message);
+        return null;
+      }
+    })();
     if (token) {
       // Verify token with backend
       fetch(`${BASE_API_URL}auth/verify`, {
@@ -29,16 +39,28 @@ export const AuthProvider = ({ children }) => {
           setIsAuthenticated(true);
           } else {
             // Invalid token, clear localStorage
-            localStorage.removeItem("token");
-            localStorage.removeItem("user");
+            try {
+              if (typeof Storage !== "undefined" && typeof localStorage !== "undefined") {
+                localStorage.removeItem("token");
+                localStorage.removeItem("user");
+              }
+            } catch (error) {
+              console.warn("Unable to clear localStorage:", error.message);
+            }
             setIsAuthenticated(false);
           }
         })
         .catch((error) => {
           console.error("Token verification error:", error);
           // Clear localStorage on error
-          localStorage.removeItem("token");
-          localStorage.removeItem("user");
+          try {
+            if (typeof Storage !== "undefined" && typeof localStorage !== "undefined") {
+              localStorage.removeItem("token");
+              localStorage.removeItem("user");
+            }
+          } catch (error) {
+            console.warn("Unable to clear localStorage:", error.message);
+          }
           setIsAuthenticated(false);
         })
         .finally(() => {
@@ -64,8 +86,14 @@ export const AuthProvider = ({ children }) => {
 
       if (response.ok) {
         setUser(data.user);
-        localStorage.setItem("token", data.token ?? "tryutuuytyutwre8tr8wtsdfuyguyxcgvcyuxtvyutewtrwe87f8cxvcvyuxtyutyutwytw87rt87txvuxgvyuxcgv");
-        localStorage.setItem("user", JSON.stringify(data.user));
+        try {
+          if (typeof Storage !== "undefined" && typeof localStorage !== "undefined") {
+            localStorage.setItem("token", data.token ?? "tryutuuytyutwre8tr8wtsdfuyguyxcgvcyuxtvyutewtrwe87f8cxvcvyuxtyutyutwytw87rt87txvuxgvyuxcgv");
+            localStorage.setItem("user", JSON.stringify(data.user));
+          }
+        } catch (error) {
+          console.warn("Unable to save to localStorage:", error.message);
+        }
         setIsAuthenticated(true);
         return true;
       } else {
@@ -92,7 +120,13 @@ export const AuthProvider = ({ children }) => {
 
       if (response.ok) {
         setUser(data.user);
-        localStorage.setItem("token", data.token);
+        try {
+          if (typeof Storage !== "undefined" && typeof localStorage !== "undefined") {
+            localStorage.setItem("token", data.token);
+          }
+        } catch (error) {
+          console.warn("Unable to save to localStorage:", error.message);
+        }
         setIsAuthenticated(true);
         return true;
       } else {
@@ -113,8 +147,14 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     setIsAuthenticated(false);
     setUser(null);
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
+    try {
+      if (typeof Storage !== "undefined" && typeof localStorage !== "undefined") {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+      }
+    } catch (error) {
+      console.warn("Unable to clear localStorage:", error.message);
+    }
   };
 
   return (

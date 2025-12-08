@@ -126,7 +126,11 @@ class CourseService {
   // Get course enrollments
   async getCourseEnrollments(courseId) {
     try {
-      const response = await fetch(`${BASE_API_URL}courses/${courseId}/enrollments`);
+      const response = await fetch(`${BASE_API_URL}courses/${courseId}/enrollments`, {
+        headers: {
+          'Authorization': `Bearer ${getToken()}`,
+        },
+      });
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -140,13 +144,38 @@ class CourseService {
   // Get user enrollments
   async getUserEnrollments(userId) {
     try {
-      const response = await fetch(`${BASE_API_URL}users/${userId}/enrollments`);
+      const response = await fetch(`${BASE_API_URL}users/${userId}/enrollments`, {
+        headers: {
+          'Authorization': `Bearer ${getToken()}`,
+        },
+      });
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       return await response.json();
     } catch (error) {
       console.error('Error fetching user enrollments:', error);
+      throw error;
+    }
+  }
+
+  // Unenroll from course
+  async unenrollFromCourse(courseId, memberId) {
+    try {
+      const response = await fetch(`${BASE_API_URL}courses/${courseId}/unenroll`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${getToken()}`,
+        },
+        body: JSON.stringify({ memberId }),
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return await response.json();
+    } catch (error) {
+      console.error('Error unenrolling from course:', error);
       throw error;
     }
   }

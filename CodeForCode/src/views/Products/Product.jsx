@@ -50,10 +50,20 @@ export default function Product() {
   const [category, setCategory] = useState("All");
   const [sort, setSort] = useState("featured");
   const [cart, setCart] = useState(() => {
-    const savedCart = localStorage.getItem('fitnessCart');
-    return savedCart ? JSON.parse(savedCart) : [];
+    try {
+      if (typeof Storage === "undefined" || typeof localStorage === "undefined") {
+        return [];
+      }
+      const savedCart = localStorage.getItem('fitnessCart');
+      return savedCart ? JSON.parse(savedCart) : [];
+    } catch (error) {
+      console.warn("Unable to access localStorage for cart:", error.message);
+      return [];
+    }
   });
   const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [brands, setBrands] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [editingProduct, setEditingProduct] = useState(null);
@@ -88,7 +98,13 @@ export default function Product() {
 
   // Save cart to localStorage whenever cart changes
   useEffect(() => {
-    localStorage.setItem('fitnessCart', JSON.stringify(cart));
+    try {
+      if (typeof Storage !== "undefined" && typeof localStorage !== "undefined") {
+        localStorage.setItem('fitnessCart', JSON.stringify(cart));
+      }
+    } catch (error) {
+      console.warn("Unable to save cart to localStorage:", error.message);
+    }
   }, [cart]);
 
   const handleDeleteProduct = async (productId) => {
@@ -209,7 +225,30 @@ export default function Product() {
     fetchProducts();
   }, []);
 
-  const cartTotal = useMemo(() => cart.reduce((sum, item) => sum + item.price * item.quantity, 0), [cart]);
+  useEffect(() => {
+    const fetchCategoriesAndBrands = async () => {
+      try {
+        const [categoriesResponse, brandsResponse] = await Promise.all([
+          productService.getCategories(),
+          productService.getBrands(),
+        ]);
+
+        if (categoriesResponse.success) {
+          setCategories(categoriesResponse.data);
+        }
+
+        if (brandsResponse.success) {
+          setBrands(brandsResponse.data);
+        }
+      } catch (err) {
+        console.error("Failed to fetch categories and brands:", err);
+      }
+    };
+
+    fetchCategoriesAndBrands();
+  }, []);
+
+  const cartTotal = useMemo(() => (cart || []).reduce((sum, item) => sum + item.price * item.quantity, 0), [cart]);
 
   const list = useMemo(() => {
     let out = [...products];
@@ -301,7 +340,43 @@ export default function Product() {
                 <option value="rating">Top Rated</option>
                 <option value="stock">Stock: High to Low</option>
               </select>
-              <button onClick={()=>window.print()} className="px-3 py-2 rounded-lg bg-teal-100 dark:bg-teal-900 border border-teal-300 text-teal-800 dark:text-white text-sm hover:bg-teal-200">Export</button>
+              <button
+                onClick={async () => {
+                  try {
+                    // Export current filtered products to CSV
+                    const headers = ["Name", "Category", "Brand", "Flavor", "Price", "MRP", "Rating", "Stock", "Servings"];
+                    const csvContent = [
+                      headers.join(","),
+                      ...list.map(product => [
+                        `"${product.name || ""}"`,
+                        `"${product.category || ""}"`,
+                        `"${product.brand || ""}"`,
+                        `"${product.flavor || ""}"`,
+                        `"${product.price || ""}"`,
+                        `"${product.mrp || ""}"`,
+                        `"${product.rating || ""}"`,
+                        `"${product.stock || ""}"`,
+                        `"${product.servings || ""}"`
+                      ].join(","))
+                    ].join("\n");
+
+                    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+                    const link = document.createElement("a");
+                    const url = URL.createObjectURL(blob);
+                    link.setAttribute("href", url);
+                    link.setAttribute("download", `products_export_${new Date().toISOString().split('T')[0]}.csv`);
+                    link.style.visibility = "hidden";
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                  } catch (error) {
+                    alert("Failed to export products");
+                  }
+                }}
+                className="px-3 py-2 rounded-lg bg-teal-100 dark:bg-teal-900 border border-teal-300 text-teal-800 dark:text-white text-sm hover:bg-teal-200 transition-colors"
+              >
+                Export CSV
+              </button>
             </div>
           </div>
 
@@ -344,7 +419,8 @@ export default function Product() {
           {/* Controls */}
           <div className="mb-6 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <div className="flex gap-2 flex-wrap">
-              {['All','Protein','Amino Acids','Pre Workout','Intra Workout','Post Workout','Multivitamin'].map(t => (
+              <CategoryPill key="All" value="All" active={category==="All"} onClick={()=>setCategory("All")} />
+              {categories.map(t => (
                 <CategoryPill key={t} value={t} active={category===t} onClick={()=>setCategory(t)} />
               ))}
             </div>
@@ -448,12 +524,9 @@ export default function Product() {
                         <SelectValue placeholder="Select category" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="Protein">Protein</SelectItem>
-                        <SelectItem value="Amino Acids">Amino Acids</SelectItem>
-                        <SelectItem value="Pre">Pre Workout</SelectItem>
-                        <SelectItem value="Intra">Intra Workout</SelectItem>
-                        <SelectItem value="Post">Post Workout</SelectItem>
-                        <SelectItem value="Multivitamins">Multivitamin</SelectItem>
+                        {categories.map(category => (
+                          <SelectItem key={category} value={category}>{category}</SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   </div>
@@ -622,7 +695,33 @@ export default function Product() {
                     <span>₹{cartTotal + Math.round(cartTotal * 0.05) + Math.round(cartTotal * 0.05)}</span>
                   </div>
                 </div>
-                <button className="w-full mt-4 bg-teal-600 hover:bg-teal-700 text-white font-semibold py-3 px-6 rounded-xl transition-colors">
+                <button
+                  onClick={async () => {
+                    try {
+                      // Here you would typically integrate with a payment gateway
+                      // For now, we'll show a success message and clear the cart
+                      if (window.confirm(`Proceed to checkout with total ₹${cartTotal + Math.round(cartTotal * 0.05) + Math.round(cartTotal * 0.05)}?`)) {
+                        // In a real application, you would:
+                        // 1. Create an order in the database
+                        // 2. Process payment
+                        // 3. Redirect to payment gateway or confirmation page
+
+                        alert('Order placed successfully! (This is a demo - integrate with actual payment gateway)');
+                        setCart([]); // Clear cart after successful order
+                        try {
+                          if (typeof Storage !== "undefined" && typeof localStorage !== "undefined") {
+                            localStorage.removeItem('fitnessCart');
+                          }
+                        } catch (error) {
+                          console.warn("Unable to clear cart from localStorage:", error.message);
+                        }
+                      }
+                    } catch (error) {
+                      alert('Failed to process checkout. Please try again.');
+                    }
+                  }}
+                  className="w-full mt-4 bg-teal-600 hover:bg-teal-700 text-white font-semibold py-3 px-6 rounded-xl transition-colors"
+                >
                   Proceed to Checkout
                 </button>
               </div>

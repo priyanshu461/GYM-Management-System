@@ -11,14 +11,18 @@ import {
 } from "../../components/ui/dialog";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select";
 import courseService from "../../services/courseService";
+import gymServices from "../../services/gymServices";
+import trainerServices from "../../services/trainerServices";
 import { useAuth } from "../../contexts/AuthContext";
-import { Loader2 } from "lucide-react";
+import { Loader2, Filter, Search } from "lucide-react";
 
 const Courses = () => {
   const { theme } = useTheme();
   const { user } = useAuth();
   const [courses, setCourses] = useState([]);
+  const [filteredCourses, setFilteredCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedCourse, setSelectedCourse] = useState(null);
@@ -33,18 +37,129 @@ const Courses = () => {
     upiId: "",
   });
   const [enrolling, setEnrolling] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedLevel, setSelectedLevel] = useState("all");
+  const [sortBy, setSortBy] = useState("name");
+  const [gyms, setGyms] = useState([]);
+  const [trainers, setTrainers] = useState([]);
+  const [selectedGym, setSelectedGym] = useState("all");
+  const [selectedTrainer, setSelectedTrainer] = useState("all");
 
   // Fetch courses from database
   useEffect(() => {
     fetchCourses();
   }, []);
 
+  // Fetch gyms and trainers for filters
+  useEffect(() => {
+    const fetchFilters = async () => {
+      try {
+        const [gymsRes, trainersRes] = await Promise.all([
+          gymServices.getAllGyms(),
+          trainerServices.getAllTrainers()
+        ]);
+        setGyms(gymsRes || []);
+        setTrainers(trainersRes || []);
+      } catch (err) {
+        console.error('Error fetching filters:', err);
+      }
+    };
+    fetchFilters();
+  }, []);
+
+  // Filter and sort courses
+  useEffect(() => {
+    let filtered = [...courses];
+
+    // Search filter
+    if (searchTerm) {
+      filtered = filtered.filter(course =>
+        course.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        course.description.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    // Level filter
+    if (selectedLevel !== "all") {
+      filtered = filtered.filter(course => course.level === selectedLevel);
+    }
+
+    // Gym filter
+    if (selectedGym !== "all") {
+      filtered = filtered.filter(course => course.gymId === selectedGym);
+    }
+
+    // Trainer filter
+    if (selectedTrainer !== "all") {
+      filtered = filtered.filter(course => course.trainerId === selectedTrainer);
+    }
+
+    // Sort
+    filtered.sort((a, b) => {
+      switch (sortBy) {
+        case "name":
+          return a.name.localeCompare(b.name);
+        case "price-low":
+          return (a.price?.monthly || 0) - (b.price?.monthly || 0);
+        case "price-high":
+          return (b.price?.monthly || 0) - (a.price?.monthly || 0);
+        case "level":
+          const levels = { "Beginner": 1, "Intermediate": 2, "Advanced": 3, "All Levels": 0 };
+          return levels[a.level] - levels[b.level];
+        default:
+          return 0;
+      }
+    });
+
+    setFilteredCourses(filtered);
+  }, [courses, searchTerm, selectedLevel, selectedGym, selectedTrainer, sortBy]);
+
   const fetchCourses = async () => {
     try {
       setLoading(true);
       setError(null);
       const response = await courseService.getAllCourses();
-      setCourses(response.courses || []);
+      const apiCourses = Array.isArray(response) ? response : response.courses || [];
+      // Always include fallback courses for display
+      const fallbackCourses = [
+        {
+          _id: 1,
+          name: "Strength Training",
+          image: "https://images.unsplash.com/photo-1599058917212-d750089bc07e",
+          description: "Build muscle and improve endurance with professional strength training programs.",
+          level: "Intermediate",
+          duration: "8 Weeks",
+          price: { monthly: 50, annual: 500 }
+        },
+        {
+          _id: 2,
+          name: "Yoga & Flexibility",
+          image: "https://images.unsplash.com/photo-1552196563-55cd4e45efb3",
+          description: "Enhance flexibility and balance through guided yoga and meditation sessions.",
+          level: "Beginner",
+          duration: "6 Weeks",
+          price: { monthly: 40, annual: 400 }
+        },
+        {
+          _id: 3,
+          name: "Cardio Blast",
+          image: "https://media.istockphoto.com/id/961837744/photo/side-view-of-a-beautiful-woman-smiling-while-cycling-during-exercising-class-at-the-gym.jpg?s=612x612&w=0&k=20&c=6hZAtaQP3uAR6CvrWW44bA2ZKDAf5jiA-rQzxH-mb4o=",
+          description: "High-intensity cardio sessions to burn fat and improve stamina efficiently.",
+          level: "All Levels",
+          duration: "4 Weeks",
+          price: { monthly: 45, annual: 450 }
+        },
+        {
+          _id: 4,
+          name: "CrossFit Challenge",
+          image: "https://www.garagegymreviews.com/wp-content/uploads/2023/11/Photo-Credit-CrossFit-Games-@crossfitgames.jpeg",
+          description: "Push your limits with CrossFit workouts focusing on strength, power, and agility.",
+          level: "Advanced",
+          duration: "10 Weeks",
+          price: { monthly: 60, annual: 600 }
+        },
+      ];
+      setCourses(apiCourses.length > 0 ? apiCourses : fallbackCourses);
     } catch (err) {
       console.error('Error fetching courses:', err);
       setError('Failed to load courses. Please try again.');
@@ -145,6 +260,112 @@ const Courses = () => {
           }`}>Gym Courses</span>
         </h2>
 
+        {/* Search and Filter Section */}
+        <div className={`mb-8 p-6 rounded-2xl shadow-lg ${
+          theme === 'dark'
+            ? 'bg-gradient-to-br from-gray-700 to-gray-800'
+            : 'bg-gradient-to-br from-teal-50 to-teal-100'
+        }`}>
+          <div className="flex flex-col md:flex-row gap-4 items-center">
+            {/* Search Bar */}
+            <div className="relative flex-1">
+              <Search className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 ${
+                theme === 'dark' ? 'text-gray-400' : 'text-slate-500'
+              }`} />
+              <Input
+                type="text"
+                placeholder="Search courses..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className={`pl-10 ${
+                  theme === 'dark'
+                    ? 'border-gray-600 focus:border-teal-400 bg-gray-600 text-white'
+                    : 'border-teal-200 focus:border-teal-400'
+                }`}
+              />
+            </div>
+
+            {/* Filters */}
+            <div className="flex gap-4 flex-wrap">
+              <Select value={selectedLevel} onValueChange={setSelectedLevel}>
+                <SelectTrigger className={`w-40 ${
+                  theme === 'dark'
+                    ? 'border-gray-600 bg-gray-600 text-white'
+                    : 'border-teal-200'
+                }`}>
+                  <SelectValue placeholder="Level" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Levels</SelectItem>
+                  <SelectItem value="Beginner">Beginner</SelectItem>
+                  <SelectItem value="Intermediate">Intermediate</SelectItem>
+                  <SelectItem value="Advanced">Advanced</SelectItem>
+                  <SelectItem value="All Levels">All Levels</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select value={selectedGym} onValueChange={setSelectedGym}>
+                <SelectTrigger className={`w-40 ${
+                  theme === 'dark'
+                    ? 'border-gray-600 bg-gray-600 text-white'
+                    : 'border-teal-200'
+                }`}>
+                  <SelectValue placeholder="Gym" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Gyms</SelectItem>
+                  {gyms.map((gym) => (
+                    <SelectItem key={gym._id} value={gym._id}>
+                      {gym.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <Select value={selectedTrainer} onValueChange={setSelectedTrainer}>
+                <SelectTrigger className={`w-40 ${
+                  theme === 'dark'
+                    ? 'border-gray-600 bg-gray-600 text-white'
+                    : 'border-teal-200'
+                }`}>
+                  <SelectValue placeholder="Trainer" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Trainers</SelectItem>
+                  {trainers.map((trainer) => (
+                    <SelectItem key={trainer._id} value={trainer._id}>
+                      {trainer.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <Select value={sortBy} onValueChange={setSortBy}>
+                <SelectTrigger className={`w-40 ${
+                  theme === 'dark'
+                    ? 'border-gray-600 bg-gray-600 text-white'
+                    : 'border-teal-200'
+                }`}>
+                  <SelectValue placeholder="Sort by" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="name">Name</SelectItem>
+                  <SelectItem value="price-low">Price: Low to High</SelectItem>
+                  <SelectItem value="price-high">Price: High to Low</SelectItem>
+                  <SelectItem value="level">Level</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          {/* Results Count */}
+          <div className={`mt-4 text-sm ${
+            theme === 'dark' ? 'text-gray-300' : 'text-slate-600'
+          }`}>
+            Showing {filteredCourses.length} of {courses.length} courses
+          </div>
+        </div>
+
         {loading ? (
           <div className="flex justify-center items-center py-12">
             <Loader2 className="w-8 h-8 animate-spin text-teal-500" />
@@ -162,7 +383,7 @@ const Courses = () => {
           </div>
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {courses.map((course) => (
+            {filteredCourses.map((course) => (
               <div
                 key={course._id || course.id}
                 className={`rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition transform hover:scale-105 ${

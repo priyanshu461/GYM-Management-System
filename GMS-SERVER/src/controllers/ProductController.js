@@ -263,6 +263,36 @@ const searchProducts = async (req, res) => {
   }
 };
 
+// Get unique categories
+const getCategories = async (req, res) => {
+  try {
+    const categories = await Product.distinct("category", { isActive: true });
+    res.status(200).json({
+      categories: categories.sort(),
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Error fetching categories",
+      error: error.message,
+    });
+  }
+};
+
+// Get unique brands
+const getBrands = async (req, res) => {
+  try {
+    const brands = await Product.distinct("brand", { isActive: true });
+    res.status(200).json({
+      brands: brands.filter(brand => brand).sort(),
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Error fetching brands",
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   getAllProducts,
   getProductById,
@@ -272,4 +302,6 @@ module.exports = {
   getProductsByCategory,
   getTopRatedProducts,
   searchProducts,
+  getCategories,
+  getBrands,
 };

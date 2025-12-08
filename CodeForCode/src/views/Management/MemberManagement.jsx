@@ -11,13 +11,17 @@ export default function Member() {
   const { user } = useAuth();
   const isTrainer = user?.user_type === "Trainer";
   const [members, setMembers] = useState([]);
+  const [gyms, setGyms] = useState([]);
+  const [trainers, setTrainers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [search, setSearch] = useState("");
 
-  // Fetch members on component mount
+  // Fetch members, gyms, and trainers on component mount
   useEffect(() => {
     fetchMembers();
+    fetchGyms();
+    fetchTrainers();
   }, []);
 
   const fetchMembers = async () => {
@@ -54,6 +58,26 @@ export default function Member() {
     }
   };
 
+  const fetchGyms = async () => {
+    try {
+      const res = await gymServices.getAllGyms();
+      setGyms(res.gyms || []);
+    } catch (err) {
+      console.error("Failed to fetch gyms:", err);
+      setGyms([]);
+    }
+  };
+
+  const fetchTrainers = async () => {
+    try {
+      const trainers = await gymServices.getAllTrainers();
+      setTrainers(trainers || []);
+    } catch (err) {
+      console.error("Failed to fetch trainers:", err);
+      setTrainers([]);
+    }
+  };
+
   const deleteMember = async (id) => {
     if (!window.confirm("Are you sure you want to delete this member?")) return;
 
@@ -71,9 +95,39 @@ export default function Member() {
     (m.email && m.email.toLowerCase().includes(search.toLowerCase()))
   );
 
-  const newMembersThisMonth = members.filter(m => 
+  const newMembersThisMonth = members.filter(m =>
     m.createdAt && new Date(m.createdAt) > new Date(Date.now() - 30*24*60*60*1000)
   ).length;
+
+  const handleExport = () => {
+    if (filteredMembers.length === 0) {
+      alert("No data to export");
+      return;
+    }
+
+    const headers = ["Name", "Mobile", "Email", "Gym", "Plan", "Assigned Trainer"];
+    const csvContent = [
+      headers.join(","),
+      ...filteredMembers.map(member => [
+        `"${member.name || ""}"`,
+        `"${member.mobile || ""}"`,
+        `"${member.email || ""}"`,
+        `"${member.gymId?.name || ""}"`,
+        `"${member.plan || ""}"`,
+        `"${member.assignedTrainer ? (typeof member.assignedTrainer === "object" ? member.assignedTrainer.name : "Assigned") : ""}"`
+      ].join(","))
+    ].join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", `members_export_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = "hidden";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   return (
     <Layout>
@@ -110,7 +164,7 @@ export default function Member() {
             </div>
 
             {/* Stats Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -153,11 +207,28 @@ export default function Member() {
               >
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-xs sm:text-sm text-muted-foreground mb-1">Filtered Results</p>
-                    <p className="text-2xl sm:text-3xl font-bold text-blue-600 dark:text-blue-400">{filteredMembers.length}</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground mb-1">Total Gyms</p>
+                    <p className="text-2xl sm:text-3xl font-bold text-blue-600 dark:text-blue-400">{gyms.length}</p>
                   </div>
                   <div className="w-12 h-12 bg-gradient-to-br from-blue-500/20 to-blue-600/20 rounded-lg flex items-center justify-center">
                     <Filter className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                  </div>
+                </div>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4 }}
+                className="bg-white/90 dark:bg-teal-900/50 backdrop-blur-sm border border-purple-200/50 dark:border-purple-700/30 rounded-xl p-4 shadow-lg"
+              >
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-xs sm:text-sm text-muted-foreground mb-1">Active Trainers</p>
+                    <p className="text-2xl sm:text-3xl font-bold text-purple-600 dark:text-purple-400">{trainers.length}</p>
+                  </div>
+                  <div className="w-12 h-12 bg-gradient-to-br from-purple-500/20 to-purple-600/20 rounded-lg flex items-center justify-center">
+                    <UserPlus className="w-6 h-6 text-purple-600 dark:text-purple-400" />
                   </div>
                 </div>
               </motion.div>
@@ -182,7 +253,10 @@ export default function Member() {
                   className="w-full bg-white/90 dark:bg-teal-900/50 backdrop-blur-sm border border-input text-foreground rounded-xl pl-10 sm:pl-12 pr-4 py-2.5 sm:py-3 placeholder:text-muted-foreground focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all shadow-sm"
                 />
               </div>
-              <button className="px-4 py-2.5 sm:py-3 bg-white/90 dark:bg-teal-900/50 backdrop-blur-sm border border-input rounded-xl hover:bg-muted transition-colors flex items-center gap-2 text-sm font-medium">
+              <button
+                onClick={handleExport}
+                className="px-4 py-2.5 sm:py-3 bg-white/90 dark:bg-teal-900/50 backdrop-blur-sm border border-input rounded-xl hover:bg-muted transition-colors flex items-center gap-2 text-sm font-medium"
+              >
                 <Download className="w-4 h-4" />
                 <span className="hidden sm:inline">Export</span>
               </button>
@@ -227,6 +301,8 @@ export default function Member() {
                         <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-semibold text-white">Contact</th>
                         <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-semibold text-white hidden xl:table-cell">Email</th>
                         <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-semibold text-white hidden xl:table-cell">Gym</th>
+                        <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-semibold text-white hidden xl:table-cell">Plan</th>
+                        <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-semibold text-white hidden xl:table-cell">Assign Trainers</th>
                         {!isTrainer && <th className="px-4 sm:px-6 py-3 sm:py-4 text-center text-xs sm:text-sm font-semibold text-white">Actions</th>}
                       </tr>
                     </thead>
@@ -279,6 +355,15 @@ export default function Member() {
                               )}
                             </td>
                             <td className="px-4 sm:px-6 py-3 sm:py-4 hidden xl:table-cell">
+                              {member.plan ? (
+                                <span className="px-2 py-1 bg-purple-100 dark:bg-purple-800 text-purple-700 dark:text-purple-300 rounded-lg text-xs font-medium">
+                                  {member.plan}
+                                </span>
+                              ) : (
+                                <span className="text-muted-foreground text-sm">-</span>
+                              )}
+                            </td>
+                            <td className="px-4 sm:px-6 py-3 sm:py-4 hidden xl:table-cell">
                               {member.assignedTrainer ? (
                                 <span className="text-foreground text-sm">
                                   {typeof member.assignedTrainer === "object"
@@ -315,9 +400,9 @@ export default function Member() {
                             )}
                           </motion.tr>
                         ))
-                      ) :  (
+                      ) : (
                         <tr>
-                          <td colSpan={isTrainer ? "4" : "6"} className="px-4 sm:px-6 py-12 text-center">
+                          <td colSpan={isTrainer ? "5" : "7"} className="px-4 sm:px-6 py-12 text-center">
                             <div className="flex flex-col items-center gap-3">
                               <Users className="w-12 h-12 text-muted-foreground opacity-50" />
                               <p className="text-muted-foreground">No members found</p>
@@ -373,6 +458,13 @@ export default function Member() {
                             </span>
                           </div>
                         )}
+                        {member.plan && (
+                          <div>
+                            <span className="px-2 py-1 bg-purple-100 dark:bg-purple-800 text-purple-700 dark:text-purple-300 rounded-lg text-xs font-medium">
+                              {member.plan}
+                            </span>
+                          </div>
+                        )}
                       </div>
 
                       <div className="flex items-center gap-2 pt-4 border-t border-border">
@@ -405,7 +497,6 @@ export default function Member() {
                   <div className="col-span-2 bg-white/90 dark:bg-teal-900/50 backdrop-blur-sm border border-teal-200/50 dark:border-teal-700/30 rounded-xl p-12 text-center">
                     <Users className="w-16 h-16 text-muted-foreground opacity-50 mx-auto mb-4" />
                     <p className="text-muted-foreground mb-4">No members found</p>
-                   
                   </div>
                 )}
               </div>

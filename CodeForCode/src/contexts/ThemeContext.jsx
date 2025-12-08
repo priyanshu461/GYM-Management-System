@@ -15,8 +15,29 @@ export const ThemeProvider = ({ children }) => {
   const [highContrast, setHighContrast] = useState(false);
 
   useEffect(() => {
-    const savedTheme = localStorage.getItem('theme') || 'light';
-    const savedHighContrast = localStorage.getItem('highContrast') === 'true';
+    const savedTheme = (() => {
+      try {
+        if (typeof Storage === "undefined" || typeof localStorage === "undefined") {
+          return 'light';
+        }
+        return localStorage.getItem('theme') || 'light';
+      } catch (error) {
+        console.warn("Unable to access localStorage for theme:", error.message);
+        return 'light';
+      }
+    })();
+
+    const savedHighContrast = (() => {
+      try {
+        if (typeof Storage === "undefined" || typeof localStorage === "undefined") {
+          return false;
+        }
+        return localStorage.getItem('highContrast') === 'true';
+      } catch (error) {
+        console.warn("Unable to access localStorage for highContrast:", error.message);
+        return false;
+      }
+    })();
     setTheme(savedTheme);
     setHighContrast(savedHighContrast);
     document.documentElement.classList.toggle('dark', savedTheme === 'dark');
@@ -26,14 +47,26 @@ export const ThemeProvider = ({ children }) => {
   const toggleTheme = () => {
     const newTheme = theme === 'light' ? 'dark' : 'light';
     setTheme(newTheme);
-    localStorage.setItem('theme', newTheme);
+    try {
+      if (typeof Storage !== "undefined" && typeof localStorage !== "undefined") {
+        localStorage.setItem('theme', newTheme);
+      }
+    } catch (error) {
+      console.warn("Unable to save theme to localStorage:", error.message);
+    }
     document.documentElement.classList.toggle('dark', newTheme === 'dark');
   };
 
   const toggleHighContrast = () => {
     const newHighContrast = !highContrast;
     setHighContrast(newHighContrast);
-    localStorage.setItem('highContrast', newHighContrast);
+    try {
+      if (typeof Storage !== "undefined" && typeof localStorage !== "undefined") {
+        localStorage.setItem('highContrast', newHighContrast);
+      }
+    } catch (error) {
+      console.warn("Unable to save highContrast to localStorage:", error.message);
+    }
     document.documentElement.classList.toggle('high-contrast', newHighContrast);
   };
 

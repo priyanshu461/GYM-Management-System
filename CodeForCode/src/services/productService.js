@@ -92,4 +92,42 @@ productService.getProduct = async (data = {}) => {
   return await res.json();
 };
 
+productService.getCategories = async () => {
+  const res = await fetch(`${BASE_API_URL}products/categories`, {
+    headers: { Authorization: `Bearer ${getToken()}` },
+  });
+  const data = await res.json();
+
+  if (data.categories) {
+    return {
+      success: true,
+      data: data.categories,
+    };
+  }
+
+  return {
+    success: false,
+    message: data.message || 'Failed to fetch categories',
+  };
+};
+
+productService.getBrands = async () => {
+  const res = await fetch(`${BASE_API_URL}products/brands`, {
+    headers: { Authorization: `Bearer ${getToken()}` },
+  });
+  const data = await res.json();
+
+  if (data.brands) {
+    return {
+      success: true,
+      data: data.brands,
+    };
+  }
+
+  return {
+    success: false,
+    message: data.message || 'Failed to fetch brands',
+  };
+};
+
 export default productService;

@@ -8,7 +8,9 @@ const {
   deleteProduct,
   getProductsByCategory,
   getTopRatedProducts,
-  searchProducts
+  searchProducts,
+  getCategories,
+  getBrands
 } = require('../controllers/ProductController');
 
 // GET /api/products - Get all products with filtering and pagination
@@ -22,6 +24,12 @@ router.get('/top-rated', getTopRatedProducts);
 
 // GET /api/products/category/:category - Get products by category
 router.get('/category/:category', getProductsByCategory);
+
+// GET /api/products/categories - Get all categories
+router.get('/categories', getCategories);
+
+// GET /api/products/brands - Get all brands
+router.get('/brands', getBrands);
 
 // GET /api/products/:id - Get single product
 router.get('/:id', getProductById);
