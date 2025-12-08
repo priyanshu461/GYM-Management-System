@@ -1,12 +1,108 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import Layout from "../components/Layout";
 import { useTheme } from "../contexts/ThemeContext";
+import { useAuth } from "../contexts/AuthContext";
+import settingsService from "../services/settingsService";
+import { BASE_API_URL, getToken } from "../Utils/data";
+
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.error('ErrorBoundary caught an error:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="p-5 text-center">
+          <h3 className="text-lg font-semibold text-red-600">Something went wrong.</h3>
+          <p className="text-sm text-gray-600">Please try refreshing the page.</p>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
 
 export default function Settings() {
   const { theme } = useTheme();
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState("profile");
   const [highContrast, setHighContrast] = useState(false);
   const [range, setRange] = useState("7");
+  const [settings, setSettings] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    if (user?.id) {
+      fetchSettings();
+      const interval = setInterval(fetchSettings, 10000); // Real-time updates every 10 seconds
+      return () => clearInterval(interval);
+    }
+  }, [user]);
+
+  const fetchSettings = async () => {
+    try {
+      setLoading(true);
+      const data = await settingsService.getSettings(user.id);
+      setSettings(data);
+      setError(null);
+    } catch (err) {
+      setError('Failed to load settings');
+      console.error('Error fetching settings:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleExport = async () => {
+    try {
+      // Implement export functionality
+      const response = await fetch(`${BASE_API_URL}export/${user.id}`, {
+        headers: { Authorization: `Bearer ${getToken()}` },
+      });
+      if (!response.ok) throw new Error('Export failed');
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'settings_export.json';
+      a.click();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      alert('Export failed: ' + err.message);
+    }
+  };
+
+  if (loading) {
+    return (
+      <Layout>
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-lg">Loading settings...</div>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (error) {
+    return (
+      <Layout>
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-lg text-red-600">{error}</div>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
@@ -32,7 +128,7 @@ export default function Settings() {
                 <option value="30">Last 30 days</option>
                 <option value="90">Last 90 days</option>
               </select>
-              <button onClick={() => alert('Exporting data...')} className="rounded-xl bg-teal-600 px-4 py-2 text-sm font-semibold text-white shadow hover:brightness-110">Export</button>
+              <button onClick={handleExport} className="rounded-xl bg-teal-600 px-4 py-2 text-sm font-semibold text-white shadow hover:brightness-110">Export</button>
             </div>
           </div>
 
@@ -69,14 +165,14 @@ export default function Settings() {
 
             {/* Main card */}
             <div className="lg:col-span-9">
-              {activeTab === "profile" && <ProfileTab />}
-              {activeTab === "security" && <SecurityTab />}
-              {activeTab === "notifications" && <NotificationsTab />}
-              {activeTab === "appearance" && <AppearanceTab />}
-              {activeTab === "branches" && <BranchesTab />}
-              {activeTab === "integrations" && <IntegrationsTab />}
-              {activeTab === "billing" && <BillingTab />}
-              {activeTab === "advanced" && <AdvancedTab />}
+              {activeTab === "profile" && <ErrorBoundary><ProfileTab settings={settings} /></ErrorBoundary>}
+              {activeTab === "security" && <SecurityTab settings={settings} />}
+              {activeTab === "notifications" && <NotificationsTab settings={settings} />}
+              {activeTab === "appearance" && <AppearanceTab settings={settings} />}
+              {activeTab === "branches" && <BranchesTab settings={settings} />}
+              {activeTab === "integrations" && <IntegrationsTab settings={settings} />}
+              {activeTab === "billing" && <BillingTab settings={settings} />}
+              {activeTab === "advanced" && <AdvancedTab settings={settings} />}
             </div>
           </div>
 
@@ -117,19 +213,56 @@ function SaveBar({ onReset, onSave }) {
 }
 
 /* PROFILE */
-function ProfileTab() {
+function ProfileTab({ settings }) {
   const { theme } = useTheme();
-  const [name, setName] = useState("Vaibhav Singh");
-  const [email, setEmail] = useState("vaibhav@ironbase.gym");
-  const [phone, setPhone] = useState("+91 90000 00000");
-  const [role, setRole] = useState("Admin");
-  const [bio, setBio] = useState("Helps members hit real goals. Loves strength, hates fluff.");
+  const { user } = useAuth();
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [role, setRole] = useState("");
+  const [bio, setBio] = useState("");
+  const [teamVisibility, setTeamVisibility] = useState({
+    workoutHistory: true,
+    bodyMetrics: true,
+    paymentStatus: true,
+    injuryNotes: true,
+    dietPlans: true,
+    trainerComments: true,
+  });
+  const [loading, setLoading] = useState(false);
 
-  function save() {
-    alert("Profile saved");
+  useEffect(() => {
+    if (settings?.profile) {
+      setName(settings.profile.name || "");
+      setEmail(settings.profile.email || "");
+      setPhone(settings.profile.phone || "");
+      setRole(settings.profile.role || "");
+      setBio(settings.profile.bio || "");
+      setTeamVisibility(settings.profile.teamVisibility || teamVisibility);
+    }
+  }, [settings]);
+
+  async function save() {
+    setLoading(true);
+    try {
+      await settingsService.updateProfile(user.id, { name, email, phone, role, bio, teamVisibility });
+      alert("Profile saved successfully");
+    } catch (err) {
+      alert("Failed to save profile: " + err.message);
+    } finally {
+      setLoading(false);
+    }
   }
+
   function reset() {
-    alert("Reverted changes");
+    if (settings?.profile) {
+      setName(settings.profile.name || "");
+      setEmail(settings.profile.email || "");
+      setPhone(settings.profile.phone || "");
+      setRole(settings.profile.role || "");
+      setBio(settings.profile.bio || "");
+      setTeamVisibility(settings.profile.teamVisibility || teamVisibility);
+    }
   }
 
   return (
@@ -189,41 +322,102 @@ function ProfileTab() {
       <Section title="Team visibility" subtitle="Choose what your team sees on member profiles.">
         <div className="grid grid-cols-2 gap-3 text-sm">
           {[
-            "Workout history",
-            "Body metrics",
-            "Payment status",
-            "Injury notes",
-            "Diet plans",
-            "Trainer comments",
-          ].map(key => (
+            { key: "workoutHistory", label: "Workout history" },
+            { key: "bodyMetrics", label: "Body metrics" },
+            { key: "paymentStatus", label: "Payment status" },
+            { key: "injuryNotes", label: "Injury notes" },
+            { key: "dietPlans", label: "Diet plans" },
+            { key: "trainerComments", label: "Trainer comments" },
+          ].map(item => (
             <label
-              key={key}
+              key={item.key}
               className={`flex items-center justify-between rounded-xl border border-teal-300 px-3 py-2 ${theme === 'dark' ? 'bg-gray-700 text-teal-100' : 'bg-teal-100 text-teal-900'}`}
             >
-              <span>{key}</span>
-              <input type="checkbox" defaultChecked className="accent-teal-600" />
+              <span>{item.label}</span>
+              <input
+                type="checkbox"
+                checked={teamVisibility[item.key]}
+                onChange={e => setTeamVisibility({ ...teamVisibility, [item.key]: e.target.checked })}
+                className="accent-teal-600"
+              />
             </label>
           ))}
         </div>
-        <SaveBar onReset={() => {}} onSave={save} />
+        <SaveBar onReset={reset} onSave={save} />
       </Section>
     </div>
   );
 }
 
 /* SECURITY */
-function SecurityTab() {
+function SecurityTab({ settings }) {
   const { theme } = useTheme();
+  const { user } = useAuth();
   const [pwd, setPwd] = useState("");
   const [pwd2, setPwd2] = useState("");
   const [otp, setOtp] = useState(false);
-  const [sessions] = useState([
-    { id: 1, device: "Windows Chrome", ip: "103.22.10.4", last: "2h ago" },
-    { id: 2, device: "Mac Safari", ip: "102.76.1.22", last: "1d ago" },
-  ]);
+  const [sessions, setSessions] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  function save() {
-    alert("Security settings saved");
+  useEffect(() => {
+    if (settings?.security) {
+      setOtp(settings.security.twoFactorEnabled || false);
+      setSessions(settings.security.sessions || []);
+    }
+  }, [settings]);
+
+  async function savePassword() {
+    if (pwd !== pwd2) {
+      alert("Passwords do not match");
+      return;
+    }
+    if (pwd.length < 8) {
+      alert("Password must be at least 8 characters long");
+      return;
+    }
+    setLoading(true);
+    try {
+      await settingsService.updatePassword(user.id, pwd);
+      alert("Password updated successfully");
+      setPwd("");
+      setPwd2("");
+    } catch (err) {
+      alert("Failed to update password: " + err.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function saveSecurity() {
+    setLoading(true);
+    try {
+      await settingsService.updateSecurity(user.id, { twoFactorEnabled: otp });
+      alert("Security settings saved successfully");
+    } catch (err) {
+      alert("Failed to save security settings: " + err.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function resetPassword() {
+    setPwd("");
+    setPwd2("");
+  }
+
+  function resetSecurity() {
+    if (settings?.security) {
+      setOtp(settings.security.twoFactorEnabled || false);
+    }
+  }
+
+  async function signOutSession(sessionId) {
+    try {
+      await settingsService.signOutSession(user.id, sessionId);
+      setSessions(sessions.filter(s => s.id !== sessionId));
+    } catch (err) {
+      alert("Failed to sign out: " + err.message);
+    }
   }
 
   return (
@@ -249,7 +443,7 @@ function SecurityTab() {
             />
           </div>
         </div>
-        <SaveBar onReset={() => { setPwd(""); setPwd2(""); }} onSave={save} />
+        <SaveBar onReset={resetPassword} onSave={savePassword} />
       </Section>
 
       <Section title="Two factor" subtitle="One time code for sign in">
@@ -260,7 +454,7 @@ function SecurityTab() {
           </div>
           <input type="checkbox" checked={otp} onChange={e => setOtp(e.target.checked)} className="accent-teal-600" />
         </div>
-        <SaveBar onReset={() => setOtp(false)} onSave={save} />
+        <SaveBar onReset={resetSecurity} onSave={saveSecurity} />
       </Section>
 
       <Section title="Sessions" subtitle="Devices using your account.">
@@ -274,7 +468,7 @@ function SecurityTab() {
                 <div className="font-semibold">{s.device}</div>
                 <div className={`text-xs ${theme === 'dark' ? 'text-gray-300' : 'text-teal-700'}`}>IP {s.ip} • {s.last}</div>
               </div>
-              <button className={`rounded-lg px-3 py-1 text-xs ${theme === 'dark' ? 'bg-gray-600 text-teal-100' : 'bg-teal-300 text-teal-900'}`}>Sign out</button>
+              <button onClick={() => signOutSession(s.id)} className={`rounded-lg px-3 py-1 text-xs ${theme === 'dark' ? 'bg-gray-600 text-teal-100' : 'bg-teal-300 text-teal-900'}`}>Sign out</button>
             </li>
           ))}
         </ul>
@@ -284,14 +478,49 @@ function SecurityTab() {
 }
 
 /* NOTIFICATIONS */
-function NotificationsTab() {
+function NotificationsTab({ settings }) {
   const { theme } = useTheme();
-  const [email, setEmail] = useState(true);
-  const [sms, setSms] = useState(true);
-  const [push, setPush] = useState(true);
+  const { user } = useAuth();
+  const [memberUpdates, setMemberUpdates] = useState({
+    classReminders: true,
+    newSignups: true,
+    ptBookingAlerts: true,
+    lowAttendance: true,
+    missedPayments: true,
+    weeklySummary: true,
+  });
+  const [channels, setChannels] = useState({
+    email: true,
+    sms: true,
+    push: true,
+    inapp: true,
+  });
+  const [loading, setLoading] = useState(false);
 
-  function save() {
-    alert("Notification preferences saved");
+  useEffect(() => {
+    if (settings?.notifications) {
+      setMemberUpdates(settings.notifications.memberUpdates || memberUpdates);
+      setChannels(settings.notifications.channels || channels);
+    }
+  }, [settings]);
+
+  async function save() {
+    setLoading(true);
+    try {
+      await settingsService.updateNotifications(user.id, { memberUpdates, channels });
+      alert("Notification preferences saved successfully");
+    } catch (err) {
+      alert("Failed to save notification preferences: " + err.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function reset() {
+    if (settings?.notifications) {
+      setMemberUpdates(settings.notifications.memberUpdates || memberUpdates);
+      setChannels(settings.notifications.channels || channels);
+    }
   }
 
   return (
@@ -299,12 +528,12 @@ function NotificationsTab() {
       <Section title="Member updates" subtitle="Choose what you receive.">
         <div className="grid grid-cols-2 gap-3 text-sm">
           {[
-            { k: "Class reminders", state: email, set: setEmail },
-            { k: "New signups", state: sms, set: setSms },
-            { k: "PT booking alerts", state: push, set: setPush },
-            { k: "Low attendance", state: true, set: () => {} },
-            { k: "Missed payments", state: true, set: () => {} },
-            { k: "Weekly summary", state: true, set: () => {} },
+            { k: "Class reminders", key: "classReminders", state: memberUpdates.classReminders, set: (val) => setMemberUpdates({ ...memberUpdates, classReminders: val }) },
+            { k: "New signups", key: "newSignups", state: memberUpdates.newSignups, set: (val) => setMemberUpdates({ ...memberUpdates, newSignups: val }) },
+            { k: "PT booking alerts", key: "ptBookingAlerts", state: memberUpdates.ptBookingAlerts, set: (val) => setMemberUpdates({ ...memberUpdates, ptBookingAlerts: val }) },
+            { k: "Low attendance", key: "lowAttendance", state: memberUpdates.lowAttendance, set: (val) => setMemberUpdates({ ...memberUpdates, lowAttendance: val }) },
+            { k: "Missed payments", key: "missedPayments", state: memberUpdates.missedPayments, set: (val) => setMemberUpdates({ ...memberUpdates, missedPayments: val }) },
+            { k: "Weekly summary", key: "weeklySummary", state: memberUpdates.weeklySummary, set: (val) => setMemberUpdates({ ...memberUpdates, weeklySummary: val }) },
           ].map(item => (
             <label
               key={item.k}
@@ -313,14 +542,14 @@ function NotificationsTab() {
               <span>{item.k}</span>
               <input
                 type="checkbox"
-                defaultChecked={item.state}
+                checked={item.state}
                 onChange={e => item.set(e.target.checked)}
                 className="accent-teal-600"
               />
             </label>
           ))}
         </div>
-        <SaveBar onReset={() => { setEmail(true); setSms(true); setPush(true); }} onSave={save} />
+        <SaveBar onReset={reset} onSave={save} />
       </Section>
 
       <Section title="Channels" subtitle="Your default delivery method.">
@@ -336,24 +565,53 @@ function NotificationsTab() {
               className={`flex items-center justify-between rounded-xl border border-teal-300 px-3 py-2 ${theme === 'dark' ? 'bg-gray-700 text-teal-100' : 'bg-teal-100 text-teal-900'}`}
             >
               <span>{c.label}</span>
-              <input type="checkbox" defaultChecked className="accent-teal-600" />
+              <input
+                type="checkbox"
+                checked={channels[c.key]}
+                onChange={e => setChannels({ ...channels, [c.key]: e.target.checked })}
+                className="accent-teal-600"
+              />
             </div>
           ))}
         </div>
-        <SaveBar onReset={() => {}} onSave={save} />
+        <SaveBar onReset={reset} onSave={save} />
       </Section>
     </div>
   );
 }
 
 /* APPEARANCE */
-function AppearanceTab() {
+function AppearanceTab({ settings }) {
   const { theme } = useTheme();
+  const { user } = useAuth();
   const [themeColor, setThemeColor] = useState("emerald");
   const [density, setDensity] = useState("comfortable");
+  const [loading, setLoading] = useState(false);
 
-  function save() {
-    alert("Appearance saved");
+  useEffect(() => {
+    if (settings?.appearance) {
+      setThemeColor(settings.appearance.themeColor || "emerald");
+      setDensity(settings.appearance.density || "comfortable");
+    }
+  }, [settings]);
+
+  async function save() {
+    setLoading(true);
+    try {
+      await settingsService.updateAppearance(user.id, { themeColor, density });
+      alert("Appearance saved successfully");
+    } catch (err) {
+      alert("Failed to save appearance: " + err.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function reset() {
+    if (settings?.appearance) {
+      setThemeColor(settings.appearance.themeColor || "emerald");
+      setDensity(settings.appearance.density || "comfortable");
+    }
   }
 
   return (
@@ -384,26 +642,53 @@ function AppearanceTab() {
             <div key={i} className={`h-20 rounded-xl border border-teal-300 ${theme === 'dark' ? 'bg-gray-700' : 'bg-teal-100'}`}></div>
           ))}
         </div>
-        <SaveBar onReset={() => { setThemeColor("emerald"); setDensity("comfortable"); }} onSave={save} />
+        <SaveBar onReset={reset} onSave={save} />
       </Section>
     </div>
   );
 }
 
 /* BRANCHES */
-function BranchesTab() {
+function BranchesTab({ settings }) {
   const { theme } = useTheme();
-  const [branches, setBranches] = useState([
-    { id: 1, name: "Hyderabad", code: "HYD", status: "Open" },
-    { id: 2, name: "Agra", code: "AGR", status: "Open" },
-    { id: 3, name: "Delhi", code: "DEL", status: "Maintenance" },
-  ]);
+  const { user } = useAuth();
+  const [branches, setBranches] = useState([]);
   const [newBranch, setNewBranch] = useState({ name: "", code: "" });
+  const [loading, setLoading] = useState(false);
 
-  function addBranch() {
+  useEffect(() => {
+    if (settings?.branches) {
+      setBranches(settings.branches || []);
+    }
+  }, [settings]);
+
+  async function addBranch() {
     if (!newBranch.name || !newBranch.code) return alert("Add name and code");
-    setBranches([{ id: Date.now(), name: newBranch.name, code: newBranch.code, status: "Open" }, ...branches]);
-    setNewBranch({ name: "", code: "" });
+    setLoading(true);
+    try {
+      const updatedBranches = [{ id: Date.now(), name: newBranch.name, code: newBranch.code, status: "Open" }, ...branches];
+      await settingsService.updateBranches(user.id, updatedBranches);
+      setBranches(updatedBranches);
+      setNewBranch({ name: "", code: "" });
+      alert("Branch added successfully");
+    } catch (err) {
+      alert("Failed to add branch: " + err.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function updateBranchStatus(branchId, status) {
+    setLoading(true);
+    try {
+      const updatedBranches = branches.map(b => b.id === branchId ? { ...b, status } : b);
+      await settingsService.updateBranches(user.id, updatedBranches);
+      setBranches(updatedBranches);
+    } catch (err) {
+      alert("Failed to update branch status: " + err.message);
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -422,7 +707,7 @@ function BranchesTab() {
             placeholder="Code"
             className={`rounded-xl px-3 py-2 ring-1 ring-teal-300 ${theme === 'dark' ? 'bg-gray-700 text-teal-100' : 'bg-teal-100 text-teal-900'}`}
           />
-          <button onClick={addBranch} className="rounded-xl bg-teal-400 px-4 py-2 font-semibold text-teal-900">
+          <button onClick={addBranch} disabled={loading} className="rounded-xl bg-teal-400 px-4 py-2 font-semibold text-teal-900 disabled:opacity-50">
             Add
           </button>
         </div>
@@ -437,8 +722,10 @@ function BranchesTab() {
                 <div className={`text-xs ${theme === 'dark' ? 'text-gray-300' : 'text-teal-700'}`}>Status {b.status}</div>
               </div>
               <select
-                defaultValue={b.status}
-                className={`rounded-lg px-2 py-1 text-xs ring-1 ring-teal-300 ${theme === 'dark' ? 'bg-gray-600 text-teal-100' : 'bg-teal-200 text-teal-900'}`}
+                value={b.status}
+                onChange={e => updateBranchStatus(b.id, e.target.value)}
+                disabled={loading}
+                className={`rounded-lg px-2 py-1 text-xs ring-1 ring-teal-300 ${theme === 'dark' ? 'bg-gray-600 text-teal-100' : 'bg-teal-200 text-teal-900'} disabled:opacity-50`}
               >
                 <option>Open</option>
                 <option>Maintenance</option>
@@ -453,20 +740,42 @@ function BranchesTab() {
 }
 
 /* INTEGRATIONS */
-function IntegrationsTab() {
+function IntegrationsTab({ settings }) {
   const { theme } = useTheme();
-  const tools = [
+  const { user } = useAuth();
+  const [integrations, setIntegrations] = useState([
     { id: "razorpay", name: "Razorpay", desc: "Payments and invoices", status: "Connected" },
     { id: "whatsapp", name: "WhatsApp Business", desc: "Member chat and alerts", status: "Connected" },
     { id: "mailgun", name: "Mailgun", desc: "Email delivery", status: "Not connected" },
     { id: "twilio", name: "Twilio SMS", desc: "Text messages", status: "Not connected" },
-  ];
+  ]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (settings?.integrations) {
+      setIntegrations(settings.integrations || integrations);
+    }
+  }, [settings]);
+
+  async function toggleIntegration(id) {
+    setLoading(true);
+    const updated = integrations.map(i => i.id === id ? { ...i, status: i.status === 'Connected' ? 'Not connected' : 'Connected' } : i);
+    setIntegrations(updated);
+    try {
+      await settingsService.updateIntegrations(user.id, updated);
+    } catch (err) {
+      alert('Failed to update integration: ' + err.message);
+      setIntegrations(integrations);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   return (
     <div className="space-y-6">
       <Section title="Integrations" subtitle="Connect the tools you already use.">
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-          {tools.map(t => (
+          {integrations.map(t => (
             <div
               key={t.id}
               className={`flex items-center justify-between rounded-2xl border border-teal-300 p-4 ${theme === 'dark' ? 'bg-gray-700 text-teal-100' : 'bg-teal-100 text-teal-900'}`}
@@ -476,7 +785,9 @@ function IntegrationsTab() {
                 <div className={`text-xs ${theme === 'dark' ? 'text-gray-300' : 'text-teal-700'}`}>{t.desc}</div>
               </div>
               <button
-                className={`rounded-lg px-3 py-1 text-xs ${
+                onClick={() => toggleIntegration(t.id)}
+                disabled={loading}
+                className={`rounded-lg px-3 py-1 text-xs disabled:opacity-50 ${
                   t.status === "Connected" ? "bg-teal-600 text-white" : (theme === 'dark' ? 'bg-gray-600 text-teal-100' : 'bg-teal-300 text-teal-900')
                 }`}
               >
@@ -491,13 +802,48 @@ function IntegrationsTab() {
 }
 
 /* BILLING */
-function BillingTab() {
+function BillingTab({ settings }) {
   const { theme } = useTheme();
+  const { user } = useAuth();
+  const [planChangeOpen, setPlanChangeOpen] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState("Pro");
+  const [loading, setLoading] = useState(false);
   const invoices = [
     { id: "INV-1101", amount: "₹ 24,000", date: "2025-09-01", status: "Paid" },
     { id: "INV-1098", amount: "₹ 24,000", date: "2025-08-01", status: "Paid" },
     { id: "INV-1095", amount: "₹ 24,000", date: "2025-07-01", status: "Paid" },
   ];
+
+  async function handleDownload(invoiceId) {
+    try {
+      const response = await fetch(`${BASE_API_URL}billing/${user.id}/invoices/${invoiceId}/download`, {
+        headers: { Authorization: `Bearer ${getToken()}` },
+      });
+      if (!response.ok) throw new Error('Download failed');
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${invoiceId}.pdf`;
+      a.click();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      alert('Download failed: ' + err.message);
+    }
+  }
+
+  async function changePlan() {
+    setLoading(true);
+    try {
+      await settingsService.updateBilling(user.id, { plan: selectedPlan });
+      alert("Plan changed successfully");
+      setPlanChangeOpen(false);
+    } catch (err) {
+      alert("Failed to change plan: " + err.message);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   return (
     <div className="space-y-6">
@@ -507,7 +853,7 @@ function BillingTab() {
             <div className="font-semibold">Pro plan</div>
             <div className={`text-xs ${theme === 'dark' ? 'text-gray-300' : 'text-teal-700'}`}>Unlimited members and branches</div>
           </div>
-          <button className={`rounded-lg px-3 py-1 text-xs ${theme === 'dark' ? 'bg-gray-600 text-teal-100' : 'bg-teal-300 text-teal-900'}`}>Change plan</button>
+          <button onClick={() => setPlanChangeOpen(true)} className={`rounded-lg px-3 py-1 text-xs ${theme === 'dark' ? 'bg-gray-600 text-teal-100' : 'bg-teal-300 text-teal-900'}`}>Change plan</button>
         </div>
       </Section>
 
@@ -533,7 +879,7 @@ function BillingTab() {
                     <span className={`rounded px-2 py-1 text-xs ${theme === 'dark' ? 'bg-teal-600/20 text-gray-300' : 'bg-teal-600/20 text-teal-700'}`}>{inv.status}</span>
                   </td>
                   <td className="px-4 py-3 text-right">
-                    <button className={`rounded-lg px-3 py-1 text-xs ${theme === 'dark' ? 'bg-gray-600 text-teal-100' : 'bg-teal-300 text-teal-900'}`}>Download</button>
+                    <button onClick={() => handleDownload(inv.id)} className={`rounded-lg px-3 py-1 text-xs ${theme === 'dark' ? 'bg-gray-600 text-teal-100' : 'bg-teal-300 text-teal-900'}`}>Download</button>
                   </td>
                 </tr>
               ))}
@@ -541,34 +887,117 @@ function BillingTab() {
           </table>
         </div>
       </Section>
+
+      {planChangeOpen && (
+        <div className="fixed inset-0 z-50 grid place-items-center bg-black/70 p-4">
+          <div className="w-full max-w-md rounded-2xl border border-teal-300 bg-white p-5">
+            <h4 className="text-lg font-semibold">Change Plan</h4>
+            <p className="mt-1 text-sm">Select a new plan</p>
+            <select
+              value={selectedPlan}
+              onChange={e => setSelectedPlan(e.target.value)}
+              className="mt-3 w-full rounded-xl bg-teal-100 px-3 py-2 text-sm ring-1 ring-teal-300"
+            >
+              <option>Basic</option>
+              <option>Pro</option>
+              <option>Enterprise</option>
+            </select>
+            <div className="mt-4 flex items-center justify-end gap-2">
+              <button onClick={() => setPlanChangeOpen(false)} className="rounded-xl bg-teal-200 px-4 py-2 text-sm text-teal-900">
+                Cancel
+              </button>
+              <button onClick={changePlan} disabled={loading} className="rounded-xl bg-teal-600 px-4 py-2 text-sm text-white disabled:opacity-50">
+                Change
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
 /* ADVANCED */
-function AdvancedTab() {
+function AdvancedTab({ settings }) {
   const { theme } = useTheme();
+  const { user } = useAuth();
+  const [automation, setAutomation] = useState({
+    dailyBackup: true,
+    cleanupSessions: true,
+    rebuildAnalytics: true,
+    syncEmails: true,
+  });
   const [dangerOpen, setDangerOpen] = useState(false);
+  const [confirmText, setConfirmText] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (settings?.advanced) {
+      setAutomation(settings.advanced.automation || automation);
+    }
+  }, [settings]);
+
+  async function save() {
+    setLoading(true);
+    try {
+      await settingsService.updateAdvanced(user.id, { automation });
+      alert("Advanced settings saved successfully");
+    } catch (err) {
+      alert("Failed to save advanced settings: " + err.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function reset() {
+    if (settings?.advanced) {
+      setAutomation(settings.advanced.automation || automation);
+    }
+  }
+
+  async function confirmDelete() {
+    if (confirmText !== "DELETE") {
+      alert("Please type DELETE to confirm");
+      return;
+    }
+    setLoading(true);
+    try {
+      await settingsService.deleteAccount(user.id);
+      alert("Account deleted successfully");
+      // Optionally, redirect to login or home
+      window.location.href = "/login";
+    } catch (err) {
+      alert("Failed to delete account: " + err.message);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   return (
     <div className="space-y-6">
       <Section title="Automation" subtitle="Daily jobs and health checks.">
         <div className="grid grid-cols-2 gap-3 text-sm">
           {[
-            "Daily backup",
-            "Cleanup old sessions",
-            "Rebuild analytics",
-            "Sync email lists",
-          ].map(k => (
+            { key: "dailyBackup", label: "Daily backup" },
+            { key: "cleanupSessions", label: "Cleanup old sessions" },
+            { key: "rebuildAnalytics", label: "Rebuild analytics" },
+            { key: "syncEmails", label: "Sync email lists" },
+          ].map(item => (
             <label
-              key={k}
+              key={item.key}
               className={`flex items-center justify-between rounded-xl border border-teal-300 px-3 py-2 ${theme === 'dark' ? 'bg-gray-700 text-teal-100' : 'bg-teal-100 text-teal-900'}`}
             >
-              <span>{k}</span>
-              <input type="checkbox" defaultChecked className="accent-teal-600" />
+              <span>{item.label}</span>
+              <input
+                type="checkbox"
+                checked={automation[item.key]}
+                onChange={e => setAutomation({ ...automation, [item.key]: e.target.checked })}
+                className="accent-teal-600"
+              />
             </label>
           ))}
         </div>
+        <SaveBar onReset={reset} onSave={save} />
       </Section>
 
       <Section title="Danger zone" subtitle="These actions cannot be undone.">
@@ -588,12 +1017,19 @@ function AdvancedTab() {
           <div className="w-full max-w-md rounded-2xl border border-red-300 bg-white p-5 text-red-700">
             <h4 className="text-lg font-semibold">Confirm deletion</h4>
             <p className="mt-1 text-sm">Type DELETE to confirm</p>
-            <input placeholder="DELETE" className="mt-3 w-full rounded-xl bg-red-100 px-3 py-2 text-sm ring-1 ring-red-300" />
+            <input
+              value={confirmText}
+              onChange={e => setConfirmText(e.target.value)}
+              placeholder="DELETE"
+              className="mt-3 w-full rounded-xl bg-red-100 px-3 py-2 text-sm ring-1 ring-red-300"
+            />
             <div className="mt-4 flex items-center justify-end gap-2">
-              <button onClick={() => setDangerOpen(false)} className="rounded-xl bg-red-200 px-4 py-2 text-sm text-red-700">
+              <button onClick={() => { setDangerOpen(false); setConfirmText(""); }} className="rounded-xl bg-red-200 px-4 py-2 text-sm text-red-700">
                 Cancel
               </button>
-              <button className="rounded-xl bg-red-600 px-4 py-2 text-sm text-white">Confirm</button>
+              <button onClick={confirmDelete} disabled={loading} className="rounded-xl bg-red-600 px-4 py-2 text-sm text-white disabled:opacity-50">
+                Confirm
+              </button>
             </div>
           </div>
         </div>
