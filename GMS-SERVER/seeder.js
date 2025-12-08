@@ -1,4 +1,4 @@
-// seeder.js - Production-ready database seeder
+ // seeder.js - Production-ready database seeder
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 require('dotenv').config();
@@ -8,6 +8,7 @@ const User = require('./src/models/UserModel');
 const Role = require('./src/models/RoleModel');
 const Gym = require('./src/models/GymModel');
 const Transaction = require('./src/models/TransactionModel');
+const Course = require('./src/models/CourseModel');
 
 // Connect to MongoDB
 const connectDB = async () => {
@@ -35,6 +36,7 @@ const seedData = async () => {
       await Role.deleteMany({});
       await Gym.deleteMany({});
       await Transaction.deleteMany({});
+      await Course.deleteMany({});
       console.log('✅ Existing data cleared\n');
     }
 
@@ -430,6 +432,7 @@ const seedData = async () => {
     console.log('\n📊 SAMPLE DATA CREATED:');
     console.log(`• ${createdRoles.length} user roles`);
     console.log(`• ${createdGyms.length} gym locations`);
+    console.log(`• ${createdCourses.length} courses`);
     console.log(`• ${createdUsers.length} users`);
     console.log('• Sample financial transactions');
     console.log('='.repeat(50));

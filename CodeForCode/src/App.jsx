@@ -1,4 +1,3 @@
-import React from 'react'
 import { Route, Routes, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
 import { ThemeProvider } from './contexts/ThemeContext'
@@ -32,7 +31,9 @@ import BMICalculator from './views/BMICalculator'
 import ProgressTracker from './views/Workout& Diet Plan/ProgressTracking'
 import ReportsAnalytics from './views/Workout& Diet Plan/ReportsAndAnalytics'
 import ClassesSchedule from './views/Management/ClassesSchedule'
-import Courses from './views/OurCources/Courses'
+import CoursesManagement from './views/Management/CoursesManagement'
+import AddCourse from './views/Management/AddCourse'
+import CoursesPage from './views/OurCources/Courses'
 import FranchiseAndMembership from './views/OurCources/Franchises&Management'
 import Product from './views/Products/Product'
 import ProductCreate from './views/Products/ProductCreate'
@@ -51,6 +52,8 @@ import CreateWorkout from './views/Trainer/CreateWorkout'
 import AssignWorkout from './views/Trainer/AssignWorkout'
 import Salary from './views/Trainer/Salary'
 import ResetPassword from './views/Trainer/ResetPassword'
+import Courses from './views/OurCources/Courses'
+import EditCourse from './views/Management/EditCourse'
 
 // Protected Route for Admin
 function ProtectedRoute({ children }) {
@@ -266,6 +269,9 @@ function App() {
               <Route path="/reports/analytics" element={<ProtectedRoute><ReportsAnalytics /></ProtectedRoute>} />
               <Route path="/classes/schedule" element={<ProtectedRoute><ClassesSchedule /></ProtectedRoute>} />
               <Route path="/courses" element={<ProtectedRoute><Courses /></ProtectedRoute>} />
+              <Route path="/courses/management" element={<ProtectedRoute><CoursesManagement /></ProtectedRoute>} />
+              <Route path="/courses/add" element={<ProtectedRoute><AddCourse /></ProtectedRoute>} />
+              <Route path="/courses/edit/:id" element={<ProtectedRoute><EditCourse /></ProtectedRoute>} />
               <Route path="/franchisesandmembership" element={<ProtectedRoute><FranchiseAndMembership /></ProtectedRoute>} />
               <Route path="/products" element={<ProtectedRoute><Product /></ProtectedRoute>} />
               <Route path="/products/create" element={<ProtectedRoute><ProductCreate /></ProtectedRoute>} />

@@ -3,6 +3,11 @@ const Schema = mongoose.Schema;
 
 const courseSchema = new Schema(
   {
+    gymId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Gym',
+      required: true,
+    },
     name: {
       type: String,
       required: true,
@@ -26,8 +31,14 @@ const courseSchema = new Schema(
       required: true,
     },
     price: {
-      type: Number,
-      default: 0,
+      monthly: {
+        type: Number,
+        default: 50,
+      },
+      annual: {
+        type: Number,
+        default: 500,
+      },
     },
   },
   {
