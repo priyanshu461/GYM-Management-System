@@ -114,7 +114,7 @@ export const menuConfig = {
         {
           id: "courses",
           label: "Courses",
-          path: "/courses",
+          path: "/courses/management",
           icon: AiOutlineAudit,
         },
         {

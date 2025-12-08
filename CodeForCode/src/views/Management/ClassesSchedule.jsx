@@ -50,6 +50,7 @@ const ClassesSchedule = () => {
     status: "Active"
   });
   const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState(null);
 
   const isAdmin = user?.user_type === 'Admin';
   const isGymOwner = user?.user_type === 'Gym';
@@ -144,7 +145,11 @@ const ClassesSchedule = () => {
         response = await trainerServices.getAllTrainers();
       }
 
-      const trainersData = response.trainers || [];
+      const trainersData = (response.trainers || []).map((trainer, index) => ({
+        ...trainer,
+        _id: trainer.id || trainer._id || `trainer_${index}`, // Ensure _id exists for backward compatibility
+        id: trainer.id || trainer._id || `trainer_${index}` // Ensure id exists
+      }));
       setTrainers(trainersData);
       setFilteredTrainers(trainersData);
     } catch (err) {
@@ -180,12 +185,68 @@ const ClassesSchedule = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
+    setError(null);
     try {
       const submitData = { ...formData };
 
       // For gym owners, ensure gymId is set
       if (isGymOwner && !submitData.gymId) {
         submitData.gymId = user.gymId;
+      }
+
+      // Validate required fields
+      if (!submitData.trainerId || submitData.trainerId === "") {
+        throw new Error("Please select a trainer.");
+      }
+      if (!submitData.gymId || submitData.gymId === "") {
+        throw new Error("Please select a gym.");
+      }
+
+      // Validate that selected trainer exists
+      const trainerList = isAdmin ? filteredTrainers : trainers;
+      let selectedTrainer = trainerList.find(t => `${t.name} - ${t.specialization || t.expertise || ''}` === submitData.trainerId);
+
+      if (!selectedTrainer) {
+        console.log('Available trainers:', trainerList.map(t => ({
+          id: t.id || t._id,
+          name: t.name,
+          display: `${t.name} - ${t.specialization || t.expertise || ''}`
+        })));
+        console.log('Selected trainerId:', submitData.trainerId);
+        throw new Error("Please select a valid trainer.");
+      }
+
+      // Use the trainer's ID for submission instead of display text
+      submitData.trainerId = selectedTrainer.id || selectedTrainer._id;
+
+      // Validate that selected gym exists (for admins)
+      if (isAdmin) {
+        const selectedGym = gyms.find(g => String(g._id) === String(submitData.gymId));
+        if (!selectedGym) {
+          console.log('Available gyms:', gyms.map(g => ({ id: g._id, name: g.name })));
+          console.log('Selected gymId:', submitData.gymId);
+          throw new Error("Please select a valid gym.");
+        }
+      }
+
+      // Ensure trainerId and gymId are strings
+      submitData.trainerId = String(submitData.trainerId);
+      submitData.gymId = String(submitData.gymId);
+
+      if (!submitData.name || submitData.name.trim() === "") {
+        throw new Error("Please enter a class name.");
+      }
+      if (!submitData.date) {
+        throw new Error("Please select a date.");
+      }
+      if (!submitData.startTime) {
+        throw new Error("Please select a start time.");
+      }
+      if (!submitData.endTime) {
+        throw new Error("Please select an end time.");
+      }
+      if (!submitData.capacity || submitData.capacity <= 0) {
+        throw new Error("Please enter a valid capacity.");
       }
 
       if (editingClass) {
@@ -213,9 +274,11 @@ const ClassesSchedule = () => {
       });
       setShowForm(false);
       setEditingClass(null);
+      setError(null);
       fetchClasses(); // Refresh data
     } catch (err) {
       console.error('Error submitting class:', err);
+      setError(err.message || 'Failed to save class. Please try again.');
     } finally {
       setSubmitting(false);
     }
@@ -332,7 +395,7 @@ const ClassesSchedule = () => {
                   onChange={(e) => setSelectedGym(e.target.value)}
                   className="bg-background border border-input text-foreground rounded-xl px-4 py-2 focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all"
                 >
-                  <option value="All">All Gyms</option>
+                  <option key="All" value="All">All Gyms</option>
                   {gyms.map((gym) => (
                     <option key={gym._id} value={gym.name}>
                       {gym.name}
@@ -507,12 +570,12 @@ const ClassesSchedule = () => {
                         className="w-full bg-background border border-input text-foreground rounded-xl px-4 py-3 focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all"
                         required
                       >
-                        <option value="Fitness">Fitness</option>
-                        <option value="Yoga">Yoga</option>
-                        <option value="Cardio">Cardio</option>
-                        <option value="Strength">Strength</option>
-                        <option value="Dance">Dance</option>
-                        <option value="Martial Arts">Martial Arts</option>
+                        <option key="Fitness" value="Fitness">Fitness</option>
+                        <option key="Yoga" value="Yoga">Yoga</option>
+                        <option key="Cardio" value="Cardio">Cardio</option>
+                        <option key="Strength" value="Strength">Strength</option>
+                        <option key="Dance" value="Dance">Dance</option>
+                        <option key="Martial Arts" value="Martial Arts">Martial Arts</option>
                       </select>
                     </div>
 
@@ -529,11 +592,14 @@ const ClassesSchedule = () => {
                         required
                       >
                         <option value="">Select Trainer</option>
-                        {(isAdmin ? filteredTrainers : trainers).map((trainer) => (
-                          <option key={trainer._id} value={trainer._id}>
-                            {trainer.name} - {trainer.specialization || trainer.expertise}
-                          </option>
-                        ))}
+                        {(isAdmin ? filteredTrainers : trainers).map((trainer) => {
+                          const displayText = `${trainer.name} - ${trainer.specialization || trainer.expertise || ''}`;
+                          return (
+                            <option key={trainer._id} value={displayText}>
+                              {displayText}
+                            </option>
+                          );
+                        })}
                       </select>
                     </div>
 
@@ -633,9 +699,9 @@ const ClassesSchedule = () => {
                         className="w-full bg-background border border-input text-foreground rounded-xl px-4 py-3 focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all"
                         required
                       >
-                        <option value="Beginner">Beginner</option>
-                        <option value="Intermediate">Intermediate</option>
-                        <option value="Advanced">Advanced</option>
+                        <option key="Beginner" value="Beginner">Beginner</option>
+                        <option key="Intermediate" value="Intermediate">Intermediate</option>
+                        <option key="Advanced" value="Advanced">Advanced</option>
                       </select>
                     </div>
 
@@ -651,9 +717,9 @@ const ClassesSchedule = () => {
                         className="w-full bg-background border border-input text-foreground rounded-xl px-4 py-3 focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all"
                         required
                       >
-                        <option value="Active">Active</option>
-                        <option value="Cancelled">Cancelled</option>
-                        <option value="Completed">Completed</option>
+                        <option key="Active" value="Active">Active</option>
+                        <option key="Cancelled" value="Cancelled">Cancelled</option>
+                        <option key="Completed" value="Completed">Completed</option>
                       </select>
                     </div>
                   </div>
