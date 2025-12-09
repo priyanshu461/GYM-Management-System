@@ -92,4 +92,21 @@ memberServices.getUpcomingClasses = async (limit = 5) => {
   }
 };
 
+// Get all members (for admin)
+memberServices.getAllMembers = async () => {
+  try {
+    const token = getToken();
+    const res = await fetch(`${BASE_API_URL}management/members`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!res.ok) {
+      throw new Error('Failed to fetch members');
+    }
+    return await res.json();
+  } catch (error) {
+    console.error('Error fetching members:', error);
+    throw error;
+  }
+};
+
 export default memberServices;
