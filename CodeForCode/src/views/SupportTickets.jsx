@@ -219,7 +219,7 @@ export default function SupportTickets() {
 
       {/* Compose */}
       {composeOpen && (
-        <ComposeModal onClose={()=>setComposeOpen(false)} onCreate={createTicket} />
+        <ComposeModal theme={theme} onClose={()=>setComposeOpen(false)} onCreate={createTicket} />
       )}
     </div>
     </Layout>
@@ -286,7 +286,7 @@ function Info({ label, value }) {
   );
 }
 
-function ComposeModal({ onClose, onCreate }) {
+function ComposeModal({ theme, onClose, onCreate }) {
   const [subject, setSubject] = useState("");
   const [member, setMember] = useState("");
   const [club, setClub] = useState("");
@@ -300,22 +300,22 @@ function ComposeModal({ onClose, onCreate }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-teal-50/70 p-4">
-      <div className="w-full max-w-2xl rounded-2xl border border-white/10 bg-teal-100 p-5">
+    <div className={`fixed inset-0 z-50 grid place-items-center p-4 ${theme === 'dark' ? 'bg-gray-900/70' : 'bg-teal-50/70'}`}>
+      <div className={`form w-full max-w-2xl rounded-2xl border p-5 ${theme === 'dark' ? 'border-gray-600 bg-gray-800 text-gray-100' : 'border-white/10 bg-teal-100 text-teal-900'}`}>
         <div className="mb-3 flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-teal-900">Create ticket</h3>
-          <button onClick={onClose} className="rounded-lg bg-teal-200 px-3 py-1 text-xs text-teal-900 hover:bg-teal-300">Close</button>
+          <h3 className="text-lg font-semibold">Create ticket</h3>
+          <button onClick={onClose} className={`rounded-lg px-3 py-1 text-xs ${theme === 'dark' ? 'bg-gray-700 text-gray-100 hover:bg-gray-600' : 'bg-teal-200 text-teal-900 hover:bg-teal-300'}`}>Close</button>
         </div>
         <div className="grid grid-cols-2 gap-3">
-          <input value={subject} onChange={e=>setSubject(e.target.value)} placeholder="Subject" className="col-span-2 rounded-xl bg-teal-100 px-3 py-2 text-sm text-gray-900 ring-1 ring-white/10" />
-          <input value={member} onChange={e=>setMember(e.target.value)} placeholder="Member name" className="rounded-xl bg-teal-100 px-3 py-2 text-sm text-gray-900 ring-1 ring-white/10" />
-          <input value={club} onChange={e=>setClub(e.target.value)} placeholder="Club or location" className="rounded-xl bg-teal-100 px-3 py-2 text-sm text-gray-900 ring-1 ring-white/10" />
-          <select value={priority} onChange={e=>setPriority(e.target.value)} className="rounded-xl bg-teal-100 px-3 py-2 text-sm text-gray-900 ring-1 ring-white/10"><option>Urgent</option><option>High</option><option>Medium</option><option>Low</option></select>
-          <select value={category} onChange={e=>setCategory(e.target.value)} className="rounded-xl bg-teal-100 px-3 py-2 text-sm text-gray-900 ring-1 ring-white/10"><option>Billing</option><option>App</option><option>Facilities</option><option>Training</option></select>
-          <input value={assignee} onChange={e=>setAssignee(e.target.value)} placeholder="Assign to" className="rounded-xl bg-teal-100 px-3 py-2 text-sm text-gray-900 ring-1 ring-white/10" />
+          <input value={subject} onChange={e=>setSubject(e.target.value)} placeholder="Subject" className={`col-span-2 rounded-xl px-3 py-2 text-sm ring-1 ${theme === 'dark' ? 'bg-gray-700 text-gray-100 ring-gray-600' : 'bg-teal-100 text-gray-900 ring-white/10'}`} />
+          <input value={member} onChange={e=>setMember(e.target.value)} placeholder="Member name" className={`rounded-xl px-3 py-2 text-sm ring-1 ${theme === 'dark' ? 'bg-gray-700 text-gray-100 ring-gray-600' : 'bg-teal-100 text-gray-900 ring-white/10'}`} />
+          <input value={club} onChange={e=>setClub(e.target.value)} placeholder="Club or location" className={`rounded-xl px-3 py-2 text-sm ring-1 ${theme === 'dark' ? 'bg-gray-700 text-gray-100 ring-gray-600' : 'bg-teal-100 text-gray-900 ring-white/10'}`} />
+          <select value={priority} onChange={e=>setPriority(e.target.value)} className={`rounded-xl px-3 py-2 text-sm ring-1 ${theme === 'dark' ? 'bg-gray-700 text-gray-100 ring-gray-600' : 'bg-teal-100 text-gray-900 ring-white/10'}`}><option>Urgent</option><option>High</option><option>Medium</option><option>Low</option></select>
+          <select value={category} onChange={e=>setCategory(e.target.value)} className={`rounded-xl px-3 py-2 text-sm ring-1 ${theme === 'dark' ? 'bg-gray-700 text-gray-100 ring-gray-600' : 'bg-teal-100 text-gray-900 ring-white/10'}`}><option>Billing</option><option>App</option><option>Facilities</option><option>Training</option></select>
+          <input value={assignee} onChange={e=>setAssignee(e.target.value)} placeholder="Assign to" className={`rounded-xl px-3 py-2 text-sm ring-1 ${theme === 'dark' ? 'bg-gray-700 text-gray-100 ring-gray-600' : 'bg-teal-100 text-gray-900 ring-white/10'}`} />
         </div>
         <div className="mt-4 flex items-center justify-end gap-2">
-          <button onClick={onClose} className="rounded-xl bg-teal-200 px-4 py-2 text-sm text-teal-900 hover:bg-teal-300">Cancel</button>
+          <button onClick={onClose} className={`rounded-xl px-4 py-2 text-sm ${theme === 'dark' ? 'bg-gray-700 text-gray-100 hover:bg-gray-600' : 'bg-teal-200 text-teal-900 hover:bg-teal-300'}`}>Cancel</button>
           <button onClick={submit} className="rounded-xl bg-teal-600 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-teal-600/30 hover:bg-teal-700">Create</button>
         </div>
       </div>

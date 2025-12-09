@@ -33,18 +33,30 @@ export default function WorkoutRoutine() {
   const [editing, setEditing] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
+  const [members, setMembers] = useState([]);
 
   // form state
   const [form, setForm] = useState({
     name: "",
     goal: "General",
     difficulty: "Beginner",
+    selectedMember: "",
     days: [],
   });
 
   useEffect(() => {
     fetchRoutines();
+    fetchMembers();
   }, []);
+
+  const fetchMembers = async () => {
+    try {
+      const data = await gymServices.getAllMembers();
+      setMembers(data);
+    } catch (err) {
+      console.error("Failed to fetch members", err);
+    }
+  };
 
   const fetchRoutines = async () => {
     try {
@@ -70,7 +82,7 @@ export default function WorkoutRoutine() {
 
   // helpers
   function openCreate() {
-    setForm({ name: "", goal: "General", difficulty: "Beginner", days: [] });
+    setForm({ name: "", goal: "General", difficulty: "Beginner", selectedMember: "", days: [] });
     setEditing(false);
     setFormOpen(true);
   }
@@ -792,8 +804,22 @@ export default function WorkoutRoutine() {
                       <option>Intermediate</option>
                       <option>Advanced</option>
                     </select>
+                    <select
+                      value={form.selectedMember}
+                      onChange={(e) =>
+                        setForm((f) => ({ ...f, selectedMember: e.target.value }))
+                      }
+                      className="p-2 border rounded"
+                    >
+                      <option value="">Select Member (Optional)</option>
+                      {members.map((member) => (
+                        <option key={member._id} value={member._id}>
+                          {member.name}
+                        </option>
+                      ))}
+                    </select>
 
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 col-span-2">
                       <button
                         type="button"
                         onClick={addDay}
