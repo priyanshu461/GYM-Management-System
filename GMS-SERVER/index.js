@@ -13,6 +13,7 @@ connectDB();
 require("./src/models/RoleModel");
 require("./src/models/UserModel");
 require("./src/models/CourseModel");
+require("./src/models/ProductModel");
 
 // Middleware
 app.use(cors());
