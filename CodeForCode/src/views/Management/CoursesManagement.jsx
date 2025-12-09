@@ -168,8 +168,9 @@ export default function CoursesManagement() {
                     {courses
                       .map(course => course.gymId)
                       .filter((gym, index, arr) => arr.findIndex(g => g?._id === gym?._id) === index)
+                      .filter(gym => gym) // Filter out null/undefined gyms
                       .map(gym => (
-                        <option key={gym?._id} value={gym?._id}>{gym?.name || 'Unknown Gym'}</option>
+                        <option key={gym._id} value={gym._id}>{gym.name || 'Unknown Gym'}</option>
                       ))
                     }
                   </select>

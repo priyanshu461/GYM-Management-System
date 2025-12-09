@@ -5,45 +5,55 @@ const Schema = mongoose.Schema;
 // Define WorkoutRoutine Schema
 const workoutRoutineSchema = new Schema(
   {
-    title: {
+    name: {
       type: String,
-      required: [true, "Workout title is required"],
+      required: [true, "Routine name is required"],
       trim: true,
     },
-    description: {
+    goal: {
       type: String,
-      trim: true,
+      enum: ["General", "Strength", "Muscle"],
+      default: "General",
     },
     difficulty: {
       type: String,
       enum: ["Beginner", "Intermediate", "Advanced"],
       default: "Beginner",
     },
-    duration: {
-      type: Number,
-      required: [true, "Duration is required"],
-    },
-    exercises: [
+    days: [
       {
-        name: {
+        day: {
           type: String,
           required: true,
         },
-        sets: {
-          type: Number,
-          required: true,
-        },
-        reps: {
-          type: String,
-          required: true,
-        },
-        rest: {
-          type: Number,
-          default: 0,
-        },
+        exercises: [
+          {
+            name: {
+              type: String,
+              required: true,
+            },
+            sets: {
+              type: Number,
+              required: true,
+            },
+            reps: {
+              type: String,
+              required: true,
+            },
+            rest: {
+              type: String,
+              default: "60s",
+            },
+          },
+        ],
       },
     ],
-    trainer: {
+    assignedTo: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,

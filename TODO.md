@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import React, { useMemo, useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { MessageSquare, Users, CheckCircle, AlertTriangle, Plus, Search, Filter, Download, Settings, X, Send } from "lucide-react";
@@ -361,3 +362,5 @@ function ComposeModal({ onClose, onCreate, members, trainers }) {
   );
 }
  
+=======
+>>>>>>> 87159520b77444250681a7ccb7398bbc63faa2ed
