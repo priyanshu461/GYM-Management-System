@@ -32,7 +32,7 @@ export default function Settings() {
                 <option value="30">Last 30 days</option>
                 <option value="90">Last 90 days</option>
               </select>
-              <button onClick={() => alert('Exporting data...')} className="rounded-xl bg-teal-600 px-4 py-2 text-sm font-semibold text-white shadow hover:brightness-110">Export</button>
+              <button onClick={() => lert('Exporting data...')} className="rounded-xl bg-teal-600 px-4 py-2 text-sm font-semibold text-white shadow hover:brightness-110">Export</button>
             </div>
           </div>
 
