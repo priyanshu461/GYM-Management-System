@@ -1,74 +1,28 @@
-const Setting = require("../models/SettingModel");
+const User = require("../models/UserModel");
 
 // Get user settings
 const getSettings = async (req, res) => {
   try {
     const { userId } = req.params;
-    const settings = await Setting.findOne({ userId });
-
-    if (!settings) {
-      // Create default settings if not exist
-      const defaultSettings = new Setting({
-        userId,
-        profile: {
-          name: "",
-          email: "",
-          phone: "",
-          role: "Admin",
-          bio: ""
-        },
-        security: {
-          otpEnabled: false,
-          sessions: []
-        },
-        notifications: {
-          memberUpdates: {
-            classReminders: true,
-            newSignups: true,
-            ptBookingAlerts: true,
-            lowAttendance: true,
-            missedPayments: true,
-            weeklySummary: true
-          },
-          channels: {
-            email: true,
-            sms: true,
-            push: true,
-            inApp: true
-          }
-        },
-        appearance: {
-          theme: "emerald",
-          density: "comfortable"
-        },
-        branches: [],
-        integrations: {
-          razorpay: false,
-          whatsapp: false,
-          mailgun: false,
-          twilio: false
-        },
-        billing: {
-          plan: "Pro",
-          invoices: []
-        },
-        advanced: {
-          automation: {
-            dailyBackup: true,
-            cleanupSessions: true,
-            rebuildAnalytics: true,
-            syncEmailLists: true
-          }
-        }
-      });
-
-      await defaultSettings.save();
-      return res.status(200).json(defaultSettings);
+    const user = await User.findById(userId).select("-password");
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
     }
-
-    res.status(200).json(settings);
+    // Return default settings if no settings exist
+    const settings = user.settings || {
+      profile: {},
+      security: {},
+      notifications: {},
+      appearance: {},
+      branches: [],
+      integrations: [],
+      billing: {},
+      advanced: { automation: { dailyBackup: true, cleanupSessions: true, rebuildAnalytics: true, syncEmails: true } }
+    };
+    res.json(settings);
   } catch (error) {
-    res.status(500).json({ message: "Error fetching settings", error: error.message });
+    console.error("Error fetching settings:", error);
+    res.status(500).json({ message: "Failed to fetch settings" });
   }
 };
 
@@ -76,25 +30,15 @@ const getSettings = async (req, res) => {
 const updateProfile = async (req, res) => {
   try {
     const { userId } = req.params;
-    const { name, email, phone, role, bio } = req.body;
-
-    const updatedSettings = await Setting.findOneAndUpdate(
-      { userId },
-      {
-        $set: {
-          "profile.name": name,
-          "profile.email": email,
-          "profile.phone": phone,
-          "profile.role": role,
-          "profile.bio": bio
-        }
-      },
-      { new: true, upsert: true }
-    );
-
-    res.status(200).json(updatedSettings);
+    const profileData = req.body;
+    const user = await User.findByIdAndUpdate(userId, { "settings.profile": profileData }, { new: true });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.json(user.settings.profile);
   } catch (error) {
-    res.status(500).json({ message: "Error updating profile", error: error.message });
+    console.error("Error updating profile:", error);
+    res.status(500).json({ message: "Failed to update profile" });
   }
 };
 
@@ -102,22 +46,15 @@ const updateProfile = async (req, res) => {
 const updateSecurity = async (req, res) => {
   try {
     const { userId } = req.params;
-    const { otpEnabled, sessions } = req.body;
-
-    const updatedSettings = await Setting.findOneAndUpdate(
-      { userId },
-      {
-        $set: {
-          "security.otpEnabled": otpEnabled,
-          "security.sessions": sessions
-        }
-      },
-      { new: true, upsert: true }
-    );
-
-    res.status(200).json(updatedSettings);
+    const securityData = req.body;
+    const user = await User.findByIdAndUpdate(userId, { "settings.security": securityData }, { new: true });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.json(user.settings.security);
   } catch (error) {
-    res.status(500).json({ message: "Error updating security settings", error: error.message });
+    console.error("Error updating security:", error);
+    res.status(500).json({ message: "Failed to update security settings" });
   }
 };
 
@@ -125,22 +62,15 @@ const updateSecurity = async (req, res) => {
 const updateNotifications = async (req, res) => {
   try {
     const { userId } = req.params;
-    const { memberUpdates, channels } = req.body;
-
-    const updatedSettings = await Setting.findOneAndUpdate(
-      { userId },
-      {
-        $set: {
-          "notifications.memberUpdates": memberUpdates,
-          "notifications.channels": channels
-        }
-      },
-      { new: true, upsert: true }
-    );
-
-    res.status(200).json(updatedSettings);
+    const notificationData = req.body;
+    const user = await User.findByIdAndUpdate(userId, { "settings.notifications": notificationData }, { new: true });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.json(user.settings.notifications);
   } catch (error) {
-    res.status(500).json({ message: "Error updating notifications", error: error.message });
+    console.error("Error updating notifications:", error);
+    res.status(500).json({ message: "Failed to update notifications" });
   }
 };
 
@@ -148,22 +78,15 @@ const updateNotifications = async (req, res) => {
 const updateAppearance = async (req, res) => {
   try {
     const { userId } = req.params;
-    const { theme, density } = req.body;
-
-    const updatedSettings = await Setting.findOneAndUpdate(
-      { userId },
-      {
-        $set: {
-          "appearance.theme": theme,
-          "appearance.density": density
-        }
-      },
-      { new: true, upsert: true }
-    );
-
-    res.status(200).json(updatedSettings);
+    const appearanceData = req.body;
+    const user = await User.findByIdAndUpdate(userId, { "settings.appearance": appearanceData }, { new: true });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.json(user.settings.appearance);
   } catch (error) {
-    res.status(500).json({ message: "Error updating appearance", error: error.message });
+    console.error("Error updating appearance:", error);
+    res.status(500).json({ message: "Failed to update appearance" });
   }
 };
 
@@ -171,17 +94,15 @@ const updateAppearance = async (req, res) => {
 const updateBranches = async (req, res) => {
   try {
     const { userId } = req.params;
-    const { branches } = req.body;
-
-    const updatedSettings = await Setting.findOneAndUpdate(
-      { userId },
-      { $set: { branches } },
-      { new: true, upsert: true }
-    );
-
-    res.status(200).json(updatedSettings);
+    const branchesData = req.body.branches;
+    const user = await User.findByIdAndUpdate(userId, { "settings.branches": branchesData }, { new: true });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.json(user.settings.branches);
   } catch (error) {
-    res.status(500).json({ message: "Error updating branches", error: error.message });
+    console.error("Error updating branches:", error);
+    res.status(500).json({ message: "Failed to update branches" });
   }
 };
 
@@ -189,17 +110,15 @@ const updateBranches = async (req, res) => {
 const updateIntegrations = async (req, res) => {
   try {
     const { userId } = req.params;
-    const { integrations } = req.body;
-
-    const updatedSettings = await Setting.findOneAndUpdate(
-      { userId },
-      { $set: { integrations } },
-      { new: true, upsert: true }
-    );
-
-    res.status(200).json(updatedSettings);
+    const integrationsData = req.body.integrations;
+    const user = await User.findByIdAndUpdate(userId, { "settings.integrations": integrationsData }, { new: true });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.json(user.settings.integrations);
   } catch (error) {
-    res.status(500).json({ message: "Error updating integrations", error: error.message });
+    console.error("Error updating integrations:", error);
+    res.status(500).json({ message: "Failed to update integrations" });
   }
 };
 
@@ -207,22 +126,15 @@ const updateIntegrations = async (req, res) => {
 const updateBilling = async (req, res) => {
   try {
     const { userId } = req.params;
-    const { plan, invoices } = req.body;
-
-    const updatedSettings = await Setting.findOneAndUpdate(
-      { userId },
-      {
-        $set: {
-          "billing.plan": plan,
-          "billing.invoices": invoices
-        }
-      },
-      { new: true, upsert: true }
-    );
-
-    res.status(200).json(updatedSettings);
+    const billingData = req.body;
+    const user = await User.findByIdAndUpdate(userId, { "settings.billing": billingData }, { new: true });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.json(user.settings.billing);
   } catch (error) {
-    res.status(500).json({ message: "Error updating billing", error: error.message });
+    console.error("Error updating billing:", error);
+    res.status(500).json({ message: "Failed to update billing" });
   }
 };
 
@@ -230,31 +142,30 @@ const updateBilling = async (req, res) => {
 const updateAdvanced = async (req, res) => {
   try {
     const { userId } = req.params;
-    const { automation } = req.body;
-
-    const updatedSettings = await Setting.findOneAndUpdate(
-      { userId },
-      { $set: { "advanced.automation": automation } },
-      { new: true, upsert: true }
-    );
-
-    res.status(200).json(updatedSettings);
+    const advancedData = req.body;
+    const user = await User.findByIdAndUpdate(userId, { "settings.advanced": advancedData }, { new: true });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.json(user.settings.advanced);
   } catch (error) {
-    res.status(500).json({ message: "Error updating advanced settings", error: error.message });
+    console.error("Error updating advanced settings:", error);
+    res.status(500).json({ message: "Failed to update advanced settings" });
   }
 };
 
-// Delete user account (danger zone)
+// Delete account
 const deleteAccount = async (req, res) => {
   try {
     const { userId } = req.params;
-
-    // In a real app, this would require additional confirmation
-    await Setting.findOneAndDelete({ userId });
-
-    res.status(200).json({ message: "Account deleted successfully" });
+    const user = await User.findByIdAndDelete(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.json({ message: "Account deleted successfully" });
   } catch (error) {
-    res.status(500).json({ message: "Error deleting account", error: error.message });
+    console.error("Error deleting account:", error);
+    res.status(500).json({ message: "Failed to delete account" });
   }
 };
 

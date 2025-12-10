@@ -58,7 +58,7 @@ app.use("/api/management/finance", authenticateToken, authorizeRoles(['Admin', '
 
 // Workout routes
 const workoutRoutes = require("./src/routes/workoutRoutes");
-app.use("/api/workout", workoutRoutes);
+app.use("/api/workout", authenticateToken, workoutRoutes);
 
 // Diet routes
 const dietRoutes = require("./src/routes/dietRoutes");

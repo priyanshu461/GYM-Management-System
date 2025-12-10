@@ -1,10 +1,8 @@
-import React, { useMemo, useState, useEffect } from "react";
+import React, { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { MessageSquare, Users, CheckCircle, AlertTriangle, Plus, Search, Filter, Download, Settings, X, Send } from "lucide-react";
 import Layout from "../components/Layout";
 import { useTheme } from "../contexts/ThemeContext";
-import memberServices from "../services/memberServices";
-import trainerServices from "../services/trainerServices";
 
 // Support Tickets page for a gym management website
 // Bold, dark UI inspired by the provided dashboard screenshot
@@ -34,32 +32,6 @@ export default function SupportTickets() {
   const [composeOpen, setComposeOpen] = useState(false);
   const [automationOpen, setAutomationOpen] = useState(false);
   const [highContrast, setHighContrast] = useState(false);
-  const [members, setMembers] = useState([]);
-  const [trainers, setTrainers] = useState([]);
-
-  useEffect(() => {
-    const fetchMembers = async () => {
-      try {
-        const data = await memberServices.getAllMembers();
-        setMembers(data);
-      } catch (error) {
-        console.error('Failed to fetch members:', error);
-      }
-    };
-    fetchMembers();
-  }, []);
-
-  useEffect(() => {
-    const fetchTrainers = async () => {
-      try {
-        const data = await trainerServices.getAllTrainers();
-        setTrainers(data);
-      } catch (error) {
-        console.error('Failed to fetch trainers:', error);
-      }
-    };
-    fetchTrainers();
-  }, []);
 
   const stats = useMemo(() => {
     const open = tickets.filter(t => t.status === "Open").length;
@@ -247,7 +219,7 @@ export default function SupportTickets() {
 
       {/* Compose */}
       {composeOpen && (
-        <ComposeModal onClose={()=>setComposeOpen(false)} onCreate={createTicket} members={members} trainers={trainers} />
+        <ComposeModal theme={theme} onClose={()=>setComposeOpen(false)} onCreate={createTicket} />
       )}
     </div>
     </Layout>
@@ -261,12 +233,12 @@ function TicketDrawer({ ticket, onClose, onUpdate }) {
 
   return (
     <div className="fixed inset-0 z-50 grid place-items-center bg-black/70 p-4">
-      <div className="w-full max-w-4xl rounded-2xl border border-white/10 bg-white p-5 bgradient-to-br from-teal-50 to-teal-100 shadow-2xl">
+      <div className="w-full max-w-4xl rounded-2xl border border-white/10 bg-slate-900 p-5">
         <div className="mb-3 flex items-center justify-between">
           <h3 className="text-lg font-semibold">{ticket.id} - {ticket.subject}</h3>
-          <button onClick={onClose} className="rounded-lg bg-teal-200 px-3 py-1 text-xs">Close</button>
+          <button onClick={onClose} className="rounded-lg bg-slate-700 px-3 py-1 text-xs">Close</button>
         </div>
-        <div className="grid grid-cols-4 gap-3 mb-4 ">
+        <div className="grid grid-cols-4 gap-3 mb-4">
           <Info label="Member" value={ticket.member} />
           <Info label="Club" value={ticket.club} />
           <Info label="Priority" value={ticket.priority} />
@@ -283,7 +255,7 @@ function TicketDrawer({ ticket, onClose, onUpdate }) {
           <div className="space-y-3 max-h-64 overflow-y-auto">
             {ticket.replies.map((reply, index) => (
               <div key={index} className="rounded-xl border border-white/10 bg-teal-100/60 p-3">
-                <div className="text-xs text-teal-400">{reply.author} • {reply.time}</div>
+                <div className="text-xs text-slate-400">{reply.author} • {reply.time}</div>
                 <div className="text-sm mt-1">{reply.message}</div>
               </div>
             ))}
@@ -297,7 +269,7 @@ function TicketDrawer({ ticket, onClose, onUpdate }) {
         </div>
         <textarea value={reply} onChange={e=>setReply(e.target.value)} placeholder="Add a reply..." className="w-full rounded-xl bg-teal-100 px-3 py-2 text-sm ring-1 ring-white/10 mb-4" rows={3} />
         <div className="flex items-center justify-end gap-2">
-          <button onClick={onClose} className="rounded-xl bg-slate-200 px-4 py-2 text-sm">Cancel</button>
+          <button onClick={onClose} className="rounded-xl bg-slate-700 px-4 py-2 text-sm">Cancel</button>
           <button onClick={()=>{onUpdate({status:nextStatus, assignee:nextAssignee}); onClose();}} className="rounded-xl bg-emerald-500 px-4 py-2 text-sm font-semibold text-emerald-950 shadow-lg shadow-emerald-500/30">Update</button>
         </div>
       </div>
@@ -314,7 +286,7 @@ function Info({ label, value }) {
   );
 }
 
-function ComposeModal({ onClose, onCreate, members, trainers }) {
+function ComposeModal({ theme, onClose, onCreate }) {
   const [subject, setSubject] = useState("");
   const [member, setMember] = useState("");
   const [club, setClub] = useState("");
@@ -328,33 +300,23 @@ function ComposeModal({ onClose, onCreate, members, trainers }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-4">
-      <div className="w-full max-w-2xl rounded-2xl border border-teal-200/50 dark:border-teal-700/30 bg-white/90 dark:bg-teal-900/90 backdrop-blur-sm p-5 shadow-2xl">
+    <div className={`fixed inset-0 z-50 grid place-items-center p-4 ${theme === 'dark' ? 'bg-gray-900/70' : 'bg-teal-50/70'}`}>
+      <div className={`form w-full max-w-2xl rounded-2xl border p-5 ${theme === 'dark' ? 'border-gray-600 bg-gray-800 text-gray-100' : 'border-white/10 bg-teal-100 text-teal-900'}`}>
         <div className="mb-3 flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-foreground">Create ticket</h3>
-          <button onClick={onClose} className="rounded-lg bg-muted px-3 py-1 text-xs text-foreground hover:bg-muted/80">Close</button>
+          <h3 className="text-lg font-semibold">Create ticket</h3>
+          <button onClick={onClose} className={`rounded-lg px-3 py-1 text-xs ${theme === 'dark' ? 'bg-gray-700 text-gray-100 hover:bg-gray-600' : 'bg-teal-200 text-teal-900 hover:bg-teal-300'}`}>Close</button>
         </div>
         <div className="grid grid-cols-2 gap-3">
-          <input value={subject} onChange={e=>setSubject(e.target.value)} placeholder="Subject" className="col-span-2 rounded-xl bg-background/50 dark:bg-teal-800/30 border border-input text-foreground px-3 py-2 text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all placeholder:text-muted-foreground" />
-          <select value={member} onChange={e=>setMember(e.target.value)} className="rounded-xl bg-background/50 dark:bg-teal-800/30 border border-input text-foreground px-3 py-2 text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all">
-            <option value="">Select a member</option>
-            {members.map((m) => (
-              <option key={m.id} value={m.name}>{m.name}</option>
-            ))}
-          </select>
-          <input value={club} onChange={e=>setClub(e.target.value)} placeholder="Club or location" className="rounded-xl bg-background/50 dark:bg-teal-800/30 border border-input text-foreground px-3 py-2 text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all placeholder:text-muted-foreground" />
-          <select value={priority} onChange={e=>setPriority(e.target.value)} className="rounded-xl bg-background/50 dark:bg-teal-800/30 border border-input text-foreground px-3 py-2 text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all"><option>Urgent</option><option>High</option><option>Medium</option><option>Low</option></select>
-          <select value={category} onChange={e=>setCategory(e.target.value)} className="rounded-xl bg-background/50 dark:bg-teal-800/30 border border-input text-foreground px-3 py-2 text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all"><option>Billing</option><option>App</option><option>Facilities</option><option>Training</option></select>
-          <select value={assignee} onChange={e=>setAssignee(e.target.value)} className="rounded-xl bg-background/50 dark:bg-teal-800/30 border border-input text-foreground px-3 py-2 text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all">
-            <option value="">Select assignee</option>
-            {trainers.map((t) => (
-              <option key={t.id} value={t.name}>{t.name}</option>
-            ))}
-          </select>
+          <input value={subject} onChange={e=>setSubject(e.target.value)} placeholder="Subject" className={`col-span-2 rounded-xl px-3 py-2 text-sm ring-1 ${theme === 'dark' ? 'bg-gray-700 text-gray-100 ring-gray-600' : 'bg-teal-100 text-gray-900 ring-white/10'}`} />
+          <input value={member} onChange={e=>setMember(e.target.value)} placeholder="Member name" className={`rounded-xl px-3 py-2 text-sm ring-1 ${theme === 'dark' ? 'bg-gray-700 text-gray-100 ring-gray-600' : 'bg-teal-100 text-gray-900 ring-white/10'}`} />
+          <input value={club} onChange={e=>setClub(e.target.value)} placeholder="Club or location" className={`rounded-xl px-3 py-2 text-sm ring-1 ${theme === 'dark' ? 'bg-gray-700 text-gray-100 ring-gray-600' : 'bg-teal-100 text-gray-900 ring-white/10'}`} />
+          <select value={priority} onChange={e=>setPriority(e.target.value)} className={`rounded-xl px-3 py-2 text-sm ring-1 ${theme === 'dark' ? 'bg-gray-700 text-gray-100 ring-gray-600' : 'bg-teal-100 text-gray-900 ring-white/10'}`}><option>Urgent</option><option>High</option><option>Medium</option><option>Low</option></select>
+          <select value={category} onChange={e=>setCategory(e.target.value)} className={`rounded-xl px-3 py-2 text-sm ring-1 ${theme === 'dark' ? 'bg-gray-700 text-gray-100 ring-gray-600' : 'bg-teal-100 text-gray-900 ring-white/10'}`}><option>Billing</option><option>App</option><option>Facilities</option><option>Training</option></select>
+          <input value={assignee} onChange={e=>setAssignee(e.target.value)} placeholder="Assign to" className={`rounded-xl px-3 py-2 text-sm ring-1 ${theme === 'dark' ? 'bg-gray-700 text-gray-100 ring-gray-600' : 'bg-teal-100 text-gray-900 ring-white/10'}`} />
         </div>
         <div className="mt-4 flex items-center justify-end gap-2">
-          <button onClick={onClose} className="rounded-xl bg-muted px-4 py-2 text-sm text-foreground hover:bg-muted/80">Cancel</button>
-          <button onClick={submit} className="rounded-xl bg-teal-600 text-white px-4 py-2 text-sm font-semibold shadow-lg hover:bg-teal-700 transition-all">Create</button>
+          <button onClick={onClose} className={`rounded-xl px-4 py-2 text-sm ${theme === 'dark' ? 'bg-gray-700 text-gray-100 hover:bg-gray-600' : 'bg-teal-200 text-teal-900 hover:bg-teal-300'}`}>Cancel</button>
+          <button onClick={submit} className="rounded-xl bg-teal-600 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-teal-600/30 hover:bg-teal-700">Create</button>
         </div>
       </div>
     </div>

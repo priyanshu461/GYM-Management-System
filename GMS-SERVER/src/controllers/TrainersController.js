@@ -1056,6 +1056,140 @@ const getAllTrainerPaymentDates = async (req, res) => {
   }
 };
 
+// Get trainer stats for dashboard
+const getTrainerStats = async (req, res) => {
+  try {
+    const trainerId = req.user.id;
+
+    // Get assigned members count
+    const assignedMembers = await User.countDocuments({
+      assignedTrainer: trainerId,
+      user_type: "Member",
+      isActive: true
+    });
+
+    // Get classes taught count
+    const Class = require("../models/ClassModel");
+    const classesTaught = await Class.countDocuments({
+      instructor: trainerId,
+      isActive: true
+    });
+
+    // Calculate average member progress (mock for now - integrate with ProgressModel later)
+    const memberProgress = 78; // Mock value
+
+    // Get upcoming sessions count
+    const upcomingSessions = await Class.countDocuments({
+      instructor: trainerId,
+      isActive: true,
+      date: { $gte: new Date() }
+    });
+
+    res.status(200).json({
+      assignedMembers,
+      classesTaught,
+      memberProgress,
+      upcomingSessions
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching trainer stats", error: error.message });
+  }
+};
+
+// Get trainer activities for dashboard
+const getTrainerActivities = async (req, res) => {
+  try {
+    const trainerId = req.user.id;
+
+    // Get recent class activities
+    const Class = require("../models/ClassModel");
+    const recentClasses = await Class.find({
+      instructor: trainerId,
+      isActive: true
+    })
+    .sort({ createdAt: -1 })
+    .limit(3)
+    .select('title date time enrolled capacity createdAt');
+
+    // Get recent workout activities
+    const WorkoutRoutine = require("../models/WorkoutRoutineModel");
+    const recentWorkouts = await WorkoutRoutine.find({
+      createdBy: trainerId,
+      isActive: true
+    })
+    .sort({ createdAt: -1 })
+    .limit(2)
+    .select('name createdAt');
+
+    // Combine and format activities
+    const activities = [];
+
+    // Add class activities
+    recentClasses.forEach(cls => {
+      activities.push({
+        id: cls._id,
+        type: "class",
+        title: `${cls.title} Completed`,
+        date: cls.createdAt.toISOString().split('T')[0],
+        details: `${cls.enrolled}/${cls.capacity} members attended`
+      });
+    });
+
+    // Add workout activities
+    recentWorkouts.forEach(workout => {
+      activities.push({
+        id: workout._id,
+        type: "workout",
+        title: `${workout.name} Created`,
+        date: workout.createdAt.toISOString().split('T')[0],
+        details: "New workout routine"
+      });
+    });
+
+    // Sort by date and limit to 5
+    activities.sort((a, b) => new Date(b.date) - new Date(a.date));
+    const limitedActivities = activities.slice(0, 5);
+
+    res.status(200).json(limitedActivities);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching trainer activities", error: error.message });
+  }
+};
+
+// Get trainer classes for dashboard
+const getTrainerClasses = async (req, res) => {
+  try {
+    const trainerId = req.user.id;
+    const Class = require("../models/ClassModel");
+
+    const upcomingClasses = await Class.find({
+      instructor: trainerId,
+      isActive: true,
+      date: { $gte: new Date() }
+    })
+    .sort({ date: 1 })
+    .limit(5)
+    .select('_id title date time duration capacity enrolled category difficulty location');
+
+    const formattedClasses = upcomingClasses.map(cls => ({
+      _id: cls._id,
+      title: cls.title,
+      date: cls.date.toISOString().split('T')[0],
+      time: cls.time,
+      duration: cls.duration || "60 min",
+      capacity: cls.capacity,
+      enrolled: cls.enrolled,
+      category: cls.category,
+      difficulty: cls.difficulty,
+      location: cls.location
+    }));
+
+    res.status(200).json(formattedClasses);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching trainer classes", error: error.message });
+  }
+};
+
 // Get trainer dashboard data
 const getTrainerDashboard = async (req, res) => {
   try {
@@ -1097,33 +1231,14 @@ const getTrainerDashboard = async (req, res) => {
 
     const monthlyEarnings = monthlyTransactions.reduce((sum, transaction) => sum + transaction.amount, 0);
 
-    // Get recent activities (mock for now)
-    const recentActivities = [
-      {
-        type: "workout",
-        title: "Created Upper Body Workout",
-        description: "New workout routine for strength training",
-        date: new Date().toISOString().split('T')[0],
-        time: "10:00 AM"
-      },
-      {
-        type: "schedule",
-        title: "Yoga Class Scheduled",
-        description: "Morning yoga session for beginners",
-        date: new Date().toISOString().split('T')[0],
-        time: "8:00 AM"
-      }
-    ];
-
     res.status(200).json({
       totalClients,
       totalSchedules,
       totalWorkouts,
-      monthlyEarnings,
-      recentActivities
+      monthlyEarnings
     });
   } catch (error) {
-    res.status(500).json({ message: "Error fetching dashboard data", error: error.message });
+    res.status(500).json({ message: "Error fetching trainer dashboard", error: error.message });
   }
 };
 
@@ -1152,4 +1267,7 @@ module.exports = {
   resetPassword,
   getWorkouts,
   getTrainerDashboard,
+  getTrainerStats,
+  getTrainerActivities,
+  getTrainerClasses,
 };

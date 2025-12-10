@@ -5,26 +5,38 @@ const WorkoutCompletion = require("../models/WorkoutCompletionModel");
 // Create a new workout routine
 const createWorkout = async (req, res) => {
   try {
-    const { title, description, difficulty, duration, exercises } = req.body;
+    const { name, goal, difficulty, days, assignedTo, createdBy } = req.body;
 
     // Validate required fields
-    if (!title || !difficulty || !duration || !exercises || exercises.length === 0) {
-      return res.status(400).json({ message: "All fields are required" });
+    if (!name || !difficulty || !days || days.length === 0 || !assignedTo) {
+      return res.status(400).json({ message: "All fields are required, including member assignment" });
     }
 
-    // Create the workout routine with trainer ID from authenticated user
+    // Check if the assigned member exists and belongs to the same gym
+    const member = await User.findById(assignedTo);
+    if (!member || member.user_type !== "Member") {
+      return res.status(404).json({ message: "Member not found" });
+    }
+    if (req.user.gymId && member.gymId.toString() !== req.user.gymId.toString()) {
+      return res.status(403).json({ message: "Cannot assign routine to member from different gym" });
+    }
+
+    // Create the workout routine with createdBy ID from authenticated user or provided
     const workout = new WorkoutRoutine({
-      title,
-      description: description || "",
+      name,
+      goal: goal || "General",
       difficulty,
-      duration: parseInt(duration, 10), // Ensure duration is a number
-      exercises: exercises.map(ex => ({
-        name: ex.name,
-        sets: parseInt(ex.sets, 10), // Ensure sets is a number
-        reps: ex.reps, // Keep as string for flexibility (e.g., "10-12" or "max")
-        rest: parseInt(ex.rest, 10) || 0, // Default to 0 if not provided or invalid
+      days: days.map(d => ({
+        day: d.day,
+        exercises: d.exercises.map(ex => ({
+          name: ex.name,
+          sets: parseInt(ex.sets, 10), // Ensure sets is a number
+          reps: ex.reps, // Keep as string for flexibility (e.g., "10-12" or "max")
+          rest: ex.rest || "60s",
+        })),
       })),
-      trainer: req.user.id, // Associate with the trainer creating it
+      assignedTo,
+      createdBy: createdBy || req.user.id, // Associate with the user creating it
     });
 
     await workout.save();
@@ -36,10 +48,22 @@ const createWorkout = async (req, res) => {
   }
 };
 
-// Get all workouts for a trainer (or all if admin, but for now trainer-specific)
+// Get all workouts for a user, gym, or all if admin
 const getWorkouts = async (req, res) => {
   try {
-    const workouts = await WorkoutRoutine.find({ trainer: req.user.id, isActive: true }).populate("trainer", "name email");
+    let query = { isActive: true };
+
+    if (req.user.user_type === "Admin") {
+      // Admin can see all workouts
+    } else if (req.user.user_type === "Gym") {
+      // Gym owner can see workouts created by users in their gym
+      query.createdBy = { $in: await User.find({ gymId: req.user.gymId }).select('_id') };
+    } else {
+      // Regular users see only their own workouts
+      query.createdBy = req.user.id;
+    }
+
+    const workouts = await WorkoutRoutine.find(query).populate("createdBy", "name email").populate("assignedTo", "name email");
     res.status(200).json(workouts);
   } catch (error) {
     console.error("Error fetching workouts:", error);
@@ -50,7 +74,7 @@ const getWorkouts = async (req, res) => {
 // Get a specific workout by ID
 const getWorkoutById = async (req, res) => {
   try {
-    const workout = await WorkoutRoutine.findById(req.params.id).populate("trainer", "name email");
+    const workout = await WorkoutRoutine.findById(req.params.id).populate("createdBy", "name email");
     if (!workout) {
       return res.status(404).json({ message: "Workout not found" });
     }
@@ -61,32 +85,34 @@ const getWorkoutById = async (req, res) => {
   }
 };
 
-// Update a workout routine (only by the trainer who created it or admin)
+// Update a workout routine (only by the user who created it or admin)
 const updateWorkout = async (req, res) => {
   try {
-    const { title, description, difficulty, duration, exercises } = req.body;
+    const { name, goal, difficulty, days } = req.body;
 
     const workout = await WorkoutRoutine.findById(req.params.id);
     if (!workout) {
       return res.status(404).json({ message: "Workout not found" });
     }
 
-    // Check if the user is the trainer who created it or an admin (assuming role check later if needed)
-    if (workout.trainer.toString() !== req.user.id) {
+    // Check if the user is the one who created it or an admin (assuming role check later if needed)
+    if (workout.createdBy.toString() !== req.user.id) {
       return res.status(403).json({ message: "Unauthorized to update this workout" });
     }
 
     // Update fields if provided
-    if (title) workout.title = title;
-    if (description !== undefined) workout.description = description; // Allow empty description
+    if (name) workout.name = name;
+    if (goal !== undefined) workout.goal = goal; // Allow empty goal
     if (difficulty) workout.difficulty = difficulty;
-    if (duration) workout.duration = parseInt(duration, 10);
-    if (exercises) {
-      workout.exercises = exercises.map(ex => ({
-        name: ex.name,
-        sets: parseInt(ex.sets, 10), // Ensure sets is a number
-        reps: ex.reps, // Keep as string for flexibility (e.g., "10-12" or "max")
-        rest: parseInt(ex.rest, 10) || 0, // Default to 0 if not provided or invalid
+    if (days) {
+      workout.days = days.map(d => ({
+        day: d.day,
+        exercises: d.exercises.map(ex => ({
+          name: ex.name,
+          sets: parseInt(ex.sets, 10), // Ensure sets is a number
+          reps: ex.reps, // Keep as string for flexibility (e.g., "10-12" or "max")
+          rest: ex.rest || "60s",
+        })),
       }));
     }
 
@@ -99,7 +125,7 @@ const updateWorkout = async (req, res) => {
   }
 };
 
-// Delete a workout routine (only by the trainer who created it or admin)
+// Delete a workout routine (only by the user who created it or admin)
 const deleteWorkout = async (req, res) => {
   try {
     const workout = await WorkoutRoutine.findById(req.params.id);
@@ -107,8 +133,8 @@ const deleteWorkout = async (req, res) => {
       return res.status(404).json({ message: "Workout not found" });
     }
 
-    // Check if the user is the trainer who created it or an admin (assuming role check later if needed)
-    if (workout.trainer.toString() !== req.user.id) {
+    // Check if the user is the one who created it or an admin (assuming role check later if needed)
+    if (workout.createdBy.toString() !== req.user.id) {
       return res.status(403).json({ message: "Unauthorized to delete this workout" });
     }
 

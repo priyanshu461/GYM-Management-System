@@ -13,6 +13,7 @@ import {
   Sun,
   MessageSquare,
   UserCheck,
+  UserPlus,
 } from "lucide-react";
 import Layout from "@/components/Layout";
 
@@ -31,6 +32,98 @@ const TrainerDashboard = () => {
   const [recentActivities, setRecentActivities] = useState([]);
   const [upcomingClasses, setUpcomingClasses] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  // Quick Actions Handlers
+  const handleCreateWorkout = async () => {
+    try {
+      // For now, create a basic workout. In a real app, this would open a modal
+      const workoutData = {
+        title: "New Workout Routine",
+        description: "Custom workout created from dashboard",
+        difficulty: "Intermediate",
+        duration: 45,
+        exercises: [
+          { name: "Push-ups", sets: 3, reps: "10-12", rest: "60s" },
+          { name: "Squats", sets: 3, reps: "12-15", rest: "60s" },
+          { name: "Plank", sets: 3, reps: "30-45s", rest: "60s" }
+        ]
+      };
+
+      const response = await trainerServices.createWorkout(workoutData);
+      if (response.message) {
+        alert("Workout created successfully!");
+        // Refresh dashboard data
+        window.location.reload();
+      } else {
+        alert("Failed to create workout");
+      }
+    } catch (error) {
+      console.error("Error creating workout:", error);
+      alert("Error creating workout");
+    }
+  };
+
+  const handleScheduleClass = async () => {
+    try {
+      // For now, show a message. In a real app, this would open a scheduling modal
+      alert("Class scheduling feature coming soon! Please use the management panel to schedule classes.");
+    } catch (error) {
+      console.error("Error scheduling class:", error);
+      alert("Error scheduling class");
+    }
+  };
+
+  const handleAssignClient = async () => {
+    try {
+      // For now, show available clients. In a real app, this would open an assignment modal
+      const clients = await trainerServices.getTrainerClients();
+      if (clients && clients.length > 0) {
+        const clientNames = clients.map(client => client.name).join(", ");
+        alert(`Available clients: ${clientNames}\n\nClient assignment modal coming soon!`);
+      } else {
+        alert("No clients available for assignment");
+      }
+    } catch (error) {
+      console.error("Error fetching clients:", error);
+      alert("Error fetching clients");
+    }
+  };
+
+  const handleContactMember = async () => {
+    try {
+      // For now, show assigned members. In a real app, this would open a communication modal
+      const members = await trainerServices.getAssignedMembers();
+      if (members && members.length > 0) {
+        const memberNames = members.map(member => member.name).join(", ");
+        alert(`Assigned members: ${memberNames}\n\nCommunication modal coming soon!`);
+      } else {
+        alert("No assigned members to contact");
+      }
+    } catch (error) {
+      console.error("Error fetching members:", error);
+      alert("Error fetching members");
+    }
+  };
+
+  const handleViewProgress = async () => {
+    try {
+      // For now, show basic progress info. In a real app, this would open a progress tracking modal
+      const members = await trainerServices.getAssignedMembers();
+      if (members && members.length > 0) {
+        const progressSummary = members.map(member =>
+          `${member.name}: ${member.progress}% progress`
+        ).join("\n");
+        alert(`Member Progress Summary:\n\n${progressSummary}\n\nDetailed progress view coming soon!`);
+      } else {
+        alert("No assigned members to view progress for");
+      }
+    } catch (error) {
+      console.error("Error fetching progress:", error);
+      alert("Error fetching progress");
+    }
+  };
+
+
 
   // -----------------------------
   // Fetch All Dashboard Data
@@ -379,16 +472,18 @@ const TrainerDashboard = () => {
           <div className={`mt-8 p-6 rounded-xl shadow-lg border ${cardClass}`}>
             <h2 className="text-xl font-bold mb-4">Quick Actions</h2>
 
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
               {[
-                { icon: Dumbbell, label: "Create Workout" },
-                { icon: Calendar, label: "Schedule Class" },
-                { icon: MessageSquare, label: "Contact Member" },
-                { icon: TrendingUp, label: "View Progress" },
+                { icon: Dumbbell, label: "Create Workout", handler: handleCreateWorkout },
+                { icon: Calendar, label: "Schedule Class", handler: handleScheduleClass },
+                { icon: UserPlus, label: "Assign Client", handler: handleAssignClient },
+                { icon: MessageSquare, label: "Contact Member", handler: handleContactMember },
+                { icon: TrendingUp, label: "View Progress", handler: handleViewProgress },
               ].map((btn, i) => (
                 <button
                   key={i}
-                  className={`p-4 rounded-lg border-2 border-dashed transition ${
+                  onClick={btn.handler}
+                  className={`p-4 rounded-lg border-2 border-dashed transition cursor-pointer ${
                     theme === "dark"
                       ? "border-teal-600 text-teal-200 hover:bg-teal-700"
                       : "border-teal-300 text-teal-700 hover:bg-teal-50"

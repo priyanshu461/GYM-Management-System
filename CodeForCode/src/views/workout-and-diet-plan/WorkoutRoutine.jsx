@@ -2,8 +2,9 @@ import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Layout from "@/components/Layout";
 import gymServices from "@/services/gymServices";
+import memberServices from "@/services/memberServices";
 import { useAuth } from "@/contexts/AuthContext";
-import { Dumbbell, Search, Filter, Plus, Eye, Edit, Trash2, Download, Copy, X, Calendar, Target, Zap, Lightbulb } from "lucide-react";
+import { Dumbbell, Search, Filter, Plus, Eye, Edit, Trash2, Download, Copy, X, Calendar, Target, Zap, Lightbulb, Users } from "lucide-react";
 
 export default function WorkoutRoutine() {
   const { user } = useAuth();
@@ -18,18 +19,46 @@ export default function WorkoutRoutine() {
   const [editing, setEditing] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
+  const [members, setMembers] = useState([]);
 
   // form state
   const [form, setForm] = useState({
     name: "",
     goal: "General",
     difficulty: "Beginner",
+    assignedTo: "",
     days: [],
   });
+
+  // form validation
+  const isFormValid = form.name.trim() && form.days.length > 0 && form.days.every(d =>
+    d.day.trim() && d.exercises.length > 0 && d.exercises.every(ex =>
+      ex.name.trim() && ex.reps.trim() && ex.rest.trim()
+    )
+  );
 
   useEffect(() => {
     fetchRoutines();
   }, []);
+
+  useEffect(() => {
+    if (formOpen) {
+      fetchMembers();
+      const interval = setInterval(fetchMembers, 5000); // Fetch every 5 seconds for real-time updates
+      return () => clearInterval(interval);
+    }
+  }, [formOpen]);
+
+
+
+  const fetchMembers = async () => {
+    try {
+      const data = await memberServices.getAllMembers();
+      setMembers(data);
+    } catch (err) {
+      console.error("Failed to fetch members", err);
+    }
+  };
 
   const fetchRoutines = async () => {
     try {
@@ -68,30 +97,6 @@ export default function WorkoutRoutine() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.name.trim()) {
-      setError("Routine name is required");
-      return;
-    }
-    if (form.days.length === 0) {
-      setError("At least one day is required");
-      return;
-    }
-    for (const day of form.days) {
-      if (!day.day.trim()) {
-        setError("Day name is required for each day");
-        return;
-      }
-      if (day.exercises.length === 0) {
-        setError("At least one exercise is required per day");
-        return;
-      }
-      for (const ex of day.exercises) {
-        if (!ex.name.trim() || !ex.reps.trim() || !ex.rest.trim()) {
-          setError("All exercise fields are required");
-          return;
-        }
-      }
-    }
 
     const routineData = { ...form, createdBy: user?._id };
 
@@ -140,10 +145,22 @@ export default function WorkoutRoutine() {
     setForm((f) => ({ ...f, days: [...(f.days || []), { day: "New Day", exercises: [] }] }));
   }
 
+  function removeDay(dayIndex) {
+    setForm((f) => ({ ...f, days: f.days.filter((_, i) => i !== dayIndex) }));
+  }
+
   function addExercise(dayIndex) {
     setForm((f) => {
       const days = [...f.days];
       days[dayIndex].exercises = [...(days[dayIndex].exercises || []), { name: "New Exercise", sets: 3, reps: "8", rest: "60s" }];
+      return { ...f, days };
+    });
+  }
+
+  function removeExercise(dayIndex, exerciseIndex) {
+    setForm((f) => {
+      const days = [...f.days];
+      days[dayIndex].exercises = days[dayIndex].exercises.filter((_, i) => i !== exerciseIndex);
       return { ...f, days };
     });
   }
@@ -626,6 +643,8 @@ export default function WorkoutRoutine() {
           </aside>
         </motion.main>
 
+      </div>
+
       {/* modal form */}
       <AnimatePresence>
         {formOpen && (
@@ -652,30 +671,46 @@ export default function WorkoutRoutine() {
               </div>
 
               <div className="mt-4 grid grid-cols-2 gap-3">
-                <input 
-                  value={form.name} 
-                  onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} 
-                  placeholder="Routine name" 
-                  className="p-3 border rounded-xl focus:ring-2 focus:ring-teal-500 focus:outline-none" 
+                <input
+                  value={form.name}
+                  onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+                  placeholder="Routine name"
+                  className="p-3 border rounded-xl focus:ring-2 focus:ring-teal-500 focus:outline-none"
                 />
-                <select 
-                  value={form.goal} 
-                  onChange={(e) => setForm((f) => ({ ...f, goal: e.target.value }))} 
+                <select
+                  value={form.goal}
+                  onChange={(e) => setForm((f) => ({ ...f, goal: e.target.value }))}
                   className="p-3 border rounded-xl focus:ring-2 focus:ring-teal-500 focus:outline-none"
                 >
                   <option>General</option>
                   <option>Strength</option>
                   <option>Muscle</option>
                 </select>
-                <select 
-                  value={form.difficulty} 
-                  onChange={(e) => setForm((f) => ({ ...f, difficulty: e.target.value }))} 
+                <select
+                  value={form.difficulty}
+                  onChange={(e) => setForm((f) => ({ ...f, difficulty: e.target.value }))}
                   className="p-3 border rounded-xl focus:ring-2 focus:ring-teal-500 focus:outline-none"
                 >
                   <option>Beginner</option>
                   <option>Intermediate</option>
                   <option>Advanced</option>
                 </select>
+
+                <div className="flex items-center gap-2">
+                  <Users className="w-4 h-4 text-muted-foreground" />
+                  <select
+                    value={form.assignedTo}
+                    onChange={(e) => setForm((f) => ({ ...f, assignedTo: e.target.value }))}
+                    className="flex-1 p-3 border rounded-xl focus:ring-2 focus:ring-teal-500 focus:outline-none"
+                  >
+                    <option value="">Select a member</option>
+                    {members.map((m) => (
+                      <option key={m._id} value={m._id}>
+                        {m.name} ({m.email})
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
                 <div className="flex items-center gap-2">
                   <button type="button" onClick={addDay} className="px-4 py-2 bg-teal-500 text-white rounded-xl hover:bg-teal-600 transition-colors">
@@ -689,63 +724,69 @@ export default function WorkoutRoutine() {
                 {(form.days || []).map((d, di) => (
                   <div key={di} className="p-4 border rounded-xl bg-gray-50">
                     <div className="flex justify-between items-center gap-2 mb-2">
-                      <input 
-                        value={d.day} 
+                      <input
+                        value={d.day}
                         onChange={(e) => {
-                          const days = [...form.days]; 
-                          days[di].day = e.target.value; 
+                          const days = [...form.days];
+                          days[di].day = e.target.value;
                           setForm((f) => ({ ...f, days }));
-                        }} 
-                        className="p-2 border rounded-lg w-full focus:ring-2 focus:ring-teal-500 focus:outline-none" 
+                        }}
+                        className="p-2 border rounded-lg flex-1 focus:ring-2 focus:ring-teal-500 focus:outline-none"
                       />
                       <button type="button" onClick={() => addExercise(di)} className="px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
                         + Exercise
+                      </button>
+                      <button type="button" onClick={() => removeDay(di)} className="px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors">
+                        Remove Day
                       </button>
                     </div>
 
                     <div className="mt-2 space-y-1 text-sm">
                       {(d.exercises || []).map((ex, ei) => (
                         <div key={ei} className="flex items-center gap-2">
-                          <input 
-                            value={ex.name} 
+                          <input
+                            value={ex.name}
                             onChange={(e) => {
-                              const days = [...form.days]; 
-                              days[di].exercises[ei].name = e.target.value; 
+                              const days = [...form.days];
+                              days[di].exercises[ei].name = e.target.value;
                               setForm((f) => ({ ...f, days }));
-                            }} 
+                            }}
                             placeholder="Exercise name"
-                            className="p-2 border rounded-lg w-36 focus:ring-2 focus:ring-teal-500 focus:outline-none" 
+                            className="p-2 border rounded-lg flex-1 focus:ring-2 focus:ring-teal-500 focus:outline-none"
                           />
-                          <input 
-                            value={ex.sets} 
+                          <input
+                            value={ex.sets}
                             onChange={(e) => {
-                              const days = [...form.days]; 
-                              days[di].exercises[ei].sets = e.target.value; 
+                              const days = [...form.days];
+                              days[di].exercises[ei].sets = e.target.value;
                               setForm((f) => ({ ...f, days }));
-                            }} 
+                            }}
                             placeholder="Sets"
-                            className="p-2 border rounded-lg w-20 focus:ring-2 focus:ring-teal-500 focus:outline-none" 
+                            className="p-2 border rounded-lg w-20 focus:ring-2 focus:ring-teal-500 focus:outline-none"
                           />
-                          <input 
-                            value={ex.reps} 
+                          <input
+                            value={ex.reps}
                             onChange={(e) => {
-                              const days = [...form.days]; 
-                              days[di].exercises[ei].reps = e.target.value; 
+                              const days = [...form.days];
+                              days[di].exercises[ei].reps = e.target.value;
                               setForm((f) => ({ ...f, days }));
-                            }} 
+                            }}
                             placeholder="Reps"
-                            className="p-2 border rounded-lg w-24 focus:ring-2 focus:ring-teal-500 focus:outline-none" 
+                            className="p-2 border rounded-lg w-24 focus:ring-2 focus:ring-teal-500 focus:outline-none"
                           />
-                          <input 
-                            value={ex.rest} 
+                          <input
+                            value={ex.rest}
                             onChange={(e) => {
-                              const days = [...form.days]; 
-                              days[di].exercises[ei].rest = e.target.value; 
+                              const days = [...form.days];
+                              days[di].exercises[ei].rest = e.target.value;
                               setForm((f) => ({ ...f, days }));
-                            }} 
+                            }}
                             placeholder="Rest"
-                            className="p-2 border rounded-lg w-20 focus:ring-2 focus:ring-teal-500 focus:outline-none" 
+                            className="p-2 border rounded-lg w-20 focus:ring-2 focus:ring-teal-500 focus:outline-none"
                           />
+                          <button type="button" onClick={() => removeExercise(di, ei)} className="px-2 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors">
+                            <X className="w-4 h-4" />
+                          </button>
                         </div>
                       ))}
                     </div>
@@ -765,9 +806,8 @@ export default function WorkoutRoutine() {
           </motion.div>
         )}
       </AnimatePresence>
-      </div>
     </div>
-   </Layout>
+ </Layout>
   );
 }
 
