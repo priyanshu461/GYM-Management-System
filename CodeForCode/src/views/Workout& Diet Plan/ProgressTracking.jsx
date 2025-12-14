@@ -1,11 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 // import { Progress } from "@material-tailwind/react";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import Layout from "../../components/Layout";
 import { useTheme } from "../../contexts/ThemeContext";
+import memberServices from "../../services/memberServices";
 
 const ProgressTracker = () => {
   const { theme } = useTheme();
+  const [members, setMembers] = useState([]);
+  const [selectedMember, setSelectedMember] = useState("");
 
   // Example progress data (can be fetched dynamically from backend)
   const [progressData] = useState([
@@ -15,6 +18,18 @@ const ProgressTracker = () => {
     { month: "Apr", weight: 75 },
     { month: "May", weight: 73 },
   ]);
+
+  useEffect(() => {
+    const fetchMembers = async () => {
+      try {
+        const membersData = await memberServices.getAllMembers();
+        setMembers(membersData);
+      } catch (error) {
+        console.error("Error fetching members:", error);
+      }
+    };
+    fetchMembers();
+  }, []);
 
   const currentWeight = progressData[progressData.length - 1].weight;
   const goalWeight = 70;
@@ -38,6 +53,21 @@ const ProgressTracker = () => {
           }`}>
             Track your fitness journey and achievements
           </p>
+
+          <div className="mt-4">
+            <select
+              value={selectedMember}
+              onChange={(e) => setSelectedMember(e.target.value)}
+              className="border border-gray-300 rounded-lg px-4 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-teal-500"
+            >
+              <option value="">Select Member</option>
+              {members.map((member) => (
+                <option key={member.id} value={member.id}>
+                  {member.name}
+                </option>
+              ))}
+            </select>
+          </div>
         </header>
 
         {/* Progress Summary Cards */}

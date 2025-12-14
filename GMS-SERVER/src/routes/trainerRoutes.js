@@ -13,6 +13,12 @@ const {
   assignWorkoutToClient,
   resetPassword,
   getTrainerDashboard,
+  getTrainerStats,
+  getTrainerActivities,
+  getTrainerClasses,
+  assignMemberToTrainer,
+  getAvailableMembers,
+  removeMemberFromTrainer,
 } = require("../controllers/TrainersController");
 const {
   createWorkout,
@@ -36,5 +42,14 @@ router.post("/workouts/assign", authenticateToken, authorizeRoles(["Trainer", "G
 router.put("/password/reset", authenticateToken, authorizeRoles(["Trainer", "Gym", "Admin"]), resetPassword);
 router.get("/workouts", authenticateToken, authorizeRoles(["Trainer", "Gym", "Admin"]), getWorkouts);
 router.get("/dashboard", authenticateToken, authorizeRoles(["Trainer", "Gym", "Admin"]), getTrainerDashboard);
+router.get("/stats", authenticateToken, authorizeRoles(["Trainer", "Gym", "Admin"]), getTrainerStats);
+router.get("/assigned-members", authenticateToken, authorizeRoles(["Trainer", "Gym", "Admin"]), getAssignedMembers);
+router.get("/activities", authenticateToken, authorizeRoles(["Trainer", "Gym", "Admin"]), getTrainerActivities);
+router.get("/classes", authenticateToken, authorizeRoles(["Trainer", "Gym", "Admin"]), getTrainerClasses);
+
+// Member management routes for trainers
+router.post("/assign-member", authenticateToken, authorizeRoles(["Trainer", "Gym", "Admin"]), assignMemberToTrainer);
+router.get("/available-members", authenticateToken, authorizeRoles(["Trainer", "Gym", "Admin"]), getAvailableMembers);
+router.delete("/remove-member/:memberId", authenticateToken, authorizeRoles(["Trainer", "Gym", "Admin"]), removeMemberFromTrainer);
 
 module.exports = router;

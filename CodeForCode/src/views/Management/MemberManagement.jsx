@@ -1,7 +1,7 @@
 import Layout from "@/components/Layout";
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { UserPlus, Search, Users, Trash2, AlertCircle, Edit2, Eye, Phone, Mail, Calendar, Filter, Download } from "lucide-react";
+import { UserPlus, Search, Users, Trash2, AlertCircle, Edit2, Eye, Phone, Mail, Calendar, Filter, Download, X, CheckCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import gymServices from "@/services/gymServices";
 import { useAuth } from "@/contexts/AuthContext";
@@ -16,6 +16,24 @@ export default function Member() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [search, setSearch] = useState("");
+
+  // Add Member Modal states
+  const [showAddMemberModal, setShowAddMemberModal] = useState(false);
+  const [newMember, setNewMember] = useState({
+    gymId: null,
+    name: "",
+    mobile: "",
+    email: "",
+    aadharNo: "",
+    address: "",
+    emergencyContact: "",
+    dob: "",
+    gender: "",
+    occupation: "",
+    assignedTrainer: null
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formErrors, setFormErrors] = useState({});
 
   // Fetch members, gyms, and trainers on component mount
   useEffect(() => {
@@ -129,6 +147,73 @@ export default function Member() {
     document.body.removeChild(link);
   };
 
+  // Add Member functions
+  const validateForm = () => {
+    const errors = {};
+    if (!newMember.name.trim()) errors.name = "Name is required";
+    if (!newMember.mobile.trim()) errors.mobile = "Mobile number is required";
+    if (!newMember.email.trim()) errors.email = "Email is required";
+    if (!newMember.gymId) errors.gymId = "Please select a gym";
+    if (!newMember.dob) errors.dob = "Date of birth is required";
+    if (!newMember.gender) errors.gender = "Gender is required";
+    return errors;
+  };
+
+  const handleAddMember = async (e) => {
+    e.preventDefault();
+    const errors = validateForm();
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      // Prepare data for API - convert gymId object to string ID
+      const memberData = {
+        ...newMember,
+        gymId: newMember.gymId?._id || newMember.gymId,
+        assignedTrainer: newMember.assignedTrainer?._id || newMember.assignedTrainer
+      };
+      await gymServices.addUser(memberData);
+      setShowAddMemberModal(false);
+      setNewMember({
+        gymId: null,
+        name: "",
+        mobile: "",
+        email: "",
+        aadharNo: "",
+        address: "",
+        emergencyContact: "",
+        dob: "",
+        gender: "",
+        occupation: "",
+        assignedTrainer: user ? { _id: user.id } : null
+      });
+      setFormErrors({});
+      await fetchMembers(); // Refresh the list
+    } catch (err) {
+      alert("Failed to add member: " + err.message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setNewMember(prev => ({
+      ...prev,
+      [name]: value
+    }));
+    // Clear error for this field
+    if (formErrors[name]) {
+      setFormErrors(prev => ({
+        ...prev,
+        [name]: ""
+      }));
+    }
+  };
+
   return (
     <Layout>
       <div className="min-h-screen bg-gradient-to-br from-teal-50/50 via-white to-teal-50/50 dark:from-teal-900 dark:via-teal-900 dark:to-teal-800 text-foreground py-6 sm:py-10 px-4 sm:px-6">
@@ -149,18 +234,16 @@ export default function Member() {
                 </h1>
                 <p className="text-sm sm:text-base text-muted-foreground">Manage your gym members efficiently</p>
               </div>
-              {!isTrainer && (
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => navigate("/members/add")}
-                  className="group relative overflow-hidden bg-gradient-to-r from-teal-600 via-teal-500 to-teal-600 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2"
-                >
-                  <div className="absolute inset-0 bg-gradient-to-r from-teal-400 to-teal-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  <UserPlus className="w-4 h-4 sm:w-5 sm:h-5 relative z-10" />
-                  <span className="relative z-10 text-sm sm:text-base">Add Member</span>
-                </motion.button>
-              )}
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => isTrainer ? setShowAddMemberModal(true) : navigate("/members/add")}
+                className="group relative overflow-hidden bg-gradient-to-r from-teal-600 via-teal-500 to-teal-600 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2"
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-teal-400 to-teal-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <UserPlus className="w-4 h-4 sm:w-5 sm:h-5 relative z-10" />
+                <span className="relative z-10 text-sm sm:text-base">Add Member</span>
+              </motion.button>
             </div>
 
             {/* Stats Cards */}
@@ -509,6 +592,272 @@ export default function Member() {
           )}
         </div>
       </div>
+
+      {/* Add Member Modal */}
+      {showAddMemberModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            className="bg-white dark:bg-teal-900/90 backdrop-blur-md rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+          >
+            <div className="p-6 sm:p-8">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold text-foreground flex items-center gap-3">
+                  <div className="w-10 h-10 bg-gradient-to-br from-teal-500 to-teal-600 rounded-xl flex items-center justify-center">
+                    <UserPlus className="w-5 h-5 text-white" />
+                  </div>
+                  Add New Member
+                </h2>
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  onClick={() => setShowAddMemberModal(false)}
+                  className="p-2 bg-gray-100 dark:bg-teal-800 rounded-lg hover:bg-gray-200 dark:hover:bg-teal-700 transition-colors"
+                >
+                  <X className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+                </motion.button>
+              </div>
+
+              <form onSubmit={handleAddMember} className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Name */}
+                  <div>
+                    <label className="block text-sm font-medium text-foreground mb-2">
+                      Full Name *
+                    </label>
+                    <input
+                      type="text"
+                      name="name"
+                      value={newMember.name}
+                      onChange={handleInputChange}
+                      className={`w-full bg-white/90 dark:bg-teal-900/50 backdrop-blur-sm border ${
+                        formErrors.name ? 'border-red-500' : 'border-input'
+                      } text-foreground rounded-xl px-4 py-3 focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all`}
+                      placeholder="Enter full name"
+                    />
+                    {formErrors.name && (
+                      <p className="text-red-500 text-xs mt-1">{formErrors.name}</p>
+                    )}
+                  </div>
+
+                  {/* Mobile */}
+                  <div>
+                    <label className="block text-sm font-medium text-foreground mb-2">
+                      Mobile Number *
+                    </label>
+                    <input
+                      type="tel"
+                      name="mobile"
+                      value={newMember.mobile}
+                      onChange={handleInputChange}
+                      className={`w-full bg-white/90 dark:bg-teal-900/50 backdrop-blur-sm border ${
+                        formErrors.mobile ? 'border-red-500' : 'border-input'
+                      } text-foreground rounded-xl px-4 py-3 focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all`}
+                      placeholder="Enter mobile number"
+                    />
+                    {formErrors.mobile && (
+                      <p className="text-red-500 text-xs mt-1">{formErrors.mobile}</p>
+                    )}
+                  </div>
+
+                  {/* Email */}
+                  <div>
+                    <label className="block text-sm font-medium text-foreground mb-2">
+                      Email Address *
+                    </label>
+                    <input
+                      type="email"
+                      name="email"
+                      value={newMember.email}
+                      onChange={handleInputChange}
+                      className={`w-full bg-white/90 dark:bg-teal-900/50 backdrop-blur-sm border ${
+                        formErrors.email ? 'border-red-500' : 'border-input'
+                      } text-foreground rounded-xl px-4 py-3 focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all`}
+                      placeholder="Enter email address"
+                    />
+                    {formErrors.email && (
+                      <p className="text-red-500 text-xs mt-1">{formErrors.email}</p>
+                    )}
+                  </div>
+
+                  {/* Gym Selection */}
+                  <div>
+                    <label className="block text-sm font-medium text-foreground mb-2">
+                      Select Gym *
+                    </label>
+                    <select
+                      name="gymId"
+                      value={newMember.gymId?._id || newMember.gymId || ""}
+                      onChange={(e) => {
+                        const selectedGym = gyms.find(gym => gym._id === e.target.value);
+                        setNewMember(prev => ({
+                          ...prev,
+                          gymId: selectedGym || null
+                        }));
+                        if (formErrors.gymId) {
+                          setFormErrors(prev => ({
+                            ...prev,
+                            gymId: ""
+                          }));
+                        }
+                      }}
+                      className={`w-full bg-white/90 dark:bg-teal-900/50 backdrop-blur-sm border ${
+                        formErrors.gymId ? 'border-red-500' : 'border-input'
+                      } text-foreground rounded-xl px-4 py-3 focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all`}
+                    >
+                      <option value="">Choose a gym</option>
+                      {gyms.map((gym) => (
+                        <option key={gym._id} value={gym._id}>
+                          {gym.name}
+                        </option>
+                      ))}
+                    </select>
+                    {formErrors.gymId && (
+                      <p className="text-red-500 text-xs mt-1">{formErrors.gymId}</p>
+                    )}
+                  </div>
+
+                  {/* Date of Birth */}
+                  <div>
+                    <label className="block text-sm font-medium text-foreground mb-2">
+                      Date of Birth *
+                    </label>
+                    <input
+                      type="date"
+                      name="dob"
+                      value={newMember.dob}
+                      onChange={handleInputChange}
+                      className={`w-full bg-white/90 dark:bg-teal-900/50 backdrop-blur-sm border ${
+                        formErrors.dob ? 'border-red-500' : 'border-input'
+                      } text-foreground rounded-xl px-4 py-3 focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all`}
+                    />
+                    {formErrors.dob && (
+                      <p className="text-red-500 text-xs mt-1">{formErrors.dob}</p>
+                    )}
+                  </div>
+
+                  {/* Gender */}
+                  <div>
+                    <label className="block text-sm font-medium text-foreground mb-2">
+                      Gender *
+                    </label>
+                    <select
+                      name="gender"
+                      value={newMember.gender}
+                      onChange={handleInputChange}
+                      className={`w-full bg-white/90 dark:bg-teal-900/50 backdrop-blur-sm border ${
+                        formErrors.gender ? 'border-red-500' : 'border-input'
+                      } text-foreground rounded-xl px-4 py-3 focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all`}
+                    >
+                      <option value="">Select gender</option>
+                      <option value="Male">Male</option>
+                      <option value="Female">Female</option>
+                      <option value="Other">Other</option>
+                    </select>
+                    {formErrors.gender && (
+                      <p className="text-red-500 text-xs mt-1">{formErrors.gender}</p>
+                    )}
+                  </div>
+
+                  {/* Aadhar Number */}
+                  <div>
+                    <label className="block text-sm font-medium text-foreground mb-2">
+                      Aadhar Number
+                    </label>
+                    <input
+                      type="text"
+                      name="aadharNo"
+                      value={newMember.aadharNo}
+                      onChange={handleInputChange}
+                      className="w-full bg-white/90 dark:bg-teal-900/50 backdrop-blur-sm border border-input text-foreground rounded-xl px-4 py-3 focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all"
+                      placeholder="Enter Aadhar number"
+                    />
+                  </div>
+
+                  {/* Occupation */}
+                  <div>
+                    <label className="block text-sm font-medium text-foreground mb-2">
+                      Occupation
+                    </label>
+                    <input
+                      type="text"
+                      name="occupation"
+                      value={newMember.occupation}
+                      onChange={handleInputChange}
+                      className="w-full bg-white/90 dark:bg-teal-900/50 backdrop-blur-sm border border-input text-foreground rounded-xl px-4 py-3 focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all"
+                      placeholder="Enter occupation"
+                    />
+                  </div>
+                </div>
+
+                {/* Address */}
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">
+                    Address
+                  </label>
+                  <textarea
+                    name="address"
+                    value={newMember.address}
+                    onChange={handleInputChange}
+                    rows={3}
+                    className="w-full bg-white/90 dark:bg-teal-900/50 backdrop-blur-sm border border-input text-foreground rounded-xl px-4 py-3 focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all"
+                    placeholder="Enter full address"
+                  />
+                </div>
+
+                {/* Emergency Contact */}
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">
+                    Emergency Contact
+                  </label>
+                  <input
+                    type="tel"
+                    name="emergencyContact"
+                    value={newMember.emergencyContact}
+                    onChange={handleInputChange}
+                    className="w-full bg-white/90 dark:bg-teal-900/50 backdrop-blur-sm border border-input text-foreground rounded-xl px-4 py-3 focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all"
+                    placeholder="Enter emergency contact number"
+                  />
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-border">
+                  <motion.button
+                    type="button"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => setShowAddMemberModal(false)}
+                    className="flex-1 px-6 py-3 bg-gray-100 dark:bg-teal-800 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-200 dark:hover:bg-teal-700 transition-colors font-medium"
+                  >
+                    Cancel
+                  </motion.button>
+                  <motion.button
+                    type="submit"
+                    disabled={isSubmitting}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="flex-1 px-6 py-3 bg-gradient-to-r from-teal-600 to-teal-500 text-white rounded-xl hover:from-teal-500 hover:to-teal-600 transition-all font-semibold shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                        Adding...
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle className="w-5 h-5" />
+                        Add Member
+                      </>
+                    )}
+                  </motion.button>
+                </div>
+              </form>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </Layout>
   );
 }

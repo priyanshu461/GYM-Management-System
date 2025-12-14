@@ -80,6 +80,18 @@ trainerServices.getTrainerSchedules = async () => {
   return await res.json();
 };
 
+trainerServices.createSchedule = async (data = {}) => {
+  const res = await fetch(`${BASE_API_URL}trainers/schedules/create`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${getToken()}`,
+    },
+    body: JSON.stringify(data),
+  });
+  return await res.json();
+};
+
 trainerServices.getTrainerClients = async () => {
   const res = await fetch(`${BASE_API_URL}trainers/clients`, {
     headers: { Authorization: `Bearer ${getToken()}` },
@@ -175,6 +187,64 @@ trainerServices.deletePaymentRecord = async (trainerId, paymentId) => {
 trainerServices.getAllTrainerPaymentDates = async () => {
   const res = await fetch(`${BASE_API_URL}management/trainers/payment-dates`, {
     headers: { Authorization: `Bearer ${getToken()}` },
+  });
+  return await res.json();
+};
+
+trainerServices.getTrainerStats = async () => {
+  const res = await fetch(`${BASE_API_URL}trainers/stats`, {
+    headers: { Authorization: `Bearer ${getToken()}` },
+  });
+  return await res.json();
+};
+
+trainerServices.getAssignedMembers = async () => {
+  const res = await fetch(`${BASE_API_URL}trainers/assigned-members`, {
+    headers: { Authorization: `Bearer ${getToken()}` },
+  });
+  return await res.json();
+};
+
+trainerServices.getTrainerActivities = async () => {
+  const res = await fetch(`${BASE_API_URL}trainers/activities`, {
+    headers: { Authorization: `Bearer ${getToken()}` },
+  });
+  return await res.json();
+};
+
+trainerServices.getTrainerClasses = async () => {
+  const res = await fetch(`${BASE_API_URL}trainers/classes`, {
+    headers: { Authorization: `Bearer ${getToken()}` },
+  });
+  return await res.json();
+};
+
+// Member management services for trainers
+trainerServices.assignMemberToTrainer = async (data = {}) => {
+  const res = await fetch(`${BASE_API_URL}trainers/assign-member`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${getToken()}`,
+    },
+    body: JSON.stringify(data),
+  });
+  return await res.json();
+};
+
+trainerServices.getAvailableMembers = async () => {
+  const res = await fetch(`${BASE_API_URL}trainers/available-members`, {
+    headers: { Authorization: `Bearer ${getToken()}` },
+  });
+  return await res.json();
+};
+
+trainerServices.removeMemberFromTrainer = async (memberId) => {
+  const res = await fetch(`${BASE_API_URL}trainers/remove-member/${memberId}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${getToken()}`,
+    },
   });
   return await res.json();
 };

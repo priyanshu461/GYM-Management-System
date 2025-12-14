@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import {
   LineChart,
   Line,
@@ -16,6 +16,7 @@ import {
 } from "recharts";
 import Layout from "../../components/Layout";
 import { useTheme } from "../../contexts/ThemeContext";
+import memberServices from "../../services/memberServices";
 
 
 // Default export: a self-contained React component (Tailwind + Recharts)
@@ -26,7 +27,32 @@ export default function ReportsAnalytics({ initialData }) {
   // initialData is optional. If not passed, component uses internal mock data.
   const [range, setRange] = useState("30d");
   const [selectedPlan, setSelectedPlan] = useState("All");
+  const [selectedMember, setSelectedMember] = useState("Select Member");
+  const [members, setMembers] = useState([]);
+  const [loadingMembers, setLoadingMembers] = useState(true);
   const { theme } = useTheme();
+
+  useEffect(() => {
+    const fetchMembers = async () => {
+      try {
+        const fetchedMembers = await memberServices.getAllMembers();
+        setMembers(fetchedMembers);
+      } catch (error) {
+        console.error('Failed to fetch members:', error);
+        // Fallback to mock data if API fails
+        setMembers([
+          { id: "M1", name: "John Doe" },
+          { id: "M2", name: "Jane Smith" },
+          { id: "M3", name: "Mike Johnson" },
+          { id: "M4", name: "Emily Davis" },
+        ]);
+      } finally {
+        setLoadingMembers(false);
+      }
+    };
+
+    fetchMembers();
+  }, []);
 
   // Mock data generator (replace with real API data)
   const mockData = useMemo(() => {
@@ -84,7 +110,14 @@ export default function ReportsAnalytics({ initialData }) {
       },
     ];
 
-    return { workoutTrend, dietDistribution, plans };
+    const members = [
+      { id: "M1", name: "John Doe" },
+      { id: "M2", name: "Jane Smith" },
+      { id: "M3", name: "Mike Johnson" },
+      { id: "M4", name: "Emily Davis" },
+    ];
+
+    return { workoutTrend, dietDistribution, plans, members };
   }, []);
 
   const data = initialData || mockData;
@@ -111,6 +144,11 @@ export default function ReportsAnalytics({ initialData }) {
     a.download = `plans_export_${new Date().toISOString().slice(0, 10)}.csv`;
     a.click();
     URL.revokeObjectURL(url);
+  }
+
+  // Handle create new plan
+  function handleCreateNewPlan() {
+    alert("Create New Plan functionality is coming soon! This will open a form to add a new workout or diet plan.");
   }
 
   return (
@@ -156,6 +194,22 @@ export default function ReportsAnalytics({ initialData }) {
               {data.plans.map((p) => (
                 <option key={p.id} value={p.id}>
                   {p.name}
+                </option>
+              ))}
+            </select>
+
+            <select
+              value={selectedMember}
+              onChange={(e) => setSelectedMember(e.target.value)}
+              className="border border-gray-300 rounded-lg px-4 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-teal-500"
+              disabled={loadingMembers}
+            >
+              <option value="Select Member">
+                {loadingMembers ? "Loading Members..." : "Select Member"}
+              </option>
+              {members.map((m) => (
+                <option key={m.id} value={m.id}>
+                  {m.name}
                 </option>
               ))}
             </select>
@@ -374,7 +428,7 @@ export default function ReportsAnalytics({ initialData }) {
           <div className="text-sm text-slate-600">Last updated: {new Date().toLocaleString()}</div>
           <div className="flex gap-3">
             <button className="px-4 py-2 rounded-md border border-teal-500 text-teal-500 hover:bg-teal-500 hover:text-white transition">Refresh</button>
-            <button className="px-4 py-2 rounded-md bg-teal-600 text-white hover:bg-teal-700 transition">Create New Plan</button>
+            <button onClick={handleCreateNewPlan} className="px-4 py-2 rounded-md bg-teal-600 text-white hover:bg-teal-700 transition">Create New Plan</button>
           </div>
         </div>
       </div>
