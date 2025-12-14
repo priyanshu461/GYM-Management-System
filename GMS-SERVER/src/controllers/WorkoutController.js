@@ -41,7 +41,13 @@ const createWorkout = async (req, res) => {
 
     await workout.save();
 
-    res.status(201).json({ message: "Workout created successfully", workout });
+    // Map _id to id for frontend compatibility
+    const mappedWorkout = {
+      ...workout.toObject(),
+      id: workout._id.toString(),
+    };
+
+    res.status(201).json({ message: "Workout created successfully", workout: mappedWorkout });
   } catch (error) {
     console.error("Error creating workout:", error);
     res.status(500).json({ message: "Server error" });
@@ -64,7 +70,12 @@ const getWorkouts = async (req, res) => {
     }
 
     const workouts = await WorkoutRoutine.find(query).populate("createdBy", "name email").populate("assignedTo", "name email");
-    res.status(200).json(workouts);
+    // Map _id to id for frontend compatibility
+    const mappedWorkouts = workouts.map(workout => ({
+      ...workout.toObject(),
+      id: workout._id.toString(),
+    }));
+    res.status(200).json(mappedWorkouts);
   } catch (error) {
     console.error("Error fetching workouts:", error);
     res.status(500).json({ message: "Server error" });
@@ -85,18 +96,29 @@ const getWorkoutById = async (req, res) => {
   }
 };
 
-// Update a workout routine (only by the user who created it or admin)
+// Update a workout routine (creator, gym owner for their gym, or admin)
 const updateWorkout = async (req, res) => {
   try {
     const { name, goal, difficulty, days } = req.body;
 
-    const workout = await WorkoutRoutine.findById(req.params.id);
+    const workout = await WorkoutRoutine.findById(req.params.id).populate("createdBy", "gymId user_type");
     if (!workout) {
       return res.status(404).json({ message: "Workout not found" });
     }
 
-    // Check if the user is the one who created it or an admin (assuming role check later if needed)
-    if (workout.createdBy.toString() !== req.user.id) {
+    // Check permissions
+    let authorized = false;
+    if (req.user.user_type === "Admin") {
+      authorized = true;
+    } else if (req.user.user_type === "Gym") {
+      // Gym owner can update workouts created by users in their gym
+      authorized = workout.createdBy.gymId && workout.createdBy.gymId.toString() === req.user.gymId.toString();
+    } else {
+      // Regular user can only update their own workouts
+      authorized = workout.createdBy._id.toString() === req.user.id;
+    }
+
+    if (!authorized) {
       return res.status(403).json({ message: "Unauthorized to update this workout" });
     }
 
@@ -125,7 +147,7 @@ const updateWorkout = async (req, res) => {
   }
 };
 
-// Delete a workout routine (only by the user who created it or admin)
+// Delete a workout routine
 const deleteWorkout = async (req, res) => {
   try {
     const workout = await WorkoutRoutine.findById(req.params.id);
@@ -133,12 +155,7 @@ const deleteWorkout = async (req, res) => {
       return res.status(404).json({ message: "Workout not found" });
     }
 
-    // Check if the user is the one who created it or an admin (assuming role check later if needed)
-    if (workout.createdBy.toString() !== req.user.id) {
-      return res.status(403).json({ message: "Unauthorized to delete this workout" });
-    }
-
-    await WorkoutRoutine.findByIdAndUpdate(req.params.id, { isActive: false }); // Soft delete
+    await WorkoutRoutine.findByIdAndDelete(req.params.id); // Hard delete
 
     res.status(200).json({ message: "Workout deleted successfully" });
   } catch (error) {
