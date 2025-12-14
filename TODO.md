@@ -1,7 +1,7 @@
-# Reports and Analytics Member Select Dropdown Implementation
-
-## Tasks
-- [ ] Import memberServices and add state for members list and selected member
-- [ ] Fetch all members on component mount
-- [ ] Add a dropdown in the header with "Select Member" as default option
-- [ ] Update analytics data based on selected member (Note: Currently using mock data)
+- [x] Add state for members list and selectedMemberId
+- [x] Fetch assigned members using trainerServices.getAssignedMembers in useEffect
+- [x] Import Select components from ui/select
+- [x] Add member dropdown in the form grid
+- [x] Update workout state to include memberId
+- [x] Update handleSubmit to include memberId in the request
+- [x] Update form reset to include memberId reset

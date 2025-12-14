@@ -198,6 +198,13 @@ trainerServices.getTrainerStats = async () => {
   return await res.json();
 };
 
+trainerServices.getWorkouts = async () => {
+  const res = await fetch(`${BASE_API_URL}trainers/workouts`, {
+    headers: { Authorization: `Bearer ${getToken()}` },
+  });
+  return await res.json();
+};
+
 trainerServices.getAssignedMembers = async () => {
   const res = await fetch(`${BASE_API_URL}trainers/assigned-members`, {
     headers: { Authorization: `Bearer ${getToken()}` },

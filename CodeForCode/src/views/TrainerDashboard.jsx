@@ -45,9 +45,16 @@ const TrainerDashboard = () => {
 
   // Form states
   const [workoutForm, setWorkoutForm] = useState({
-    title: '',
+    name: '',
+    goal: 'General',
     difficulty: 'Intermediate',
-    exercises: [{ name: '', sets: 3, reps: '10-12', rest: '60s' }]
+    assignedTo: '',
+    days: [
+      {
+        day: 'Day 1',
+        exercises: [{ name: '', sets: 3, reps: '10-12', rest: '60s' }]
+      }
+    ]
   });
 
   const [classForm, setClassForm] = useState({
@@ -61,12 +68,20 @@ const TrainerDashboard = () => {
   });
 
   const [selectedClient, setSelectedClient] = useState('');
+  const [selectedWorkout, setSelectedWorkout] = useState('');
   const [availableClients, setAvailableClients] = useState([]);
   const [availableWorkouts, setAvailableWorkouts] = useState([]);
 
   // Quick Actions Handlers
-  const handleCreateWorkout = () => {
-    setShowWorkoutModal(true);
+  const handleCreateWorkout = async () => {
+    try {
+      const members = await trainerServices.getAssignedMembers();
+      setAvailableClients(members || []);
+      setShowWorkoutModal(true);
+    } catch (error) {
+      console.error("Error fetching members:", error);
+      alert("Error loading members");
+    }
   };
 
   const handleScheduleClass = () => {
@@ -109,10 +124,12 @@ const TrainerDashboard = () => {
   const submitWorkout = async () => {
     try {
       const workoutData = {
-        title: workoutForm.title,
+        name: workoutForm.name,
+        goal: workoutForm.goal,
         difficulty: workoutForm.difficulty,
-        duration: workoutForm.exercises.length * 10, // Estimate duration
-        exercises: workoutForm.exercises.filter(ex => ex.name.trim() !== '')
+        duration: workoutForm.days[0].exercises.length * 10, // Estimate duration
+        exercises: workoutForm.days[0].exercises.filter(ex => ex.name.trim() !== ''),
+        assignedTo: workoutForm.assignedTo || null
       };
 
       const response = await trainerServices.createWorkout(workoutData);
@@ -120,9 +137,16 @@ const TrainerDashboard = () => {
         alert("Workout created successfully!");
         setShowWorkoutModal(false);
         setWorkoutForm({
-          title: '',
+          name: '',
+          goal: 'General',
           difficulty: 'Intermediate',
-          exercises: [{ name: '', sets: 3, reps: '10-12', rest: '60s' }]
+          assignedTo: '',
+          days: [
+            {
+              day: 'Day 1',
+              exercises: [{ name: '', sets: 3, reps: '10-12', rest: '60s' }]
+            }
+          ]
         });
         // Refresh dashboard data
         window.location.reload();
@@ -173,20 +197,21 @@ const TrainerDashboard = () => {
 
   const assignWorkoutToClient = async () => {
     try {
-      if (!selectedClient || !workoutForm.title) {
+      if (!selectedClient || !selectedWorkout) {
         alert("Please select a client and workout");
         return;
       }
 
       const response = await trainerServices.assignWorkoutToClient({
         clientId: selectedClient,
-        workoutId: workoutForm.title // This should be workout ID
+        workoutId: selectedWorkout
       });
 
       if (response.message) {
         alert("Workout assigned successfully!");
         setShowClientModal(false);
         setSelectedClient('');
+        setSelectedWorkout('');
       } else {
         alert("Failed to assign workout");
       }
@@ -200,21 +225,33 @@ const TrainerDashboard = () => {
   const addExercise = () => {
     setWorkoutForm({
       ...workoutForm,
-      exercises: [...workoutForm.exercises, { name: '', sets: 3, reps: '10-12', rest: '60s' }]
+      days: [{
+        ...workoutForm.days[0],
+        exercises: [...workoutForm.days[0].exercises, { name: '', sets: 3, reps: '10-12', rest: '60s' }]
+      }]
     });
   };
 
   const updateExercise = (index, field, value) => {
-    const updatedExercises = workoutForm.exercises.map((ex, i) =>
+    const updatedExercises = workoutForm.days[0].exercises.map((ex, i) =>
       i === index ? { ...ex, [field]: value } : ex
     );
-    setWorkoutForm({ ...workoutForm, exercises: updatedExercises });
+    setWorkoutForm({
+      ...workoutForm,
+      days: [{
+        ...workoutForm.days[0],
+        exercises: updatedExercises
+      }]
+    });
   };
 
   const removeExercise = (index) => {
     setWorkoutForm({
       ...workoutForm,
-      exercises: workoutForm.exercises.filter((_, i) => i !== index)
+      days: [{
+        ...workoutForm.days[0],
+        exercises: workoutForm.days[0].exercises.filter((_, i) => i !== index)
+      }]
     });
   };
 
@@ -611,16 +648,31 @@ const TrainerDashboard = () => {
 
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium mb-1">Workout Title</label>
+                    <label className="block text-sm font-medium mb-1">Workout Name</label>
                     <input
                       type="text"
-                      value={workoutForm.title}
-                      onChange={(e) => setWorkoutForm({...workoutForm, title: e.target.value})}
+                      value={workoutForm.name}
+                      onChange={(e) => setWorkoutForm({...workoutForm, name: e.target.value})}
                       className={`w-full p-2 border rounded-lg ${
                         theme === "dark" ? "bg-teal-700 border-teal-600 text-white" : "bg-white border-gray-300"
                       }`}
-                      placeholder="Enter workout title"
+                      placeholder="Enter workout name"
                     />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Goal</label>
+                    <select
+                      value={workoutForm.goal}
+                      onChange={(e) => setWorkoutForm({...workoutForm, goal: e.target.value})}
+                      className={`w-full p-2 border rounded-lg ${
+                        theme === "dark" ? "bg-teal-700 border-teal-600 text-white" : "bg-white border-gray-300"
+                      }`}
+                    >
+                      <option value="General">General</option>
+                      <option value="Weight Loss">Weight Loss</option>
+                      <option value="Muscle Gain">Muscle Gain</option>
+                    </select>
                   </div>
 
                   <div>
@@ -639,8 +691,24 @@ const TrainerDashboard = () => {
                   </div>
 
                   <div>
+                    <label className="block text-sm font-medium mb-1">Assign to Member (Optional)</label>
+                    <select
+                      value={workoutForm.assignedTo}
+                      onChange={(e) => setWorkoutForm({...workoutForm, assignedTo: e.target.value})}
+                      className={`w-full p-2 border rounded-lg ${
+                        theme === "dark" ? "bg-teal-700 border-teal-600 text-white" : "bg-white border-gray-300"
+                      }`}
+                    >
+                      <option value="">Select a member...</option>
+                      {availableClients.map(member => (
+                        <option key={member._id} value={member._id}>{member.name}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
                     <label className="block text-sm font-medium mb-2">Exercises</label>
-                    {workoutForm.exercises.map((exercise, index) => (
+                    {workoutForm.days[0].exercises.map((exercise, index) => (
                       <div key={index} className="flex gap-2 mb-2">
                         <input
                           type="text"
@@ -880,8 +948,8 @@ const TrainerDashboard = () => {
                   <div>
                     <label className="block text-sm font-medium mb-1">Select Workout</label>
                     <select
-                      value={workoutForm.title}
-                      onChange={(e) => setWorkoutForm({...workoutForm, title: e.target.value})}
+                      value={selectedWorkout}
+                      onChange={(e) => setSelectedWorkout(e.target.value)}
                       className={`w-full p-2 border rounded-lg ${
                         theme === "dark" ? "bg-teal-700 border-teal-600 text-white" : "bg-white border-gray-300"
                       }`}
