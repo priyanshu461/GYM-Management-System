@@ -4,6 +4,7 @@ import { useTheme } from "../../contexts/ThemeContext";
 import trainerServices from "../../services/trainerServices";
 import { Dumbbell, Plus, X, RefreshCw } from "lucide-react";
 import Layout from "@/components/Layout";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const CreateWorkout = () => {
   const { trainer } = useAuth();
@@ -11,17 +12,31 @@ const CreateWorkout = () => {
   const [loading, setLoading] = useState(false);
   const [createdWorkouts, setCreatedWorkouts] = useState([]);
   const [fetchLoading, setFetchLoading] = useState(true);
+  const [members, setMembers] = useState([]);
+  const [selectedMemberId, setSelectedMemberId] = useState("");
   const [workout, setWorkout] = useState({
     title: "",
     description: "",
     difficulty: "Beginner",
     duration: "",
+    memberId: "",
     exercises: [{ name: "", sets: "", reps: "", rest: "" }],
   });
 
   useEffect(() => {
     fetchCreatedWorkouts();
+    fetchAssignedMembers();
   }, []);
+
+  const fetchAssignedMembers = async () => {
+    try {
+      const membersData = await trainerServices.getAssignedMembers();
+      setMembers(membersData || []);
+    } catch (error) {
+      console.error("Error fetching assigned members:", error);
+      setMembers([]);
+    }
+  };
 
   const fetchCreatedWorkouts = async () => {
     try {
@@ -66,8 +81,13 @@ const CreateWorkout = () => {
         description: "",
         difficulty: "Beginner",
         duration: "",
+        memberId: "",
         exercises: [{ name: "", sets: "", reps: "", rest: "" }],
       });
+      setSelectedMemberId("");
+      // Refresh data from database
+      await fetchCreatedWorkouts();
+      await fetchAssignedMembers();
     } catch (error) {
       console.error("Error creating workout:", error);
       alert("Failed to create workout. Please try again.");
@@ -127,6 +147,25 @@ const CreateWorkout = () => {
                   placeholder="60"
                   required
                 />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2">Select Member</label>
+                <Select value={selectedMemberId} onValueChange={(value) => {
+                  setSelectedMemberId(value);
+                  setWorkout({ ...workout, memberId: value });
+                }}>
+                  <SelectTrigger className={`w-full ${inputClass}`}>
+                    <SelectValue placeholder="Select a member" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {members.map((member) => (
+                      <SelectItem key={member._id} value={member._id}>
+                        {member.name || member.email}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 
@@ -237,21 +276,38 @@ const CreateWorkout = () => {
               <p className="text-center py-8 text-gray-500">No workouts created yet.</p>
             ) : (
               <div className="space-y-4">
-                {createdWorkouts.map((workout) => (
-                  <div key={workout._id} className={`p-4 rounded-lg border ${theme === "dark" ? "bg-teal-700 border-teal-600" : "bg-gray-50 border-gray-200"}`}>
-                    <div className="flex items-center justify-between mb-2">
-                      <h3 className="text-lg font-semibold">{workout.title}</h3>
-                      <span className={`px-2 py-1 rounded text-sm ${workout.difficulty === "Beginner" ? "bg-green-100 text-green-800" : workout.difficulty === "Intermediate" ? "bg-yellow-100 text-yellow-800" : "bg-red-100 text-red-800"}`}>
-                        {workout.difficulty}
-                      </span>
+                {createdWorkouts.map((workout) => {
+                  const member = members.find(m => m._id === workout.memberId);
+                  return (
+                    <div key={workout._id} className={`p-4 rounded-lg border ${theme === "dark" ? "bg-teal-700 border-teal-600" : "bg-gray-50 border-gray-200"}`}>
+                      <div className="flex items-center justify-between mb-2">
+                        <h3 className="text-lg font-semibold">{workout.title}</h3>
+                        <span className={`px-2 py-1 rounded text-sm ${workout.difficulty === "Beginner" ? "bg-green-100 text-green-800" : workout.difficulty === "Intermediate" ? "bg-yellow-100 text-yellow-800" : "bg-red-100 text-red-800"}`}>
+                          {workout.difficulty}
+                        </span>
+                      </div>
+                      <p className="text-sm text-gray-600 mb-2">{workout.description}</p>
+                      <div className="flex items-center gap-4 text-sm text-gray-500 mb-2">
+                        <span>Duration: {workout.duration} min</span>
+                        <span>Exercises: {workout.exercises?.length || 0}</span>
+                      </div>
+                      <div className="text-sm text-gray-500 mb-3">
+                        <span>Assigned to: {member ? (member.name || member.email) : 'Unknown Member'}</span>
+                      </div>
+                      <div className="mb-3">
+                        <h4 className="text-sm font-medium text-gray-700 mb-2">Exercises:</h4>
+                        <div className="space-y-1">
+                          {workout.exercises?.map((exercise, index) => (
+                            <div key={index} className="text-xs text-gray-600 bg-gray-50 p-2 rounded">
+                              <span className="font-medium">{exercise.name}</span> - {exercise.sets} sets × {exercise.reps} reps
+                              {exercise.rest && <span> (Rest: {exercise.rest}s)</span>}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
                     </div>
-                    <p className="text-sm text-gray-600 mb-2">{workout.description}</p>
-                    <div className="flex items-center gap-4 text-sm text-gray-500">
-                      <span>Duration: {workout.duration} min</span>
-                      <span>Exercises: {workout.exercises?.length || 0}</span>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>

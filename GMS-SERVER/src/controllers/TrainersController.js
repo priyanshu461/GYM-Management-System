@@ -1075,8 +1075,32 @@ const getTrainerStats = async (req, res) => {
       isActive: true
     });
 
-    // Calculate average member progress (mock for now - integrate with ProgressModel later)
-    const memberProgress = 78; // Mock value
+    // Calculate average member progress based on workout completions
+    let memberProgress = 0;
+    if (assignedMembers > 0) {
+      const members = await User.find({
+        assignedTrainer: trainerId,
+        user_type: "Member",
+        isActive: true
+      }).select('_id');
+
+      const WorkoutCompletion = require("../models/WorkoutCompletionModel");
+      const progressPromises = members.map(async (member) => {
+        const workoutCompletions = await WorkoutCompletion.find({
+          userId: member._id,
+          completionDate: { $exists: true }
+        });
+
+        const totalWorkouts = workoutCompletions.length;
+        const completedWorkouts = workoutCompletions.filter(w => w.status === 'completed').length;
+        return totalWorkouts > 0 ? Math.round((completedWorkouts / totalWorkouts) * 100) : 0;
+      });
+
+      const progressValues = await Promise.all(progressPromises);
+      memberProgress = progressValues.length > 0
+        ? Math.round(progressValues.reduce((sum, val) => sum + val, 0) / progressValues.length)
+        : 0;
+    }
 
     // Get upcoming sessions count
     const upcomingSessions = await Class.countDocuments({
@@ -1190,6 +1214,100 @@ const getTrainerClasses = async (req, res) => {
   }
 };
 
+// Assign member to trainer
+const assignMemberToTrainer = async (req, res) => {
+  try {
+    const { memberId } = req.body;
+    const trainerId = req.user.id;
+
+    // Validate member exists and is active
+    const member = await User.findOne({
+      _id: memberId,
+      user_type: "Member",
+      isActive: true
+    });
+
+    if (!member) {
+      return res.status(404).json({ message: "Member not found or inactive" });
+    }
+
+    // Check if member is already assigned to another trainer
+    if (member.assignedTrainer && member.assignedTrainer.toString() !== trainerId) {
+      return res.status(400).json({ message: "Member is already assigned to another trainer" });
+    }
+
+    // Assign member to trainer
+    await User.findByIdAndUpdate(memberId, {
+      assignedTrainer: trainerId
+    });
+
+    res.status(200).json({ message: "Member assigned successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Error assigning member", error: error.message });
+  }
+};
+
+// Get available members (not assigned to any trainer)
+const getAvailableMembers = async (req, res) => {
+  try {
+    const trainerId = req.user.id;
+
+    // Get members who are not assigned to any trainer or assigned to this trainer
+    const members = await User.find({
+      user_type: "Member",
+      isActive: true,
+      $or: [
+        { assignedTrainer: { $exists: false } },
+        { assignedTrainer: null },
+        { assignedTrainer: trainerId }
+      ]
+    }).select('_id name email mobile profile createdAt');
+
+    const formattedMembers = members.map(member => ({
+      _id: member._id,
+      name: member.name,
+      email: member.email,
+      phone: member.mobile || "N/A",
+      goal: member.profile?.goal || "Not specified",
+      createdAt: member.createdAt,
+      isAssigned: member.assignedTrainer?.toString() === trainerId
+    }));
+
+    res.status(200).json(formattedMembers);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching available members", error: error.message });
+  }
+};
+
+// Remove member from trainer
+const removeMemberFromTrainer = async (req, res) => {
+  try {
+    const { memberId } = req.params;
+    const trainerId = req.user.id;
+
+    // Check if member is assigned to this trainer
+    const member = await User.findOne({
+      _id: memberId,
+      assignedTrainer: trainerId,
+      user_type: "Member",
+      isActive: true
+    });
+
+    if (!member) {
+      return res.status(404).json({ message: "Member not found or not assigned to this trainer" });
+    }
+
+    // Remove trainer assignment
+    await User.findByIdAndUpdate(memberId, {
+      $unset: { assignedTrainer: 1 }
+    });
+
+    res.status(200).json({ message: "Member removed successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Error removing member", error: error.message });
+  }
+};
+
 // Get trainer dashboard data
 const getTrainerDashboard = async (req, res) => {
   try {
@@ -1270,4 +1388,7 @@ module.exports = {
   getTrainerStats,
   getTrainerActivities,
   getTrainerClasses,
+  assignMemberToTrainer,
+  getAvailableMembers,
+  removeMemberFromTrainer,
 };
