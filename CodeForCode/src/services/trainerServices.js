@@ -137,6 +137,13 @@ trainerServices.getTrainerSalaryDetails = async (trainerId) => {
   return await res.json();
 };
 
+trainerServices.getAllTrainerSalaryDetails = async () => {
+  const res = await fetch(`${BASE_API_URL}management/trainers/salary/all`, {
+    headers: { Authorization: `Bearer ${getToken()}` },
+  });
+  return await res.json();
+};
+
 trainerServices.resetPassword = async (data = {}) => {
   const res = await fetch(`${BASE_API_URL}trainers/password/reset`, {
     method: "PUT",

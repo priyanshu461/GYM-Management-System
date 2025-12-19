@@ -4,8 +4,15 @@ import Layout from "../../components/Layout";
 import { motion } from "framer-motion";
 import {
   Users, Award, Calendar, Star, Plus, Edit3, Trash2,
-  Dumbbell, Heart, Activity, Zap, AlertCircle
+  Dumbbell, Heart, Activity, Zap, AlertCircle, Eye
 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../../components/ui/dialog";
 import trainerServices from "../../services/trainerServices";
 export default function TrainersManagement() {
   const navigate = useNavigate();
@@ -13,23 +20,38 @@ export default function TrainersManagement() {
   const [trainers, setTrainers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedTrainer, setSelectedTrainer] = useState(null);
+  const [allTrainerSalaries, setAllTrainerSalaries] = useState({});
+  const [selectedTrainerSalaryDetails, setSelectedTrainerSalaryDetails] = useState(null);
 
-  const [editingTrainer, setEditingTrainer] = useState(null);
-
-  // Fetch trainers on component mount and when location changes (e.g., after edit/add)
+  // Fetch trainers and salary details on component mount and when location changes (e.g., after edit/add)
   useEffect(() => {
-    fetchTrainers();
+    fetchTrainersAndSalaries();
   }, [location]);
 
-  const fetchTrainers = async () => {
+  const fetchTrainersAndSalaries = async () => {
     try {
       setLoading(true);
-      
-      const res = await trainerServices.getAllTrainers();
-      setTrainers(res || []);
+
+      const [trainersRes, salariesRes] = await Promise.all([
+        trainerServices.getAllTrainers(),
+        trainerServices.getAllTrainerSalaryDetails()
+      ]);
+
+      setTrainers(trainersRes || []);
+
+      // Convert salaries array to object keyed by trainerId
+      const salariesMap = {};
+      if (salariesRes && Array.isArray(salariesRes)) {
+        salariesRes.forEach(salary => {
+          salariesMap[salary.trainerId] = salary;
+        });
+      }
+      setAllTrainerSalaries(salariesMap);
     } catch (err) {
       setError(err.message);
       setTrainers([]);
+      setAllTrainerSalaries({});
     } finally {
       setLoading(false);
     }
@@ -44,11 +66,23 @@ export default function TrainersManagement() {
 
     try {
       await trainerServices.deleteTrainer(id);
-      await fetchTrainers(); // Refresh the list
+      await fetchTrainersAndSalaries(); // Refresh the list
     } catch (err) {
       alert("Failed to delete trainer: " + err.message);
     }
   };
+
+  const fetchTrainerSalaryDetails = async (trainerId) => {
+    try {
+      const salaryDetails = await trainerServices.getTrainerSalaryDetails(trainerId);
+      setSelectedTrainerSalaryDetails(salaryDetails);
+    } catch (err) {
+      console.error('Error fetching trainer salary details:', err);
+      setSelectedTrainerSalaryDetails(null);
+    }
+  };
+
+
 
   const getExpertiseIcon = (expertise) => {
     switch (expertise.toLowerCase()) {
@@ -222,6 +256,177 @@ export default function TrainersManagement() {
                   )}
 
                   <div className="flex gap-2">
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <motion.button
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={() => {
+                            setSelectedTrainer(trainer);
+                            fetchTrainerSalaryDetails(trainer.id);
+                          }}
+                          className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-3 py-2 rounded-xl transition-all shadow-md flex items-center justify-center gap-2 text-sm font-medium"
+                        >
+                          <Eye className="w-4 h-4" />
+                          View
+                        </motion.button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+                        <DialogHeader>
+                          <DialogTitle className="text-2xl font-bold text-foreground flex items-center gap-3">
+                            <Eye className="w-6 h-6 text-blue-500" />
+                            Trainer Details
+                          </DialogTitle>
+                        </DialogHeader>
+                        {selectedTrainer && (
+                          <div className="space-y-6">
+                            <div className="flex items-center gap-6">
+                              <img
+                                src={selectedTrainer.image || "https://picsum.photos/150/150?random=1&text=No+Image"}
+                                alt={selectedTrainer.name}
+                                className="w-24 h-24 rounded-full object-cover border-2 border-teal-500 dark:border-teal-400"
+                              />
+                              <div>
+                                <h2 className="text-2xl font-bold text-foreground">{selectedTrainer.name}</h2>
+                                <div className="flex items-center gap-2 mt-1">
+                                  {getExpertiseIcon(selectedTrainer.expertise)}
+                                  <span className="text-muted-foreground">{selectedTrainer.expertise}</span>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div className="space-y-4">
+                                <div>
+                                  <label className="text-sm font-medium text-muted-foreground">Experience</label>
+                                  <p className="text-lg font-semibold text-foreground">{selectedTrainer.experience} years</p>
+                                </div>
+                                <div>
+                                  <label className="text-sm font-medium text-muted-foreground">Rating</label>
+                                  <div className="flex items-center gap-1">
+                                    <Star className="w-5 h-5 text-yellow-500 fill-current" />
+                                    <span className="text-lg font-semibold text-foreground">{selectedTrainer.rating}</span>
+                                  </div>
+                                </div>
+                                <div>
+                                  <label className="text-sm font-medium text-muted-foreground">Gym</label>
+                                  <p className="text-lg font-semibold text-foreground">{selectedTrainer.gymName || 'N/A'}</p>
+                                </div>
+                              </div>
+                              <div className="space-y-4">
+                                <div>
+                                  <label className="text-sm font-medium text-muted-foreground">Email</label>
+                                  <p className="text-lg font-semibold text-foreground">{selectedTrainer.email || 'N/A'}</p>
+                                </div>
+                                <div>
+                                  <label className="text-sm font-medium text-muted-foreground">Phone</label>
+                                  <p className="text-lg font-semibold text-foreground">{selectedTrainer.phone || 'N/A'}</p>
+                                </div>
+                                <div>
+                                  <label className="text-sm font-medium text-muted-foreground">Join Date</label>
+                                  <p className="text-lg font-semibold text-foreground">{selectedTrainer.joinDate || 'N/A'}</p>
+                                </div>
+                              </div>
+                            </div>
+
+                            {selectedTrainer.bio && (
+                              <div>
+                                <label className="text-sm font-medium text-muted-foreground">Bio</label>
+                                <p className="text-foreground mt-1">{selectedTrainer.bio}</p>
+                              </div>
+                            )}
+
+                            {selectedTrainer.certifications.length > 0 && (
+                              <div>
+                                <label className="text-sm font-medium text-muted-foreground">Certifications</label>
+                                <div className="flex flex-wrap gap-2 mt-2">
+                                  {selectedTrainer.certifications.map((cert, idx) => (
+                                    <span key={idx} className="px-3 py-1 bg-teal-100 dark:bg-teal-900/30 text-teal-800 dark:text-teal-200 text-sm rounded-full">
+                                      {cert}
+                                    </span>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
+                            {selectedTrainer.specializations.length > 0 && (
+                              <div>
+                                <label className="text-sm font-medium text-muted-foreground">Specializations</label>
+                                <div className="flex flex-wrap gap-2 mt-2">
+                                  {selectedTrainer.specializations.map((spec, idx) => (
+                                    <span key={idx} className="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 text-sm rounded-full">
+                                      {spec}
+                                    </span>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
+                            {selectedTrainer.achievements && selectedTrainer.achievements.length > 0 && (
+                              <div>
+                                <label className="text-sm font-medium text-muted-foreground">Achievements</label>
+                                <ul className="list-disc list-inside mt-2 space-y-1">
+                                  {selectedTrainer.achievements.map((achievement, idx) => (
+                                    <li key={idx} className="text-foreground">{achievement}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+
+                            {(allTrainerSalaries[selectedTrainer.id] || selectedTrainerSalaryDetails) && (
+                              <div>
+                                <label className="text-sm font-medium text-muted-foreground">Salary Details</label>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+                                  <div>
+                                    <label className="text-xs font-medium text-muted-foreground">Base Salary</label>
+                                    <p className="text-lg font-semibold text-foreground">${selectedTrainerSalaryDetails?.baseSalary || allTrainerSalaries[selectedTrainer.id]?.baseSalary || 'N/A'}</p>
+                                  </div>
+                                  <div>
+                                    <label className="text-xs font-medium text-muted-foreground">Bonus</label>
+                                    <p className="text-lg font-semibold text-foreground">${selectedTrainerSalaryDetails?.bonus || allTrainerSalaries[selectedTrainer.id]?.bonus || 'N/A'}</p>
+                                  </div>
+                                  <div>
+                                    <label className="text-xs font-medium text-muted-foreground">Total Salary</label>
+                                    <p className="text-lg font-semibold text-foreground">${selectedTrainerSalaryDetails?.totalSalary || allTrainerSalaries[selectedTrainer.id]?.totalSalary || 'N/A'}</p>
+                                  </div>
+                                  <div>
+                                    <label className="text-xs font-medium text-muted-foreground">Payment Frequency</label>
+                                    <p className="text-lg font-semibold text-foreground">{selectedTrainerSalaryDetails?.paymentFrequency || allTrainerSalaries[selectedTrainer.id]?.paymentFrequency || 'N/A'}</p>
+                                  </div>
+                                  {selectedTrainerSalaryDetails?.lastPaymentDate && (
+                                    <div>
+                                      <label className="text-xs font-medium text-muted-foreground">Last Payment Date</label>
+                                      <p className="text-lg font-semibold text-foreground">{selectedTrainerSalaryDetails.lastPaymentDate}</p>
+                                    </div>
+                                  )}
+                                  {selectedTrainerSalaryDetails?.nextPaymentDate && (
+                                    <div>
+                                      <label className="text-xs font-medium text-muted-foreground">Next Payment Date</label>
+                                      <p className="text-lg font-semibold text-foreground">{selectedTrainerSalaryDetails.nextPaymentDate}</p>
+                                    </div>
+                                  )}
+                                  {selectedTrainerSalaryDetails?.paymentHistory && selectedTrainerSalaryDetails.paymentHistory.length > 0 && (
+                                    <div className="col-span-2">
+                                      <label className="text-xs font-medium text-muted-foreground">Payment History</label>
+                                      <div className="mt-2 space-y-2">
+                                        {selectedTrainerSalaryDetails.paymentHistory.slice(0, 5).map((payment, idx) => (
+                                          <div key={idx} className="flex justify-between items-center p-2 bg-muted rounded">
+                                            <span className="text-sm">{payment.date}</span>
+                                            <span className="text-sm font-semibold">${payment.amount}</span>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            )}
+
+
+                          </div>
+                        )}
+                      </DialogContent>
+                    </Dialog>
                     <motion.button
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
