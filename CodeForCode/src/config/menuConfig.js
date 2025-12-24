@@ -132,27 +132,7 @@ export const menuConfig = {
       icon: FaCartPlus,
       type: "link",
     },
-    {
-      id: "notifications",
-      label: "Notifications",
-      path: "/notificationcommunication",
-      icon: MdNotificationAdd,
-      type: "link",
-    },
-    {
-      id: "blog",
-      label: "Blog",
-      path: "/gymblog",
-      icon: FaBlog,
-      type: "link",
-    },
-    {
-      id: "support-tickets",
-      label: "Support Tickets",
-      path: "/support/tickets",
-      icon: MdSupportAgent,
-      type: "link",
-    },
+  
     {
       id: "settings",
       label: "Settings",
@@ -226,19 +206,7 @@ export const menuConfig = {
           label: "Diet Plans",
           path: "/diet/plan",
           icon: GiFruitBowl,
-        },
-        {
-          id: "progress-tracking",
-          label: "Progress Tracking",
-          path: "/progress/tracking",
-          icon: GiProgression,
-        },
-        {
-          id: "reports-analytics",
-          label: "Reports & Analytics",
-          path: "/reports/analytics",
-          icon: TbReportSearch,
-        },
+        }
       ],
     },
     {
@@ -275,24 +243,10 @@ export const menuConfig = {
       type: "link",
     },
     {
-      id: "notifications",
-      label: "Notifications",
-      path: "/notificationcommunication",
-      icon: MdNotificationAdd,
-      type: "link",
-    },
-    {
       id: "blog",
       label: "Blog",
       path: "/gymblog",
       icon: FaBlog,
-      type: "link",
-    },
-    {
-      id: "support-tickets",
-      label: "Support Tickets",
-      path: "/support/tickets",
-      icon: MdSupportAgent,
       type: "link",
     },
     {

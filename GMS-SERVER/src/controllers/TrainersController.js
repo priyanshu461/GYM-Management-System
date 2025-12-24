@@ -468,28 +468,97 @@ const getTrainerSalaryDetails = async (req, res) => {
 const getTrainerSchedules = async (req, res) => {
   try {
     const trainerId = req.user.id;
-    const Class = require("../models/ClassModel");
+    const Schedule = require("../models/ScheduleModel");
 
-    const schedules = await Class.find({
-      instructor: trainerId,
-      isActive: true
-    }).select('_id title date time location capacity enrolled category difficulty');
+    const schedules = await Schedule.find({
+      trainerId: trainerId,
+      status: { $ne: 'Cancelled' }
+    }).select('_id title date startTime endTime type notes status gymId');
 
     const formattedSchedules = schedules.map(schedule => ({
       _id: schedule._id,
       title: schedule.title,
       date: schedule.date.toISOString().split('T')[0],
-      time: schedule.time,
-      location: schedule.location,
-      enrolled: schedule.enrolled,
-      capacity: schedule.capacity,
-      category: schedule.category,
-      difficulty: schedule.difficulty
+      time: schedule.startTime,
+      type: schedule.type,
+      notes: schedule.notes,
+      status: schedule.status,
+      location: schedule.gymId?.name || 'N/A'
     }));
 
     res.status(200).json(formattedSchedules);
   } catch (error) {
     res.status(500).json({ message: "Error fetching schedules", error: error.message });
+  }
+};
+
+// Create trainer schedule
+const createSchedule = async (req, res) => {
+  try {
+    const trainerId = req.user.id;
+    const {
+      title,
+      description,
+      date,
+      startTime,
+      endTime,
+      type,
+      notes,
+      gymId
+    } = req.body;
+
+    // Validate required fields
+    if (!title || !date || !startTime || !endTime) {
+      return res.status(400).json({ message: "Missing required fields" });
+    }
+
+    // Validate trainer exists and is active
+    const trainer = await User.findOne({ _id: trainerId, user_type: "Trainer", isActive: true });
+    if (!trainer) {
+      return res.status(404).json({ message: "Trainer not found or inactive" });
+    }
+
+    // Validate gym exists if provided
+    if (gymId) {
+      const Gym = require("../models/GymModel");
+      const gym = await Gym.findById(gymId);
+      if (!gym) {
+        return res.status(404).json({ message: "Gym not found" });
+      }
+    }
+
+    const Schedule = require("../models/ScheduleModel");
+
+    // Create new schedule
+    const newSchedule = new Schedule({
+      title,
+      description: description || "",
+      trainerId,
+      gymId: gymId || trainer.gymId,
+      date: new Date(date),
+      startTime,
+      endTime,
+      type: type || "Availability",
+      notes: notes || "",
+      status: "Scheduled"
+    });
+
+    await newSchedule.save();
+
+    res.status(201).json({
+      message: "Schedule created successfully",
+      schedule: {
+        _id: newSchedule._id,
+        title: newSchedule.title,
+        date: newSchedule.date.toISOString().split('T')[0],
+        startTime: newSchedule.startTime,
+        endTime: newSchedule.endTime,
+        type: newSchedule.type,
+        status: newSchedule.status
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Error creating schedule", error: error.message });
   }
 };
 
@@ -1378,6 +1447,7 @@ module.exports = {
   deletePaymentRecord,
   getAllTrainerPaymentDates,
   getTrainerSchedules,
+  createSchedule,
   getTrainerClients,
   getAssignedMembers,
   createWorkout,

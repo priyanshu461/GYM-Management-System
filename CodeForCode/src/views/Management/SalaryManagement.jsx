@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import Layout from "../../components/Layout";
 import { motion } from "framer-motion";
+import Layout from "../../components/Layout";
 import { Plus, DollarSign, TrendingDown, TrendingUp, Calendar, FileText, Edit3, Trash2, X, Tag, Loader2, Eye, Settings, Users } from "lucide-react";
 import financeService from "../../services/financeService";
 import gymServices from "../../services/gymServices";
@@ -13,8 +13,6 @@ const SalaryManagement = () => {
   const [transactions, setTransactions] = useState([]);
   const [trainers, setTrainers] = useState([]);
   const [trainersLoading, setTrainersLoading] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [showSalaryForm, setShowSalaryForm] = useState(false);
   const [showSalaryDetails, setShowSalaryDetails] = useState(false);
@@ -59,7 +57,7 @@ const SalaryManagement = () => {
 
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(20);
+  const pageSize = 20;
   const [totalPages, setTotalPages] = useState(1);
   const [totalRecords, setTotalRecords] = useState(0);
   const [hasNextPage, setHasNextPage] = useState(false);
@@ -122,8 +120,6 @@ const SalaryManagement = () => {
 
   const fetchTransactions = async (page = currentPage) => {
     try {
-      setLoading(true);
-      setError(null);
       const filters = {
         type: "Expense",
         category: "Salary",
@@ -389,7 +385,6 @@ const SalaryManagement = () => {
       setShowForm(false);
     } catch (err) {
       console.error('Error submitting transaction:', err);
-      setError('Failed to save transaction. Please try again.');
     } finally {
       setSubmitting(false);
     }
@@ -422,8 +417,6 @@ const SalaryManagement = () => {
           }
           // Also refresh the transactions list to update summary
           await fetchTransactions();
-        } else {
-          setError('Transaction not found. Please try again.');
         }
       } catch (err) {
         console.error('Error deleting payment:', err);
@@ -524,9 +517,7 @@ const SalaryManagement = () => {
     .filter((t) => t.type === "Expense" && t.category === "Salary")
     .reduce((acc, curr) => acc + curr.amount, 0);
 
-  // Calculate trainer-based totals when showing trainers (use filtered trainers for count, but all trainers for total salary)
-  const allTrainersForTotal = trainers;
-  const totalTrainerSalaries = allTrainersForTotal.reduce((acc, trainer) => acc + (trainer.salary || 25000), 0);
+  // Calculate trainer-based totals when showing trainers (use filtered trainers for count)
   const trainerCount = filteredTrainers.length;
 
   return (
@@ -1313,6 +1304,70 @@ const SalaryManagement = () => {
               </div>
 
               <div className="space-y-6">
+                {/* Trainer Details Section */}
+                <div className="bg-gradient-to-br from-blue-900/10 to-blue-800/5 dark:from-blue-900/20 dark:to-blue-800/10 border border-blue-700/20 dark:border-blue-600/30 p-6 rounded-2xl">
+                  <h3 className="text-xl font-bold mb-4 text-foreground flex items-center gap-2">
+                    <Users className="w-5 h-5 text-blue-500 dark:text-blue-400" />
+                    Trainer Details
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-blue-500/10 rounded-full flex items-center justify-center">
+                        <Users className="w-5 h-5 text-blue-500" />
+                      </div>
+                      <div>
+                        <p className="text-sm text-muted-foreground">Name</p>
+                        <p className="font-semibold text-foreground">{selectedTrainerDetails.trainerName}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-blue-500/10 rounded-full flex items-center justify-center">
+                        <Tag className="w-5 h-5 text-blue-500" />
+                      </div>
+                      <div>
+                        <p className="text-sm text-muted-foreground">Employee ID</p>
+                        <p className="font-semibold text-foreground">{selectedTrainerDetails.employeeId || 'N/A'}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-blue-500/10 rounded-full flex items-center justify-center">
+                        <FileText className="w-5 h-5 text-blue-500" />
+                      </div>
+                      <div>
+                        <p className="text-sm text-muted-foreground">Email</p>
+                        <p className="font-semibold text-foreground">{selectedTrainerDetails.email || 'N/A'}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-blue-500/10 rounded-full flex items-center justify-center">
+                        <Settings className="w-5 h-5 text-blue-500" />
+                      </div>
+                      <div>
+                        <p className="text-sm text-muted-foreground">Phone</p>
+                        <p className="font-semibold text-foreground">{selectedTrainerDetails.phone || 'N/A'}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-blue-500/10 rounded-full flex items-center justify-center">
+                        <Calendar className="w-5 h-5 text-blue-500" />
+                      </div>
+                      <div>
+                        <p className="text-sm text-muted-foreground">Joining Date</p>
+                        <p className="font-semibold text-foreground">{selectedTrainerDetails.joiningDate ? formatDate(selectedTrainerDetails.joiningDate) : 'N/A'}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-blue-500/10 rounded-full flex items-center justify-center">
+                        <DollarSign className="w-5 h-5 text-blue-500" />
+                      </div>
+                      <div>
+                        <p className="text-sm text-muted-foreground">Gym</p>
+                        <p className="font-semibold text-foreground">{selectedTrainerDetails.gymName || 'N/A'}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
                 {/* Current Salary Overview */}
                 <div className="bg-gradient-to-br from-teal-900/10 to-teal-800/5 dark:from-teal-900/20 dark:to-teal-800/10 border border-teal-700/20 dark:border-teal-600/30 p-6 rounded-2xl">
                   <h3 className="text-xl font-bold mb-4 text-foreground">Current Salary Overview</h3>

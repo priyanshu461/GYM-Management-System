@@ -36,6 +36,7 @@ const { authenticateToken, authorizeRoles } = require("../middlewares/auth");
 // Trainer-specific routes (accessible by Trainer role only, or Admin for viewing trainer data)
 router.get("/salary", authenticateToken, authorizeRoles(["Trainer", "Gym", "Admin"]), getTrainerSalary);
 router.get("/schedules", authenticateToken, authorizeRoles(["Trainer", "Gym", "Admin"]), getTrainerSchedules);
+router.post("/schedules/create", authenticateToken, authorizeRoles(["Trainer", "Gym", "Admin"]), createSchedule);
 router.get("/clients", authenticateToken, authorizeRoles(["Trainer", "Gym", "Admin"]), getTrainerClients);
 router.post("/workouts/create", authenticateToken, authorizeRoles(["Trainer", "Gym", "Admin"]), createWorkout);
 router.post("/workouts/assign", authenticateToken, authorizeRoles(["Trainer", "Gym", "Admin"]), assignWorkoutToClient);

@@ -1,8 +1,14 @@
 import React, { useState, useEffect } from 'react'
-import { LogOut, Dumbbell, X, ChevronLeft, ChevronRight } from "lucide-react";
+import { LogOut, Dumbbell, X, ChevronLeft, ChevronRight, User, Settings } from "lucide-react";
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { menuConfig, getDropdownPaths } from '../../config/menuConfig';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
 
 const Sidebar = ({ demo = false, isOpen, onClose, collapsed, onToggleCollapse, className }) => {
   const navigate = useNavigate();
@@ -195,31 +201,17 @@ const Sidebar = ({ demo = false, isOpen, onClose, collapsed, onToggleCollapse, c
 
         {/* Footer */}
         <div className="mt-auto p-4 border-t border-teal-300 dark:border-teal-700">
-          <div className={`${collapsed ? 'flex justify-center' : 'flex items-center gap-3'}`}>
-            {(isOpen || !collapsed) && user && (
-              <img
-                src={user.avatar || "https://i.pravatar.cc/40"}
-                alt="User Avatar"
-                className="w-10 h-10 rounded-full object-cover"
-              />
-            )}
-            {(isOpen || !collapsed) && user && (
-              <div>
-                <p className="text-sm font-semibold text-teal-800 dark:text-teal-200">{user.name || 'User'}</p>
-                <p className="text-xs text-teal-500 dark:text-teal-400">{user.user_type || 'Guest'}</p>
+              <div className={`flex items-center gap-2 sm:gap-3 cursor-pointer p-1.5 sm:p-2 rounded-lg hover:bg-teal-100 dark:hover:bg-teal-800 transition-colors duration-200 flex-shrink-0 ${collapsed ? 'justify-center' : ''}`}>
+                {(isOpen || !collapsed) && (
+                  <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gradient-to-br from-teal-500 to-teal-600 dark:from-teal-600 dark:to-teal-700 flex items-center justify-center text-white font-semibold text-xs sm:text-sm shadow-md">
+                  {(user?.name || 'U').split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
+                </div>
+                )}
+                <div className="hidden sm:block text-right">
+                    <div className="text-xs sm:text-sm font-medium text-teal-700 dark:text-white leading-tight">{user?.name?.split(' ')[0] || 'User'}</div>
+                    <div className="text-[10px] sm:text-xs text-teal-500 dark:text-teal-400 leading-tight">{user?.user_type || 'Admin'}</div>
+                  </div>
               </div>
-            )}
-            <button
-              onClick={() => {
-                logout();
-                navigate('/login');
-              }}
-              className={`${collapsed ? '' : 'ml-auto'} p-2 rounded-md hover:bg-teal-200 dark:hover:bg-teal-800 transition-colors duration-200`}
-              aria-label="Logout"
-            >
-              <LogOut size={20} className="text-teal-900 dark:text-white" />
-            </button>
-          </div>
         </div>
       </aside>
     </div>
