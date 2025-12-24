@@ -20,6 +20,7 @@ const {
   assignMemberToTrainer,
   getAvailableMembers,
   removeMemberFromTrainer,
+  createSchedule,
 } = require("../controllers/TrainersController");
 const {
   createWorkout,
