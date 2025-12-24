@@ -2,6 +2,11 @@ import React, { useState } from 'react'
 import Sidebar from './layout/Sidebar'
 import Header from './layout/Header'
 import Footer from './layout/Footer'
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+} from "./ui/sheet"
 
 const Layout = ({children}) => {
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
@@ -13,27 +18,31 @@ const Layout = ({children}) => {
 
   return (
     <div className="min-h-screen bg-background dark:bg-teal-900 text-foreground relative">
-      {/* Mobile Sidebar Overlay */}
-      {isMobileSidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 md:hidden transition-opacity duration-300"
-          onClick={() => setIsMobileSidebarOpen(false)}
-        />
-      )}
-
       <div className="flex flex-col md:flex-row relative">
+        {/* Mobile Sidebar - Sheet */}
+        <Sheet open={isMobileSidebarOpen} onOpenChange={setIsMobileSidebarOpen}>
+          <SheetContent side="left" className="p-0 w-64 bg-teal-100 dark:bg-teal-900">
+            <Sidebar
+              demo={false}
+              isOpen={true}
+              onClose={() => setIsMobileSidebarOpen(false)}
+              collapsed={false}
+              onToggleCollapse={handleToggleCollapse}
+              className="h-full"
+            />
+          </SheetContent>
+        </Sheet>
+
         {/* Fixed Sidebar - Desktop */}
         <Sidebar
           demo={false}
-          isOpen={isMobileSidebarOpen}
+          isOpen={true}
           onClose={() => setIsMobileSidebarOpen(false)}
           collapsed={sidebarCollapsed}
           onToggleCollapse={handleToggleCollapse}
-          className={`sticky top-0 left-0 z-50 h-screen transform transition-all duration-300 ease-in-out bg-teal-100 dark:bg-teal-900 shadow-xl ${
-            isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-          } md:translate-x-0 md:shadow-lg ${sidebarCollapsed ? 'md:w-20' : 'md:w-64'}`}
+          className={`hidden md:flex sticky top-0 left-0 z-50 h-screen bg-teal-100 dark:bg-teal-900 shadow-lg ${sidebarCollapsed ? 'md:w-20' : 'md:w-64'}`}
         />
-        
+
         {/* Main Content Area - with proper margin for fixed sidebar */}
         <main className={`flex-1 w-full min-w-0 transition-all duration-300 ${
           sidebarCollapsed ? '' : ''
