@@ -12,9 +12,9 @@ Implement the missing backend functionality to save schedule data in the databas
 ## Implementation Plan
 
 ### Phase 1: Add Route and Controller
-- [ ] Add `createSchedule` route in `trainerRoutes.js`
-- [ ] Implement `createSchedule` function in `TrainersController.js` to create a new class
-- [ ] Fix `getTrainerSchedules` to use correct field name `trainerId`
+- [x] Add `createSchedule` route in `trainerRoutes.js` (already existed)
+- [x] Implement `createSchedule` function in `TrainersController.js` to create a new class (updated to use ClassModel)
+- [x] Fix `getTrainerSchedules` to use correct field name `trainerId` (updated to use ClassModel)
 
 ### Phase 2: Testing and Verification
 - [ ] Test the API endpoint

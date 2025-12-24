@@ -468,21 +468,22 @@ const getTrainerSalaryDetails = async (req, res) => {
 const getTrainerSchedules = async (req, res) => {
   try {
     const trainerId = req.user.id;
-    const Schedule = require("../models/ScheduleModel");
+    const Class = require("../models/ClassModel");
 
-    const schedules = await Schedule.find({
+    const schedules = await Class.find({
       trainerId: trainerId,
       status: { $ne: 'Cancelled' }
-    }).select('_id title date startTime endTime type notes status gymId');
+    }).populate('gymId', 'name').select('_id name date startTime endTime capacity enrolled difficulty category status');
 
     const formattedSchedules = schedules.map(schedule => ({
       _id: schedule._id,
-      title: schedule.title,
+      title: schedule.name,
       date: schedule.date.toISOString().split('T')[0],
       time: schedule.startTime,
-      type: schedule.type,
-      notes: schedule.notes,
-      status: schedule.status,
+      capacity: schedule.capacity,
+      enrolled: schedule.enrolled,
+      difficulty: schedule.difficulty,
+      category: schedule.category,
       location: schedule.gymId?.name || 'N/A'
     }));
 
@@ -498,17 +499,17 @@ const createSchedule = async (req, res) => {
     const trainerId = req.user.id;
     const {
       title,
-      description,
       date,
-      startTime,
-      endTime,
-      type,
-      notes,
-      gymId
+      time,
+      capacity,
+      category,
+      difficulty,
+      location,
+      memberId
     } = req.body;
 
     // Validate required fields
-    if (!title || !date || !startTime || !endTime) {
+    if (!title || !date || !time) {
       return res.status(400).json({ message: "Missing required fields" });
     }
 
@@ -518,43 +519,70 @@ const createSchedule = async (req, res) => {
       return res.status(404).json({ message: "Trainer not found or inactive" });
     }
 
-    // Validate gym exists if provided
-    if (gymId) {
+    // Resolve gymId from location (gym name) or use trainer's gym
+    let gymId = trainer.gymId;
+    if (location) {
       const Gym = require("../models/GymModel");
-      const gym = await Gym.findById(gymId);
-      if (!gym) {
-        return res.status(404).json({ message: "Gym not found" });
+      const gym = await Gym.findOne({ name: location });
+      if (gym) {
+        gymId = gym._id;
       }
     }
 
-    const Schedule = require("../models/ScheduleModel");
+    // Calculate endTime (assume 1 hour duration)
+    const startTime = time;
+    const startDateTime = new Date(`1970-01-01T${startTime}`);
+    startDateTime.setHours(startDateTime.getHours() + 1);
+    const endTime = startDateTime.toTimeString().slice(0, 5);
 
-    // Create new schedule
-    const newSchedule = new Schedule({
-      title,
-      description: description || "",
+    const Class = require("../models/ClassModel");
+
+    // Create new class
+    const newClass = new Class({
+      name: title,
+      description: "",
       trainerId,
-      gymId: gymId || trainer.gymId,
+      gymId,
       date: new Date(date),
       startTime,
       endTime,
-      type: type || "Availability",
-      notes: notes || "",
-      status: "Scheduled"
+      capacity: capacity || 15,
+      enrolled: memberId ? 1 : 0, // If memberId provided, enroll them
+      difficulty: difficulty || "Intermediate",
+      category: category || "Fitness",
+      status: "Active"
     });
 
-    await newSchedule.save();
+    await newClass.save();
+
+    // If memberId provided, enroll the member in this class
+    if (memberId) {
+      const ClassEnrollment = require("../models/ClassEnrollmentModel");
+      const enrollment = new ClassEnrollment({
+        classId: newClass._id,
+        memberId,
+        enrolledAt: new Date(),
+        status: "Enrolled"
+      });
+      await enrollment.save();
+
+      // Update enrolled count
+      await Class.findByIdAndUpdate(newClass._id, { enrolled: 1 });
+    }
 
     res.status(201).json({
       message: "Schedule created successfully",
+      scheduleId: newClass._id,
       schedule: {
-        _id: newSchedule._id,
-        title: newSchedule.title,
-        date: newSchedule.date.toISOString().split('T')[0],
-        startTime: newSchedule.startTime,
-        endTime: newSchedule.endTime,
-        type: newSchedule.type,
-        status: newSchedule.status
+        _id: newClass._id,
+        title: newClass.name,
+        date: newClass.date.toISOString().split('T')[0],
+        time: newClass.startTime,
+        capacity: newClass.capacity,
+        enrolled: newClass.enrolled,
+        difficulty: newClass.difficulty,
+        category: newClass.category,
+        location: location || 'N/A'
       }
     });
   } catch (error) {
