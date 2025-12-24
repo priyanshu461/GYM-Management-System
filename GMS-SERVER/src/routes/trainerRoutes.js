@@ -8,6 +8,7 @@ const {
   deleteTrainer,
   getTrainerSalary,
   getTrainerSchedules,
+  createSchedule,
   getTrainerClients,
   getAssignedMembers,
   assignWorkoutToClient,

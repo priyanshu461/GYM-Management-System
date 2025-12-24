@@ -1,4 +1,4 @@
-export const BASE_API_URL = "http://localhost:8080/api/";
+export const BASE_API_URL = "https://gymmanager-backend.vercel.app/api/";
 
 /**
  * Get authentication token from localStorage

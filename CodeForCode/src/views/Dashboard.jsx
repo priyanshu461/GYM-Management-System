@@ -18,7 +18,7 @@ import { useNavigate } from "react-router-dom";
 import Layout from "../components/Layout";
 import { useTheme } from "../contexts/ThemeContext";
 import gymServices from "@/services/gymServices";
-import { BASE_API_URL, getToken } from "@/Utils/data";
+import { BASE_API_URL, getToken } from "@/utils/data";
 
 const Dashboard = () => {
   // Sample token for demonstration

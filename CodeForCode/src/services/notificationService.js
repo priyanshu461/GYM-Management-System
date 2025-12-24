@@ -1,4 +1,4 @@
-import { BASE_API_URL, getToken } from "../Utils/data";
+import { BASE_API_URL, getToken } from "../utils/data";
 
 const notificationService = {};
 
